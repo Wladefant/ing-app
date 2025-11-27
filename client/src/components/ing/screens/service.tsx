@@ -1,4 +1,4 @@
-import { ScreenHeader } from "../layout";
+import { ScreenHeader, BottomNav } from "../layout";
 import { Screen } from "@/pages/ing-app";
 import { Mail, CreditCard, User, Settings, LogOut, ChevronRight } from "lucide-react";
 
@@ -50,6 +50,8 @@ export function ServiceScreen({ onBack, onLogout, onNavigate }: { onBack: () => 
             />
          </div>
       </div>
+
+      <BottomNav activeTab="service" onNavigate={onNavigate} />
     </div>
   );
 }

@@ -1,7 +1,6 @@
-import { ScreenHeader } from "../layout";
-import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight, PieChart, Calendar, Briefcase, User } from "lucide-react";
+import { ScreenHeader, BottomNav } from "../layout";
+import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight } from "lucide-react";
 import { Screen } from "@/pages/ing-app";
-import { cn } from "@/lib/utils";
 
 export function DashboardScreen({ 
   onNavigate,
@@ -24,7 +23,7 @@ export function DashboardScreen({
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 overflow-y-auto pb-4">
         {/* Total Balance */}
         <div className="bg-white px-4 pt-6 pb-4 mb-2">
           <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
@@ -91,14 +90,7 @@ export function DashboardScreen({
         </AccountSection>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="h-16 bg-white border-t border-gray-200 flex justify-around items-center text-[10px] font-medium text-gray-500 absolute bottom-0 w-full z-20">
-        <NavItem icon={<Briefcase size={24} />} label="Konten" active />
-        <NavItem icon={<Calendar size={24} />} label="Aufträge" />
-        <NavItem icon={<PieChart size={24} />} label="Investieren" onClick={() => onNavigate("invest")} />
-        <NavItem icon={<Briefcase size={24} />} label="Produkte" />
-        <NavItem icon={<User size={24} />} label="Service" onClick={() => onNavigate("service")} />
-      </div>
+      <BottomNav activeTab="dashboard" onNavigate={onNavigate} />
     </div>
   );
 }
@@ -139,20 +131,5 @@ function AccountCard({ icon, title, subtitle, balance, onClick }: { icon: React.
       </div>
       <div className="font-bold text-[#333333]">{balance}</div>
     </div>
-  );
-}
-
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
-  return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "flex flex-col items-center gap-1 w-1/5 py-1",
-        active ? "text-[#FF6200]" : "text-gray-400 hover:text-gray-600"
-      )}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
   );
 }

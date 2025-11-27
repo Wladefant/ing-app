@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MobileLayout } from "@/components/ing/layout";
 import { WelcomeScreen } from "@/components/ing/screens/welcome";
 import { LoginScreen } from "@/components/ing/screens/login";
@@ -7,8 +7,10 @@ import { TransactionDetailScreen } from "@/components/ing/screens/transactions";
 import { TransferScreen } from "@/components/ing/screens/transfer";
 import { InvestScreen } from "@/components/ing/screens/invest";
 import { ServiceScreen } from "@/components/ing/screens/service";
+import { SetupFlow } from "@/components/ing/screens/setup";
 
 export type Screen = 
+  | "setup"
   | "welcome" 
   | "login" 
   | "dashboard" 
@@ -18,13 +20,16 @@ export type Screen =
   | "service";
 
 export function INGApp() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
+  // We start with setup flow to simulate first time user
+  const [currentScreen, setCurrentScreen] = useState<Screen>("setup");
   const [selectedAccount, setSelectedAccount] = useState<string>("Girokonto");
 
   const navigate = (screen: Screen) => setCurrentScreen(screen);
 
   return (
     <MobileLayout>
+      {currentScreen === "setup" && <SetupFlow onComplete={() => navigate("login")} />}
+
       {currentScreen === "welcome" && <WelcomeScreen onLogin={() => navigate("login")} />}
       
       {currentScreen === "login" && <LoginScreen onSuccess={() => navigate("dashboard")} />}

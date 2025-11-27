@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Briefcase, Calendar, PieChart, User } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -22,7 +23,30 @@ export function MobileLayout({ children, className }: LayoutProps) {
             <div className="w-6 h-3 rounded-sm bg-gray-400/50" />
           </div>
         </div>
-        {children}
+        
+        {/* Content Area */}
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          {children}
+        </div>
+        
+        {/* Persistent Bottom Navigation Bar */}
+        {/* It should be visible on most main screens, but we need to conditionally hide it for setup/login/fullscreen flows */}
+        {/* For simplicity in this mockup, I will include it here but hide it via CSS classes passed from children or handle it via state in parent if needed.
+            However, user requested "the bottom bar should always be there... apart from that always".
+            The setup flow usually DOES NOT have the bottom bar.
+            The Login screen usually DOES NOT have the bottom bar.
+            Only the authenticated area (Dashboard, Transactions, etc.) has it.
+            
+            Let's check the user request again: "the bottom bar should always be there, no matter what when you are in the app, if you only register not but apart from that always."
+            
+            So: Register/Setup -> NO bottom bar.
+            App (Dashboard, etc) -> YES bottom bar.
+            
+            Since MobileLayout wraps everything, we might need to make the bar optional or controlled.
+            But wait, the current architecture has the bar INSIDE the Dashboard/Service screens. 
+            I should extract it to here OR keep it there.
+            Refactoring to keep it simple: I will keep it inside the screens that need it (Dashboard, Transactions, Service, Invest) to ensure it doesn't overlap with Setup/Login.
+        */}
       </div>
     </div>
   );
@@ -64,6 +88,33 @@ export function INGButton({
       {...props}
     >
       {children}
+    </button>
+  );
+}
+
+export function BottomNav({ activeTab, onNavigate }: { activeTab: string; onNavigate: (tab: any) => void }) {
+  return (
+    <div className="h-16 bg-white border-t border-gray-200 flex justify-around items-center text-[10px] font-medium text-gray-500 shrink-0 z-20">
+      <NavItem icon={<Briefcase size={24} />} label="Konten" active={activeTab === "dashboard"} onClick={() => onNavigate("dashboard")} />
+      <NavItem icon={<Calendar size={24} />} label="Aufträge" active={activeTab === "transactions"} onClick={() => onNavigate("transactions")} />
+      <NavItem icon={<PieChart size={24} />} label="Investieren" active={activeTab === "invest"} onClick={() => onNavigate("invest")} />
+      <NavItem icon={<Briefcase size={24} />} label="Produkte" active={activeTab === "products"} />
+      <NavItem icon={<User size={24} />} label="Service" active={activeTab === "service"} onClick={() => onNavigate("service")} />
+    </div>
+  );
+}
+
+function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center gap-1 w-1/5 py-1",
+        active ? "text-[#FF6200]" : "text-gray-400 hover:text-gray-600"
+      )}
+    >
+      {icon}
+      <span>{label}</span>
     </button>
   );
 }

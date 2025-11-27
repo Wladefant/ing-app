@@ -1,7 +1,9 @@
-import { ScreenHeader } from "../layout";
+import { ScreenHeader, BottomNav } from "../layout";
 import { Screen } from "@/pages/ing-app";
 import { PieChart, ArrowRightLeft, Search, Info, User } from "lucide-react";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
+import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
 
 const data = [
   { name: 'Jan', value: 5630 },
@@ -80,6 +82,8 @@ export function InvestScreen({ onBack, onNavigate }: { onBack: () => void, onNav
            </button>
         </div>
       </div>
+
+      <BottomNav activeTab="invest" onNavigate={onNavigate} />
     </div>
   );
 }
@@ -105,5 +109,3 @@ function TimeSelector({ label, active }: { label: string; active?: boolean }) {
     </button>
   );
 }
-import { ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
