@@ -1,0 +1,259 @@
+Here is the detailed breakdown for the remaining screenshots (14–39), split into two logical steps (batches of 13) to complete your prototype recreation.
+
+---
+
+### **Step 2: Dashboard Config, Access Management & Device Pairing (Images 14–26)**
+
+This section covers the user exiting the settings, logging in, managing user profiles (multi-user support), and the "Device Pairing" (2FA) workflow.
+
+#### **14. Image 14 (File corresponds to: `ING App einrichten 0-40 screenshot.png`)**
+*   **Screen Name:** Account Overview Settings (Kontenübersicht).
+*   **Context:** Duplicate of Image 13. The user is still on the configuration page for the dashboard.
+*   **Visual Detail:** The list items "Angezeigte Konten", "Gesamtsaldo", "Schnellzugriffe", and "Privatsphäre-Modus" are visible. The background is white.
+*   **Workflow:** The user taps the **Back Arrow (←)** in the top left to return to the dashboard.
+
+#### **15. Image 15 (File corresponds to: `ING App einrichten 0-41 screenshot.png`)**
+*   **Screen Name:** Dashboard (Meine Konten).
+*   **Context:** The user has returned to the main start screen.
+*   **Visual Detail:** The "Gesamtsaldo" (Total Balance) is visible at the top (21.341,58 EUR). The purple Quick Action bubbles are visible.
+*   **Workflow:** This is the base state. The app likely times out or the user logs out to reach the next screen (Login).
+
+#### **16. Image 16 (File corresponds to: `ING App einrichten 0-42 screenshot.png`)**
+*   **Screen Name:** Dashboard (Meine Konten).
+*   **Context:** Identical to Image 15. Used as a transition frame in the video.
+
+#### **17. Image 17 (File corresponds to: `ING App einrichten 0-43 screenshot.png`)**
+*   **Screen Name:** Login / PIN Entry (Anmelden).
+*   **Context:** The user is launching the app or re-authenticating.
+*   **Header:** "Anmelden" (Title).
+*   **Hero Image:** The Orange ING Lion Logo (rounded square).
+*   **Input Field:** A row of **5 Orange Circles/Dots**. These animate as the user types.
+*   **Keypad:** A large numeric keypad (1-9, 0) takes up the bottom half.
+    *   "mobilePIN vergessen?" link is above the keypad in blue/purple text.
+    *   Backspace button (x) is to the right of '0'.
+*   **Workflow:** The user taps the numbers. Entering the 5th digit automatically logs them in.
+
+#### **18. Image 18 (File corresponds to: `ING App einrichten 0-44 screenshot.png`)**
+*   **Screen Name:** Manage Access (Zugang verwalten).
+*   **Context:** Accessed via the "Service" tab -> "Zugang verwalten". This screen manages multiple user profiles on one device.
+*   **Header:** Back Arrow (←). Title: "Zugang verwalten".
+*   **Description Text:** "Sie können mit Ihrer App beliebig viele ING-Zugänge verwalten..." (Explains multi-user support).
+*   **Section 1: Aktiver Zugang (Active Access):**
+    *   **Row:** Icon (House/Orange). Text: "Konto mit Luka". Subtext: "★ Standard-Zugang" (Default Access). Right arrow (>).
+*   **Section 2: Weitere Zugänge (Other Accesses):**
+    *   **Row:** Icon (User/Grey). Text: "Maxi Mustermensch". Right arrow (>).
+*   **Footer Button:** A large white button with an orange border: **"+ Zugang hinzufügen"** (Add Access).
+
+#### **19. Image 19 (File corresponds to: `ING App einrichten 0-45 screenshot.png`)**
+*   **Screen Name:** New Access Setup (Neuer Zugang).
+*   **Context:** The user is customizing a new profile they just added.
+*   **Header:** Back Arrow (←). Title: "Neuer Zugang".
+*   **Input Field:**
+    *   Label: "Wie soll der Zugang heißen?" (What should the access be called?).
+    *   Input Box: Text "Kon" is currently typed (cursor blinking). An "X" circle allows clearing the text.
+*   **Icon Selection:**
+    *   Label: "Welches Symbol soll Ihr Zugang haben?" (Which symbol?).
+    *   Grid: 4x5 grid of icons (User, Couple, Lightning, Heart, Palm tree, House, Robot, Guitar, Lion, etc.).
+    *   **Active Selection:** The "User" icon (top left) is highlighted in **Orange**.
+*   **Footer Button:** Solid Orange Button: **"Änderungen übernehmen"** (Apply Changes).
+
+#### **20. Image 20 (File corresponds to: `ING App einrichten 0-46 screenshot.png`)**
+*   **Screen Name:** Edit Access Modal (Modal / Bottom Sheet).
+*   **Context:** The user clicked on a specific profile in the "Manage Access" list (Image 18).
+*   **Visual:** The background is dimmed (overlay). A white card slides up from the bottom.
+*   **Header:** "Neuer Zugang" (The name of the profile being edited).
+*   **Option 1:** Icon (Pencil). "Name oder Symbol ändern" (Change name or symbol).
+*   **Option 2:** Icon (Trash Can). "Zugang entfernen" (Remove access).
+*   **Navigation:** Android Back/Home/Overview buttons at the very bottom.
+
+#### **21. Image 21 (File corresponds to: `ING App einrichten 0-47 screenshot.png`)**
+*   **Screen Name:** Edit Access Modal (Standard Profile).
+*   **Context:** Similar to Image 20, but clicking on a profile that is *not* currently the default.
+*   **Header:** "Maxi Mustermensch".
+*   **Option 1:** Pencil (Edit).
+*   **Option 2:** Star Icon. **"Als Standard-Zugang festlegen"** (Set as Default Access).
+    *   Subtext: "The default access is opened when the app starts."
+*   **Option 3:** Trash Can (Remove).
+
+#### **22. Image 22 (File corresponds to: `ING App einrichten 0-48 screenshot.png`)**
+*   **Screen Name:** Manage Access (Zugang verwalten).
+*   **Context:** Back to the list view (Image 18).
+*   **Visual Detail:** "Maxi Mustermensch" is listed. The "Konto mit Luka" is listed. The "+ Zugang hinzufügen" button is at the bottom.
+
+#### **23. Image 23 (File corresponds to: `ING App einrichten 0-49 screenshot.png`)**
+*   **Screen Name:** Success (Danke).
+*   **Context:** End of a setup flow.
+*   **Visual:** A graphic of a hand holding a party popper/confetti.
+*   **Headline:** "Geschafft!" (Done/Success!).
+*   **Body Text:** "Jetzt können Sie loslegen..." (Now you can start. By the way: You can activate the ING App on 0 additional devices).
+*   **Button:** Solid Orange Button: **"Weiter"** (Next).
+
+#### **24. Image 24 (File corresponds to: `ING App einrichten 0-50 screenshot.png`)**
+*   **Screen Name:** Identification (Identifizierung) - Waiting State.
+*   **Context:** The user is adding a 2nd device. This screen is on the *new* device.
+*   **Header:** Back Arrow (←). Title: "Identifizierung".
+*   **Hero Image:** Orange ING Lion App Icon.
+*   **Headline:** "Fast fertig..." (Almost done...).
+*   **Instruction:** "Please open the ING App on your other device and release the order there."
+*   **Status:** "Freigeben mit: iPhone von Maxi" (Approve with: Maxi's iPhone).
+*   **Timestamp:** "Verbunden seit 03.02.2025, 10:42 Uhr".
+
+#### **25. Image 25 (File corresponds to: `ING App einrichten 0-51 screenshot.png`)**
+*   **Screen Name:** Identification (Identifizierung) - Approval State.
+*   **Context:** This screen is on the *old/existing* device.
+*   **Header:** Back Arrow (←). Title: "Identifizierung".
+*   **Hero Image:** Orange ING Lion App Icon.
+*   **Headline:** "Einrichtung mit ING App auf einem anderen Gerät bestätigen" (Confirm setup on another device).
+*   **Selection:**
+    *   Label: "Freigeben mit:" (Approve with).
+    *   Radio Button (Selected/Orange): "iPhone von Maxi".
+    *   Subtext: "Connected since..."
+*   **Footer Button:** Solid Orange Button: **"Mit ING App freigeben"** (Approve with ING App).
+
+#### **26. Image 26 (File corresponds to: `ING App einrichten 0-52 screenshot.png`)**
+*   **Screen Name:** Identification Method Selection.
+*   **Context:** Choosing how to verify identity during setup.
+*   **Header:** Back Arrow (←). Title: "Identifizierung".
+*   **Headline:** "Wie möchten Sie sich identifizieren?" (How do you want to identify yourself?).
+*   **Option 1 (Selected):**
+    *   Icon: Smartphone (Orange).
+    *   Title: "App".
+    *   Text: "Sie benötigen Ihre ING App noch auf einem anderen Gerät" (You need your ING App on another device).
+    *   Radio Button: **Selected (Orange Dot)**.
+*   **Option 2:**
+    *   Icon: ID Card (Orange).
+    *   Title: "Ausweisdokument".
+    *   Text: "Sie identifizieren sich mit Ihrem Personalausweis oder Reisepass" (ID Card or Passport).
+    *   Radio Button: Empty Circle.
+*   **Footer Button:** Solid Orange Button: **"Weiter"** (Next).
+
+---
+
+### **Step 3: Authorization, Features, ATM Search & Card Limits (Images 27–39)**
+
+This section covers the final authorization of the pairing, the start of the "Add User" flow, utilizing the Service map, and the workflow for changing debit card limits.
+
+#### **27. Image 27 (File corresponds to: `ING App einrichten 0-53 screenshot.png`)**
+*   **Screen Name:** mobilePIN Authorization.
+*   **Context:** Security check to finalize the action from Image 26/25.
+*   **Header:** Close Button (X). Title: "mobilePIN".
+*   **Text:** "Bestätigen Sie bitte mit Ihrer mobilePIN" (Please confirm with your mobilePIN).
+*   **Input:** 5 Orange Dots (Empty).
+*   **Keypad:** Numeric keypad active.
+*   **Workflow:** User types 5 digits -> Action is approved.
+
+#### **28. Image 28 (File corresponds to: `ING App einrichten 0-54 screenshot.png`)**
+*   **Screen Name:** Login Credentials (Neuer Zugang).
+*   **Context:** Setting up a *new* user connection.
+*   **Header:** Close Button (X). Title: "Neuer Zugang" (New Access).
+*   **Field 1:** "Zugangsnummer oder Benutzername" (Access Number or Username).
+    *   Subtext: "Letzte 10 Stellen Ihrer ING IBAN / Depotnummer..."
+    *   Input Box: Empty.
+*   **Field 2:** "Internetbanking PIN oder Passwort".
+    *   Subtext: "5- bis 10-stellige..."
+    *   Input Box: Empty.
+*   **Footer Link:** "Sie haben Ihre Zugangsdaten vergessen...?" (Forgot credentials?).
+*   **Button:** White button with purple border: "Zugangsdaten neu vergeben" (Reset credentials).
+*   **Main Button:** Solid Orange Button: **"Einloggen"** (Log in).
+
+#### **29. Image 29 (File corresponds to: `ING App einrichten 0-55 screenshot.png`)**
+*   **Screen Name:** Add ING Access (Intro Screen).
+*   **Context:** This screen appears when adding a profile.
+*   **Header:** Back Arrow (←). Title: "Neuer Zugang".
+*   **Hero Visual:** Simple line icon of a person with a "+" sign (Orange).
+*   **Headline:** "ING Zugang hinzufügen" (Add ING Access).
+*   **Body Text:** "Sie können mit Ihrer App beliebig viele ING Zugänge verwalten..." (You can manage as many ING accesses as you like...).
+*   **Footer Button:** Solid Orange Button: **"Zugang hinzufügen"** (Add Access).
+*   **Workflow:** Clicking this button leads to Image 28 (Credential Input).
+
+#### **30. Image 30 (File corresponds to: `ING App einrichten 0-56 screenshot.png`)**
+*   **Screen Name:** Manage Access (Zugang verwalten).
+*   **Context:** Identical to Image 18/22.
+*   **Action:** A **Grey Touch Indicator** is visible pressing the **"+ Zugang hinzufügen"** button at the bottom.
+*   **Workflow:** This click triggers the transition to Image 29.
+
+#### **31. Image 31 (File corresponds to: `ING App einrichten 0-57 screenshot.png`)**
+*   **Screen Name:** Service Hub.
+*   **Context:** User is on the main Service tab.
+*   **Action:** A **Grey Touch Indicator** is visible pressing the **Pencil Icon** (Edit) inside the "Zugang verwalten für..." dropdown area.
+*   **Workflow:** This click opens the "Zugang verwalten" list (Image 18).
+
+#### **32. Image 32 (File corresponds to: `ING App einrichten 0-58 screenshot.png`)**
+*   **Screen Name:** Service Hub.
+*   **Context:** Identical to Image 4. Clean view of the Service tab showing "Post-Box" and "Karten" options.
+
+#### **33. Image 33 (File corresponds to: `ING App einrichten 0-59 screenshot.png`)**
+*   **Screen Name:** ATM Search (Geldautomatensuche).
+*   **Context:** User clicked "Geldautomatensuche" in the Service menu.
+*   **Header:** Back Arrow (←). Title: "Geldautomatensuche".
+*   **Search Bar:** "Theodor-Heuss-Allee Frankfurt Hess..." (Address entered). Search icon (Magnifying glass) in orange box.
+*   **Filters (Pills):**
+    *   "Geldautomaten" (ATMs).
+    *   "ING-Geldautomaten".
+    *   "Einzahlmöglichkeiten" (Deposits).
+    *   "ING Bargeld mit Barcode".
+*   **Map:** A street map (looks like OpenStreetMap/YellowMap style).
+    *   Orange Pins: ING ATMs (Lion logo).
+    *   Grey Pins: Third-party ATMs.
+*   **Floating Button:** **"Als Liste anzeigen (13)"** (Show as List) - Orange button at bottom center.
+
+#### **34. Image 34 (File corresponds to: `ING App einrichten 0-60 screenshot.png`)**
+*   **Screen Name:** Service Hub (Scrolled Down).
+*   **Context:** User has scrolled to the bottom of the Service tab.
+*   **Section Header:** "Funktionen verwalten" (Manage Functions - Orange).
+*   **Row 1:** Icon (Calculator/Grid): "Geldautomatensuche" (ATM Search). >
+*   **Row 2:** Icon (Address Book): "Überweisungsvorlagen" (Transfer Templates). >
+*   **Row 3:** Icon (Camera): "Fotoüberweisung" (Photo Transfer). >
+*   **Row 4:** Icon (Stamp/Paper): "Freistellungsauftrag" (Exemption Order). >
+*   **Workflow:** Clicking "Geldautomatensuche" leads to Image 33.
+
+#### **35. Image 35 (File corresponds to: `ING App einrichten 0-61 screenshot.png`)**
+*   **Screen Name:** Service Hub.
+*   **Context:** Identical to Image 34 (Scrolled down view).
+
+#### **36. Image 36 (File corresponds to: `ING App einrichten 0-62 screenshot.png`)**
+*   **Screen Name:** Card Limits (Kartenlimits) - Slider.
+*   **Context:** User is adjusting the spending limit for their card.
+*   **Header:** Back Arrow (←). Title: "Kartenlimits".
+*   **Card Selector:** Orange card visual "girocard" / "Maxi Mustermensch".
+*   **Content:**
+    *   **Headline:** "Wochenlimit" (Weekly Limit).
+    *   **Right Text:** "3.700,00 €".
+    *   **Subtext:** "Noch verfügbar 3.700,00 €" (Still available).
+*   **Interaction:**
+    *   **Slider UI:** A horizontal grey line with an **Orange Knob**.
+    *   **Grey Touch Indicator** is visible on the knob, dragging it.
+    *   **Value:** "15.000 €" is the max on the right. "0 €" on the left.
+    *   **Plus (+)** Orange icon to the right of the slider.
+*   **Footer Button:** Solid Orange Button: **"Weiter"** (Next).
+
+#### **37. Image 37 (File corresponds to: `ING App einrichten 0-63 screenshot.png`)**
+*   **Screen Name:** Card Limits (Overview).
+*   **Context:** The screen *before* the slider interaction.
+*   **Header:** Back Arrow (←). Title: "Kartenlimits".
+*   **Section 1: Tageslimit (Daily Limit):**
+    *   "Verfügbar 500,00 EUR von 500,00 EUR".
+    *   Icon (ATM): "Bargeldabhebungen" (Cash withdrawals).
+    *   **Button:** White button/Purple border: "Tageslimit anpassen" (Adjust Daily Limit). **(User clicks here to get to Image 36 logic)**.
+*   **Section 2: Wochenlimit (Weekly Limit):**
+    *   "Verfügbar 4.000,00 EUR von 4.000,00 EUR".
+    *   Icon (ATM): "Bargeldabhebungen".
+    *   Icon (Card): "Kartenzahlungen".
+    *   **Button:** White button/Purple border: "Wochenlimit anpassen".
+
+#### **38. Image 38 (File corresponds to: `ING App einrichten 0-64 screenshot.png`)**
+*   **Screen Name:** Success Screen (Card Limits).
+*   **Context:** After authorizing the change.
+*   **Visual:** Large Green Checkmark Circle.
+*   **Headline:** "Ihr Tageslimit wurde erfolgreich angepasst!" (Daily limit successfully adjusted).
+*   **Detail:** "Neues Tageslimit: 500,00 EUR".
+*   **Footer Button:** Light Orange/Peach Button: **"Zu meinen Karten"** (Back to my cards).
+
+#### **39. Image 39 (File corresponds to: `ING App einrichten 0-65 screenshot.png`)**
+*   **Screen Name:** Order Release (Auftrag freigeben).
+*   **Context:** Security step between adjusting the slider and the success screen.
+*   **Header:** Back Arrow (←). Title: "Auftrag freigeben".
+*   **Text:** "Bitte geben Sie Ihre 5-stellige mobilePIN ein, um das Tageslimit anzupassen." (Please enter 5-digit PIN to adjust daily limit).
+*   **Input:** 5 Orange Circles.
+*   **Keypad:** Numeric keypad 1-0.
+*   **Workflow:** This screen must be completed to save the limit change.
