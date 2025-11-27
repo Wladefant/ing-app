@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Briefcase, Calendar, PieChart, User } from "lucide-react";
+import { Briefcase, Calendar, PieChart, User, Package } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -28,25 +28,6 @@ export function MobileLayout({ children, className }: LayoutProps) {
         <div className="flex-1 flex flex-col relative overflow-hidden">
           {children}
         </div>
-        
-        {/* Persistent Bottom Navigation Bar */}
-        {/* It should be visible on most main screens, but we need to conditionally hide it for setup/login/fullscreen flows */}
-        {/* For simplicity in this mockup, I will include it here but hide it via CSS classes passed from children or handle it via state in parent if needed.
-            However, user requested "the bottom bar should always be there... apart from that always".
-            The setup flow usually DOES NOT have the bottom bar.
-            The Login screen usually DOES NOT have the bottom bar.
-            Only the authenticated area (Dashboard, Transactions, etc.) has it.
-            
-            Let's check the user request again: "the bottom bar should always be there, no matter what when you are in the app, if you only register not but apart from that always."
-            
-            So: Register/Setup -> NO bottom bar.
-            App (Dashboard, etc) -> YES bottom bar.
-            
-            Since MobileLayout wraps everything, we might need to make the bar optional or controlled.
-            But wait, the current architecture has the bar INSIDE the Dashboard/Service screens. 
-            I should extract it to here OR keep it there.
-            Refactoring to keep it simple: I will keep it inside the screens that need it (Dashboard, Transactions, Service, Invest) to ensure it doesn't overlap with Setup/Login.
-        */}
       </div>
     </div>
   );
@@ -96,9 +77,9 @@ export function BottomNav({ activeTab, onNavigate }: { activeTab: string; onNavi
   return (
     <div className="h-16 bg-white border-t border-gray-200 flex justify-around items-center text-[10px] font-medium text-gray-500 shrink-0 z-20">
       <NavItem icon={<Briefcase size={24} />} label="Konten" active={activeTab === "dashboard"} onClick={() => onNavigate("dashboard")} />
-      <NavItem icon={<Calendar size={24} />} label="Aufträge" active={activeTab === "transactions"} onClick={() => onNavigate("transactions")} />
+      <NavItem icon={<Calendar size={24} />} label="Aufträge" active={activeTab === "orders"} onClick={() => onNavigate("orders")} />
       <NavItem icon={<PieChart size={24} />} label="Investieren" active={activeTab === "invest"} onClick={() => onNavigate("invest")} />
-      <NavItem icon={<Briefcase size={24} />} label="Produkte" active={activeTab === "products"} />
+      <NavItem icon={<Package size={24} />} label="Produkte" active={activeTab === "products"} onClick={() => onNavigate("products")} />
       <NavItem icon={<User size={24} />} label="Service" active={activeTab === "service"} onClick={() => onNavigate("service")} />
     </div>
   );

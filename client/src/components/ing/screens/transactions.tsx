@@ -1,6 +1,6 @@
-import { ScreenHeader } from "../../layout";
+import { ScreenHeader } from "../layout";
 import { Search, MoreVertical, ArrowUp, Eye, CreditCard, MoreHorizontal } from "lucide-react";
-import { INGButton } from "../../layout";
+import { INGButton } from "../layout";
 import { useState } from "react";
 import { CardsListScreen } from "./cards/cards-list";
 

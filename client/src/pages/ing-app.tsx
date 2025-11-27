@@ -7,6 +7,8 @@ import { TransactionDetailScreen } from "@/components/ing/screens/transactions";
 import { TransferScreen } from "@/components/ing/screens/transfer";
 import { InvestScreen } from "@/components/ing/screens/invest";
 import { ServiceScreen } from "@/components/ing/screens/service";
+import { OrdersScreen } from "@/components/ing/screens/orders";
+import { ProductsScreen } from "@/components/ing/screens/products";
 import { SetupFlow } from "@/components/ing/screens/setup";
 
 export type Screen = 
@@ -16,7 +18,9 @@ export type Screen =
   | "dashboard" 
   | "transactions" 
   | "transfer" 
-  | "invest" 
+  | "invest"
+  | "orders"
+  | "products"
   | "service";
 
 export function INGApp() {
@@ -59,6 +63,14 @@ export function INGApp() {
           onBack={() => navigate("dashboard")} 
           onNavigate={navigate}
         />
+      )}
+
+      {currentScreen === "orders" && (
+        <OrdersScreen onNavigate={navigate} />
+      )}
+
+      {currentScreen === "products" && (
+        <ProductsScreen onNavigate={navigate} />
       )}
 
       {currentScreen === "service" && (
