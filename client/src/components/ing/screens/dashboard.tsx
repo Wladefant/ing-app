@@ -1,15 +1,17 @@
 import { ScreenHeader, BottomNav } from "../layout";
-import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight, ArrowUp } from "lucide-react";
+import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight, ArrowUp, PieChart } from "lucide-react";
 import { Screen } from "@/pages/ing-app";
 import { useState } from "react";
 import { AccountOverviewSettingsScreen } from "./settings/account-overview";
 
-export function DashboardScreen({ 
+export function DashboardScreen({
   onNavigate,
-  onSelectAccount
-}: { 
+  onSelectAccount,
+  onLeoClick
+}: {
   onNavigate: (screen: Screen) => void;
   onSelectAccount: (acc: string) => void;
+  onLeoClick?: () => void;
 }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -27,7 +29,7 @@ export function DashboardScreen({
         <div className="flex gap-4 text-[#FF6200]">
           <Search size={24} strokeWidth={2.5} />
           <button onClick={() => setShowSettings(true)}>
-             <MoreHorizontal size={24} strokeWidth={2.5} className="rotate-90" />
+            <MoreHorizontal size={24} strokeWidth={2.5} className="rotate-90" />
           </button>
         </div>
       </div>
@@ -47,29 +49,31 @@ export function DashboardScreen({
 
         {/* Quick Actions */}
         <div className="bg-white px-4 pb-6 mb-4 grid grid-cols-4 gap-2">
-          <QuickAction 
-            icon={<div className="w-6 h-6 flex items-center justify-center border-b-2 border-white pb-1"><ArrowUp size={20} className="text-white rotate-45" strokeWidth={3} /></div>} 
-            label="Überweisen" 
+          <QuickAction
+            icon={<div className="w-6 h-6 flex items-center justify-center border-b-2 border-white pb-1"><ArrowUp size={20} className="text-white rotate-45" strokeWidth={3} /></div>}
+            label="Überweisen"
             onClick={() => onNavigate("transfer")}
           />
-          <QuickAction 
-            icon={<Eye className="text-white" />} 
-            label="Vorschau" 
+          <QuickAction
+            icon={<PieChart className="text-white" />}
+            label="Statistik"
+            onClick={() => onNavigate("statistics")}
           />
-          <QuickAction 
-            icon={<CreditCard className="text-white" />} 
-            label="Karten" 
+          <QuickAction
+            icon={<CreditCard className="text-white" />}
+            label="Abos"
+            onClick={() => onNavigate("subscriptions")}
           />
-          <QuickAction 
-            icon={<MoreHorizontal className="text-white" />} 
-            label="Mehr" 
+          <QuickAction
+            icon={<MoreHorizontal className="text-white" />}
+            label="Mehr"
             onClick={() => onNavigate("service")}
           />
         </div>
 
         {/* Account Section: Girokonto */}
         <AccountSection title="Girokonto">
-          <AccountCard 
+          <AccountCard
             icon={<div className="w-10 h-10 bg-[#FF6200] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">🦁</span></div>}
             title="Girokonto"
             subtitle="DE10 1234 5678 1234 5678 90"
@@ -80,7 +84,7 @@ export function DashboardScreen({
 
         {/* Account Section: Sparen */}
         <AccountSection title="Sparen">
-          <AccountCard 
+          <AccountCard
             icon={<div className="w-10 h-10 bg-[#FF6200] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">🦁</span></div>}
             title="Extra-Konto"
             subtitle="DE12 5001 0517 1234 5678 66"
@@ -90,7 +94,7 @@ export function DashboardScreen({
 
         {/* Account Section: Investieren */}
         <AccountSection title="Investieren">
-          <AccountCard 
+          <AccountCard
             icon={<div className="w-10 h-10 bg-[#FF6200] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">🦁</span></div>}
             title="Maxi Mustermensch"
             subtitle="Direkt-Depot 1234567890"
@@ -100,7 +104,7 @@ export function DashboardScreen({
         </AccountSection>
       </div>
 
-      <BottomNav activeTab="dashboard" onNavigate={onNavigate} />
+      <BottomNav activeTab="dashboard" onNavigate={onNavigate} onLeoClick={onLeoClick} />
     </div>
   );
 }
