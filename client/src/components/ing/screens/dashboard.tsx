@@ -1,5 +1,5 @@
 import { ScreenHeader, BottomNav } from "../layout";
-import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight } from "lucide-react";
+import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight, ArrowUp } from "lucide-react";
 import { Screen } from "@/pages/ing-app";
 import { useState } from "react";
 import { AccountOverviewSettingsScreen } from "./settings/account-overview";
@@ -27,7 +27,7 @@ export function DashboardScreen({
         <div className="flex gap-4 text-[#FF6200]">
           <Search size={24} strokeWidth={2.5} />
           <button onClick={() => setShowSettings(true)}>
-             <Menu size={24} strokeWidth={2.5} />
+             <MoreHorizontal size={24} strokeWidth={2.5} className="rotate-90" />
           </button>
         </div>
       </div>
@@ -48,7 +48,7 @@ export function DashboardScreen({
         {/* Quick Actions */}
         <div className="bg-white px-4 pb-6 mb-4 grid grid-cols-4 gap-2">
           <QuickAction 
-            icon={<ArrowUpRight className="text-white" />} 
+            icon={<div className="w-6 h-6 flex items-center justify-center border-b-2 border-white pb-1"><ArrowUp size={20} className="text-white rotate-45" strokeWidth={3} /></div>} 
             label="Überweisen" 
             onClick={() => onNavigate("transfer")}
           />
