@@ -20,17 +20,16 @@ export type Screen =
   | "service";
 
 export function INGApp() {
-  // We start with setup flow to simulate first time user
-  const [currentScreen, setCurrentScreen] = useState<Screen>("setup");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
   const [selectedAccount, setSelectedAccount] = useState<string>("Girokonto");
 
   const navigate = (screen: Screen) => setCurrentScreen(screen);
 
   return (
     <MobileLayout>
-      {currentScreen === "setup" && <SetupFlow onComplete={() => navigate("login")} />}
+      {currentScreen === "setup" && <SetupFlow onComplete={() => navigate("login")} onCancel={() => navigate("welcome")} />}
 
-      {currentScreen === "welcome" && <WelcomeScreen onLogin={() => navigate("login")} />}
+      {currentScreen === "welcome" && <WelcomeScreen onLogin={() => navigate("login")} onStartSetup={() => navigate("setup")} />}
       
       {currentScreen === "login" && <LoginScreen onSuccess={() => navigate("dashboard")} />}
       

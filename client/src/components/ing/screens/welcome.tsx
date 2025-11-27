@@ -1,28 +1,51 @@
 import { INGButton } from "../layout";
 import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import welcomeIllustration from "@assets/generated_images/minimalist_illustration_of_woman_relaxing_on_beanbag_with_tablet.png";
+import { MoreHorizontal } from "lucide-react";
 
-export function WelcomeScreen({ onLogin }: { onLogin: () => void }) {
+export function WelcomeScreen({ onLogin, onStartSetup }: { onLogin: () => void; onStartSetup: () => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-between p-6 bg-[#FF6200] text-white relative overflow-hidden">
-      {/* Background texture/gradient subtle */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
-      
-      <div className="mt-20 flex flex-col items-center z-10">
-        <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-lg mb-8">
-           {/* Use the generated asset but styled as an icon */}
-           <img src={lionIcon} alt="ING Lion" className="w-20 h-20 object-contain" />
+    <div className="flex-1 flex flex-col bg-white p-6 relative">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div className="w-8" /> {/* Spacer */}
+        <div className="flex items-center gap-2">
+          <span className="text-[#33307E] font-bold text-2xl tracking-tight">ING</span>
+          <div className="w-8 h-8 bg-[#FF6200] rounded-lg flex items-center justify-center">
+             <img src={lionIcon} alt="ING Lion" className="w-6 h-6 object-contain brightness-0 invert" />
+          </div>
         </div>
-        <h1 className="text-3xl font-bold mb-2">Willkommen</h1>
-        <p className="text-white/80 text-center max-w-[200px]">
-          Banking, das einfach einfach ist.
+        <button className="text-[#FF6200]">
+           <MoreHorizontal size={24} />
+        </button>
+      </div>
+
+      {/* Illustration */}
+      <div className="flex justify-center mb-8">
+        <img 
+          src={welcomeIllustration} 
+          alt="Welcome Illustration" 
+          className="w-48 h-48 object-contain"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="mb-auto">
+        <h1 className="text-lg font-bold text-[#333333] mb-4">Willkommen</h1>
+        <p className="text-gray-600 text-sm leading-relaxed">
+          Machen Sie Ihr Banking bequem von unterwegs oder entspannt vom Sofa aus. Legen Sie gleich los.
         </p>
       </div>
 
-      <div className="w-full space-y-4 mb-8 z-10">
-        <INGButton variant="outline" onClick={onLogin} className="bg-white text-[#FF6200] hover:bg-white/90 border-none">
+      {/* Actions */}
+      <div className="space-y-3 mt-8">
+        <INGButton variant="primary" onClick={onLogin}>
           Ich bin Kunde
         </INGButton>
-        <INGButton variant="outline">
+        <INGButton variant="primary" onClick={onStartSetup} className="bg-[#33307E] hover:bg-[#282668]">
+          Ich bin Kunde (NEU)
+        </INGButton>
+        <INGButton variant="primary" className="bg-white text-[#FF6200] border-2 border-[#FF6200] hover:bg-orange-50 shadow-none">
           Girokonto eröffnen
         </INGButton>
       </div>

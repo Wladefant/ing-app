@@ -1,6 +1,8 @@
 import { ScreenHeader, BottomNav } from "../layout";
 import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight } from "lucide-react";
 import { Screen } from "@/pages/ing-app";
+import { useState } from "react";
+import { AccountOverviewSettingsScreen } from "./settings/account-overview";
 
 export function DashboardScreen({ 
   onNavigate,
@@ -9,6 +11,12 @@ export function DashboardScreen({
   onNavigate: (screen: Screen) => void;
   onSelectAccount: (acc: string) => void;
 }) {
+  const [showSettings, setShowSettings] = useState(false);
+
+  if (showSettings) {
+    return <AccountOverviewSettingsScreen onBack={() => setShowSettings(false)} />;
+  }
+
   return (
     <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
       {/* Header */}
@@ -18,7 +26,9 @@ export function DashboardScreen({
         </div>
         <div className="flex gap-4 text-[#FF6200]">
           <Search size={24} strokeWidth={2.5} />
-          <Menu size={24} strokeWidth={2.5} />
+          <button onClick={() => setShowSettings(true)}>
+             <Menu size={24} strokeWidth={2.5} />
+          </button>
         </div>
       </div>
 
