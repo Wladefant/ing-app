@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Briefcase, Calendar, PieChart, User, Package } from "lucide-react";
+import { Briefcase, Calendar, PieChart, User, Package, TrendingUp, Home, BookOpen, Trophy } from "lucide-react";
 import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
 
 interface LayoutProps {
@@ -87,12 +87,16 @@ export function BottomNav({
 }) {
   return (
     <div className="h-20 bg-white border-t border-gray-200 flex justify-around items-end pb-2 text-[10px] font-medium text-gray-500 shrink-0 z-20 relative">
-      <NavItem icon={<Briefcase size={24} />} label={profile === "junior" ? "Home" : "Konten"} active={activeTab === "dashboard"} onClick={() => onNavigate("dashboard")} />
-
       {profile === "adult" ? (
-        <NavItem icon={<Calendar size={24} />} label="Aufträge" active={activeTab === "orders"} onClick={() => onNavigate("orders")} />
+        <>
+          <NavItem icon={<Briefcase size={24} />} label="Konten" active={activeTab === "dashboard"} onClick={() => onNavigate("dashboard")} />
+          <NavItem icon={<TrendingUp size={24} />} label="Investieren" active={activeTab === "invest"} onClick={() => onNavigate("invest")} />
+        </>
       ) : (
-        <NavItem icon={<PieChart size={24} />} label="Invest" active={activeTab === "invest"} onClick={() => onNavigate("invest")} />
+        <>
+          <NavItem icon={<Home size={24} />} label="Home" active={activeTab === "dashboard"} onClick={() => onNavigate("dashboard")} />
+          <NavItem icon={<PieChart size={24} />} label="Invest" active={activeTab === "invest"} onClick={() => onNavigate("invest")} />
+        </>
       )}
 
       {/* Central Lion Button */}
@@ -108,12 +112,16 @@ export function BottomNav({
       </div>
 
       {profile === "adult" ? (
-        <NavItem icon={<Package size={24} />} label="Produkte" active={activeTab === "products"} onClick={() => onNavigate("products")} />
+        <>
+          <NavItem icon={<Package size={24} />} label="Produkte" active={activeTab === "products"} onClick={() => onNavigate("products")} />
+          <NavItem icon={<User size={24} />} label="Profil" active={activeTab === "service"} onClick={() => onNavigate("service")} />
+        </>
       ) : (
-        <NavItem icon={<Briefcase size={24} />} label="Lernen" active={activeTab === "learn"} onClick={() => onNavigate("learn")} />
+        <>
+          <NavItem icon={<BookOpen size={24} />} label="Lernen" active={activeTab === "learn"} onClick={() => onNavigate("learn")} />
+          <NavItem icon={<Trophy size={24} />} label="Punkte" active={activeTab === "leaderboard"} onClick={() => onNavigate("leaderboard")} />
+        </>
       )}
-
-      <NavItem icon={<User size={24} />} label="Profil" active={activeTab === "service"} onClick={() => onNavigate("service")} />
     </div>
   );
 }
