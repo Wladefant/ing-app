@@ -60,7 +60,10 @@ export function JuniorDashboardScreen({
                                 <TrendingUp size={16} />
                                 Investieren
                             </button>
-                            <button className="flex-1 bg-white text-[#FF6200] py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
+                            <button 
+                                onClick={() => onNavigate("savings")}
+                                className="flex-1 bg-white text-[#FF6200] py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
+                            >
                                 <PiggyBank size={16} />
                                 Sparen
                             </button>

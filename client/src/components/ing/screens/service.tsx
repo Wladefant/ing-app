@@ -132,7 +132,7 @@ export function ServiceScreen({ onBack, onLogout, onNavigate }: { onBack: () => 
          </div>
       </div>
 
-      <BottomNav activeTab="service" onNavigate={onNavigate} />
+      <BottomNav activeTab="service" onNavigate={onNavigate} profile="adult" />
     </div>
   );
 }

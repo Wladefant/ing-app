@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ScreenHeader } from "../layout";
 import { Screen } from "@/pages/ing-app";
-import { TrendingUp, TrendingDown, Info, Star, Bell, Share2, MessageCircle, ChevronRight, ExternalLink } from "lucide-react";
+import { TrendingUp, TrendingDown, Info, Star, Bell, Share2, MessageCircle, ChevronRight, ExternalLink, X, Plus, Minus, Check, AlertTriangle } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart } from "recharts";
+import { motion, AnimatePresence } from "framer-motion";
 import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
 
 // Generate mock price data
@@ -103,6 +104,10 @@ export function StockDetailScreen({
 }) {
     const [timeRange, setTimeRange] = useState<TimeRange>("1M");
     const [isWatchlisted, setIsWatchlisted] = useState(false);
+    const [showOrderModal, setShowOrderModal] = useState(false);
+    const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
+    const [quantity, setQuantity] = useState(1);
+    const [orderStep, setOrderStep] = useState<"amount" | "confirm" | "success">("amount");
     
     const stock = STOCK_DATA[symbol as keyof typeof STOCK_DATA] || STOCK_DATA.ING;
     const isPositive = stock.changePercent >= 0;
@@ -110,6 +115,27 @@ export function StockDetailScreen({
     // Generate chart data based on time range
     const chartDays = { "1D": 1, "1W": 7, "1M": 30, "3M": 90, "1Y": 365, "ALL": 730 };
     const priceData = generatePriceData(chartDays[timeRange], stock.price, stock.price * 0.02);
+
+    const handleOpenOrder = (type: "buy" | "sell") => {
+        setOrderType(type);
+        setQuantity(1);
+        setOrderStep("amount");
+        setShowOrderModal(true);
+    };
+
+    const handleConfirmOrder = () => {
+        setOrderStep("success");
+        // In a real app, this would call an API
+    };
+
+    const handleCloseOrder = () => {
+        setShowOrderModal(false);
+        setOrderStep("amount");
+        setQuantity(1);
+    };
+
+    const totalCost = quantity * stock.price;
+    const fees = 0; // ING often has no trading fees
 
     return (
         <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
@@ -224,19 +250,31 @@ export function StockDetailScreen({
                 <div className="bg-white mt-2 p-4 flex gap-3">
                     {isJunior ? (
                         <>
-                            <button className="flex-1 bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors">
+                            <button 
+                                onClick={() => handleOpenOrder("buy")}
+                                className="flex-1 bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors"
+                            >
                                 Virtuell kaufen
                             </button>
-                            <button className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">
-                                Watchlist
+                            <button 
+                                onClick={() => setIsWatchlisted(!isWatchlisted)}
+                                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                            >
+                                {isWatchlisted ? "★ In Watchlist" : "Watchlist"}
                             </button>
                         </>
                     ) : (
                         <>
-                            <button className="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-colors">
+                            <button 
+                                onClick={() => handleOpenOrder("buy")}
+                                className="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-colors"
+                            >
                                 Kaufen
                             </button>
-                            <button className="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-colors">
+                            <button 
+                                onClick={() => handleOpenOrder("sell")}
+                                className="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-colors"
+                            >
                                 Verkaufen
                             </button>
                         </>
@@ -309,6 +347,209 @@ export function StockDetailScreen({
                     </div>
                 </div>
             </div>
+
+            {/* Order Modal */}
+            <AnimatePresence>
+                {showOrderModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/50 z-50 flex items-end"
+                        onClick={handleCloseOrder}
+                    >
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full bg-white rounded-t-3xl p-6 pb-10"
+                        >
+                            {/* Amount Step */}
+                            {orderStep === "amount" && (
+                                <>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className="text-xl font-bold text-[#333333]">
+                                            {isJunior ? "Virtuell " : ""}{orderType === "buy" ? "Kaufen" : "Verkaufen"}
+                                        </h2>
+                                        <button
+                                            onClick={handleCloseOrder}
+                                            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                            aria-label="Schließen"
+                                        >
+                                            <X size={18} className="text-gray-500" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
+                                        <span className="text-3xl">{stock.logo}</span>
+                                        <div>
+                                            <div className="font-bold text-[#333333]">{stock.name}</div>
+                                            <div className="text-sm text-gray-500">€{stock.price.toFixed(2)} pro Aktie</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="text-center mb-6">
+                                        <label className="text-sm text-gray-500 block mb-3">Anzahl Aktien</label>
+                                        <div className="flex items-center justify-center gap-6">
+                                            <button
+                                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                                                aria-label="Weniger"
+                                            >
+                                                <Minus size={20} className="text-gray-600" />
+                                            </button>
+                                            <div className="text-5xl font-bold text-[#333333] w-24">{quantity}</div>
+                                            <button
+                                                onClick={() => setQuantity(quantity + 1)}
+                                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                                                aria-label="Mehr"
+                                            >
+                                                <Plus size={20} className="text-gray-600" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 mb-6">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Summe</span>
+                                            <span className="font-bold">€{totalCost.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Ordergebühr</span>
+                                            <span className="font-bold text-green-600">€0,00</span>
+                                        </div>
+                                        <div className="border-t pt-2 flex justify-between">
+                                            <span className="font-bold text-[#333333]">Gesamt</span>
+                                            <span className="font-bold text-xl text-[#333333]">€{totalCost.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => setOrderStep("confirm")}
+                                        className={`w-full py-4 rounded-xl font-bold transition-colors ${
+                                            orderType === "buy"
+                                                ? "bg-green-500 text-white hover:bg-green-600"
+                                                : "bg-red-500 text-white hover:bg-red-600"
+                                        }`}
+                                    >
+                                        Weiter zur Bestätigung
+                                    </button>
+                                </>
+                            )}
+
+                            {/* Confirm Step */}
+                            {orderStep === "confirm" && (
+                                <>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className="text-xl font-bold text-[#333333]">Order bestätigen</h2>
+                                        <button
+                                            onClick={handleCloseOrder}
+                                            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                            aria-label="Schließen"
+                                        >
+                                            <X size={18} className="text-gray-500" />
+                                        </button>
+                                    </div>
+
+                                    <div className={`p-4 rounded-xl mb-6 ${
+                                        orderType === "buy" ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+                                    }`}>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-3xl">{stock.logo}</span>
+                                            <div>
+                                                <div className="font-bold text-[#333333]">
+                                                    {quantity}x {stock.symbol} {orderType === "buy" ? "kaufen" : "verkaufen"}
+                                                </div>
+                                                <div className="text-2xl font-bold mt-1 text-[#333333]">
+                                                    €{totalCost.toFixed(2)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {!isJunior && (
+                                        <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-200 mb-6">
+                                            <AlertTriangle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+                                            <p className="text-sm text-amber-700">
+                                                Mit dem Klick auf "Order ausführen" bestätigst du den {orderType === "buy" ? "Kauf" : "Verkauf"} 
+                                                zum aktuellen Marktpreis. Der finale Preis kann leicht abweichen.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {isJunior && (
+                                        <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-xl border border-purple-200 mb-6">
+                                            <span className="text-lg">🎮</span>
+                                            <p className="text-sm text-purple-700">
+                                                Dies ist ein virtueller Kauf zum Üben. Du verwendest kein echtes Geld!
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setOrderStep("amount")}
+                                            className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                                        >
+                                            Zurück
+                                        </button>
+                                        <button
+                                            onClick={handleConfirmOrder}
+                                            className={`flex-1 py-4 rounded-xl font-bold transition-colors ${
+                                                orderType === "buy"
+                                                    ? "bg-green-500 text-white hover:bg-green-600"
+                                                    : "bg-red-500 text-white hover:bg-red-600"
+                                            }`}
+                                        >
+                                            Order ausführen
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Success Step */}
+                            {orderStep === "success" && (
+                                <div className="text-center py-6">
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", delay: 0.1 }}
+                                        className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
+                                            orderType === "buy" ? "bg-green-100" : "bg-red-100"
+                                        }`}
+                                    >
+                                        <Check size={40} className={orderType === "buy" ? "text-green-600" : "text-red-600"} />
+                                    </motion.div>
+
+                                    <h2 className="text-2xl font-bold text-[#333333] mb-2">
+                                        {isJunior ? "Virtueller Kauf erfolgreich!" : "Order ausgeführt!"}
+                                    </h2>
+                                    <p className="text-gray-500 mb-6">
+                                        Du hast {quantity} {stock.symbol} Aktie{quantity > 1 ? "n" : ""} 
+                                        {orderType === "buy" ? " gekauft" : " verkauft"} für €{totalCost.toFixed(2)}.
+                                    </p>
+
+                                    {isJunior && (
+                                        <div className="bg-purple-50 p-4 rounded-xl mb-6 border border-purple-200">
+                                            <div className="text-sm font-bold text-purple-600 mb-1">🎉 +25 XP erhalten!</div>
+                                            <p className="text-xs text-purple-500">Für deinen ersten virtuellen Trade</p>
+                                        </div>
+                                    )}
+
+                                    <button
+                                        onClick={handleCloseOrder}
+                                        className="w-full bg-[#FF6200] text-white py-4 rounded-xl font-bold hover:bg-[#e55800] transition-colors"
+                                    >
+                                        Fertig
+                                    </button>
+                                </div>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

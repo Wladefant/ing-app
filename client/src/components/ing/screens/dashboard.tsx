@@ -104,7 +104,7 @@ export function DashboardScreen({
         </AccountSection>
       </div>
 
-      <BottomNav activeTab="dashboard" onNavigate={onNavigate} onLeoClick={onLeoClick} />
+      <BottomNav activeTab="dashboard" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="adult" />
     </div>
   );
 }

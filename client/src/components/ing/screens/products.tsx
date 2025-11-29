@@ -42,7 +42,7 @@ export function ProductsScreen({ onNavigate }: { onNavigate: (screen: Screen) =>
         />
       </div>
 
-      <BottomNav activeTab="products" onNavigate={onNavigate} />
+      <BottomNav activeTab="products" onNavigate={onNavigate} profile="adult" />
     </div>
   );
 }
