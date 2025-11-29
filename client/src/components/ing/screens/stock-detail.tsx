@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenHeader } from "../layout";
 import { Screen } from "@/pages/ing-app";
 import { TrendingUp, TrendingDown, Info, Star, Bell, Share2, MessageCircle, ChevronRight, ExternalLink, X, Plus, Minus, Check, AlertTriangle } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import { addToPortfolio, removeFromPortfolio, getPortfolio, updateBalance, addTransaction, getBalance, formatCurrency, type Holding } from "@/lib/storage";
 
 // Generate mock price data
 const generatePriceData = (days: number, basePrice: number, volatility: number) => {
@@ -224,8 +225,52 @@ export function StockDetailScreen({
     };
 
     const handleConfirmOrder = () => {
+        // Actually process the trade
+        if (orderType === "buy") {
+            // Add to portfolio
+            addToPortfolio({
+                symbol: stock.symbol,
+                name: stock.name,
+                shares: quantity,
+                avgPrice: stock.price,
+                currentPrice: stock.price,
+            });
+            
+            // Deduct from account balance
+            if (!isJunior) {
+                updateBalance("girokonto", -totalCost);
+                addTransaction({
+                    type: "investment",
+                    amount: -totalCost,
+                    currency: "EUR",
+                    from: "Girokonto",
+                    to: `Kauf ${quantity}x ${stock.symbol}`,
+                    reference: `Aktienkauf ${stock.name}`,
+                    date: new Date().toISOString().split("T")[0],
+                    status: "completed",
+                });
+            }
+        } else {
+            // Sell from portfolio
+            removeFromPortfolio(stock.symbol, quantity);
+            
+            // Add to account balance
+            if (!isJunior) {
+                updateBalance("girokonto", totalCost);
+                addTransaction({
+                    type: "investment",
+                    amount: totalCost,
+                    currency: "EUR",
+                    from: `Verkauf ${quantity}x ${stock.symbol}`,
+                    to: "Girokonto",
+                    reference: `Aktienverkauf ${stock.name}`,
+                    date: new Date().toISOString().split("T")[0],
+                    status: "completed",
+                });
+            }
+        }
+        
         setOrderStep("success");
-        // In a real app, this would call an API
     };
 
     const handleCloseOrder = () => {

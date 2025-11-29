@@ -1,8 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
 import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal } from "lucide-react";
 import { motion } from "framer-motion";
+import { getJuniorProfile, getLeaderboard, getBalance, formatCurrency, JuniorProfile, LeaderboardEntry } from "@/lib/storage";
+
+// Calculate level title based on level number
+const getLevelTitle = (level: number): string => {
+    const titles = [
+        "Anfänger",
+        "Entdecker",
+        "Lerner",
+        "Kenner",
+        "Experte",
+        "Finanz-Entdecker",
+        "Finanz-Kenner",
+        "Finanz-Profi",
+        "Finanz-Meister",
+        "Finanz-Guru"
+    ];
+    return titles[Math.min(level - 1, titles.length - 1)] || "Anfänger";
+};
 
 export function JuniorDashboardScreen({
     onNavigate,
@@ -11,6 +29,40 @@ export function JuniorDashboardScreen({
     onNavigate: (screen: Screen) => void;
     onLeoClick?: () => void;
 }) {
+    const [profile, setProfile] = useState<JuniorProfile | null>(null);
+    const [userRank, setUserRank] = useState(42);
+    const [pointsToNextRank, setPointsToNextRank] = useState(60);
+    const [balance, setBalance] = useState(145.50);
+    
+    useEffect(() => {
+        const loadedProfile = getJuniorProfile();
+        setProfile(loadedProfile);
+        
+        // Get leaderboard and find user's rank
+        const leaderboard = getLeaderboard();
+        const myEntry = leaderboard.find(e => e.name === "Du");
+        if (myEntry) {
+            const rank = leaderboard.indexOf(myEntry) + 1;
+            setUserRank(rank);
+            
+            // Calculate points to next rank
+            if (rank > 1) {
+                const nextUser = leaderboard[rank - 2]; // -2 because array is 0-indexed and we want the one above
+                setPointsToNextRank(nextUser.weeklyXp - myEntry.weeklyXp);
+            }
+        }
+        
+        // Get junior balance (using extra account as junior savings)
+        const balances = getBalance();
+        setBalance(balances.extraKonto || 145.50);
+    }, []);
+    
+    // Default values if profile not loaded yet
+    const level = profile?.level ?? 5;
+    const levelTitle = getLevelTitle(level);
+    const xp = profile?.xp ?? 1240;
+    const streak = profile?.streak ?? 12;
+    const badges = profile?.badges?.length ?? 8;
     return (
         <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
             {/* Header with Gamification */}
@@ -22,11 +74,11 @@ export function JuniorDashboardScreen({
                             transition={{ repeat: Infinity, duration: 2, repeatDelay: 3 }}
                             className="w-12 h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center text-2xl shadow-sm"
                         >
-                            🦁
+                            {profile?.avatar ?? "🦁"}
                         </motion.div>
                         <div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Level 5</div>
-                            <div className="font-bold text-[#333333]">Finanz-Entdecker</div>
+                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Level {level}</div>
+                            <div className="font-bold text-[#333333]">{levelTitle}</div>
                         </div>
                     </div>
                     <button 
@@ -34,7 +86,7 @@ export function JuniorDashboardScreen({
                         className="flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-colors"
                     >
                         <Flame size={18} className="text-orange-500 fill-orange-500" />
-                        <span className="font-bold text-orange-600 text-sm">12 Tage</span>
+                        <span className="font-bold text-orange-600 text-sm">{streak} Tage</span>
                     </button>
                 </div>
 
@@ -47,10 +99,10 @@ export function JuniorDashboardScreen({
                             <div className="text-orange-100 text-sm font-medium">Mein Taschengeld</div>
                             <div className="flex items-center gap-1 text-xs bg-white/20 px-2 py-1 rounded-full">
                                 <Zap size={12} fill="currentColor" />
-                                <span>1,240 XP</span>
+                                <span>{xp.toLocaleString()} XP</span>
                             </div>
                         </div>
-                        <div className="text-4xl font-bold mb-4">145,50 €</div>
+                        <div className="text-4xl font-bold mb-4">{formatCurrency(balance)}</div>
 
                         <div className="flex gap-3">
                             <button 
@@ -82,7 +134,7 @@ export function JuniorDashboardScreen({
                         className="bg-white p-3 rounded-xl shadow-sm text-center"
                     >
                         <div className="text-2xl mb-1">🏆</div>
-                        <div className="text-lg font-bold text-[#333333]">#42</div>
+                        <div className="text-lg font-bold text-[#333333]">#{userRank}</div>
                         <div className="text-[10px] text-gray-400">Rang</div>
                     </motion.button>
                     <motion.button 
@@ -91,7 +143,7 @@ export function JuniorDashboardScreen({
                         className="bg-white p-3 rounded-xl shadow-sm text-center"
                     >
                         <div className="text-2xl mb-1">📚</div>
-                        <div className="text-lg font-bold text-[#333333]">8/12</div>
+                        <div className="text-lg font-bold text-[#333333]">{badges}/12</div>
                         <div className="text-[10px] text-gray-400">Badges</div>
                     </motion.button>
                     <motion.button 
@@ -220,7 +272,7 @@ export function JuniorDashboardScreen({
                             <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-sm border-2 border-white">🚀</div>
                         </div>
                         <div className="text-sm text-amber-600">
-                            Du bist auf <span className="font-bold">#42</span> • 60 Punkte bis #40!
+                            Du bist auf <span className="font-bold">#{userRank}</span> • {pointsToNextRank} Punkte bis #{Math.max(1, userRank - 1)}!
                         </div>
                     </div>
                 </button>

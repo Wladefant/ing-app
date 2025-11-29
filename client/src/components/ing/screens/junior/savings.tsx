@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
 import { Target, PiggyBank, Plus, ChevronRight, Sparkles, TrendingUp, Check, Gift, Gamepad2, Headphones, Plane, Laptop, Trophy, ArrowRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getSavingsGoals, addSavingsGoal, updateSavingsGoal, type SavingsGoal } from "@/lib/storage";
 
 // Pre-defined savings goal categories for teenagers
 const GOAL_CATEGORIES = [
@@ -14,43 +15,17 @@ const GOAL_CATEGORIES = [
     { id: "other", name: "Anderes", icon: Target, color: "from-gray-500 to-slate-600", emoji: "🎯" },
 ];
 
-// Mock existing goals
-const EXISTING_GOALS = [
-    {
-        id: 1,
-        name: "PlayStation 5",
-        category: "gaming",
-        targetAmount: 500,
-        currentAmount: 325,
-        emoji: "🎮",
-        color: "from-purple-500 to-indigo-600",
-        weeklyContribution: 15,
-        dueDate: "2025-03-01",
-    },
-    {
-        id: 2,
-        name: "AirPods Pro",
-        category: "music",
-        targetAmount: 280,
-        currentAmount: 180,
-        emoji: "🎧",
-        color: "from-pink-500 to-rose-600",
-        weeklyContribution: 10,
-        dueDate: "2025-02-15",
-    },
-];
+// Get color for a category
+const getCategoryColor = (categoryId: string): string => {
+    const cat = GOAL_CATEGORIES.find(c => c.id === categoryId);
+    return cat?.color || "from-gray-500 to-slate-600";
+};
 
-interface SavingsGoal {
-    id: number;
-    name: string;
-    category: string;
-    targetAmount: number;
-    currentAmount: number;
-    emoji: string;
-    color: string;
-    weeklyContribution: number;
-    dueDate: string;
-}
+// Get emoji for a category
+const getCategoryEmoji = (categoryId: string): string => {
+    const cat = GOAL_CATEGORIES.find(c => c.id === categoryId);
+    return cat?.emoji || "🎯";
+};
 
 export function JuniorSavingsScreen({
     onBack,
@@ -61,7 +36,7 @@ export function JuniorSavingsScreen({
     onNavigate: (screen: Screen) => void;
     onLeoClick?: () => void;
 }) {
-    const [goals, setGoals] = useState<SavingsGoal[]>(EXISTING_GOALS);
+    const [goals, setGoals] = useState<SavingsGoal[]>([]);
     const [showNewGoalModal, setShowNewGoalModal] = useState(false);
     const [newGoalStep, setNewGoalStep] = useState<"category" | "details" | "amount" | "confirm">("category");
     const [selectedCategory, setSelectedCategory] = useState<typeof GOAL_CATEGORIES[0] | null>(null);
@@ -69,24 +44,36 @@ export function JuniorSavingsScreen({
     const [newGoalAmount, setNewGoalAmount] = useState("");
     const [newGoalWeekly, setNewGoalWeekly] = useState("10");
 
+    // Load goals from storage on mount
+    useEffect(() => {
+        const loadGoals = () => {
+            const storedGoals = getSavingsGoals();
+            setGoals(storedGoals);
+        };
+        loadGoals();
+        
+        // Refresh on focus
+        window.addEventListener("focus", loadGoals);
+        return () => window.removeEventListener("focus", loadGoals);
+    }, []);
+
     const totalSaved = goals.reduce((sum, g) => sum + g.currentAmount, 0);
-    const totalTarget = goals.reduce((sum, g) => sum + g.targetAmount, 0);
+    const totalTarget = goals.reduce((sum, g) => sum + g.targetAmount, 0) || 1; // Avoid division by zero
 
     const handleCreateGoal = () => {
         if (!selectedCategory || !newGoalName || !newGoalAmount) return;
 
         const newGoal: SavingsGoal = {
-            id: Date.now(),
+            id: Date.now().toString(),
             name: newGoalName,
             category: selectedCategory.id,
             targetAmount: parseFloat(newGoalAmount),
             currentAmount: 0,
-            emoji: selectedCategory.emoji,
-            color: selectedCategory.color,
             weeklyContribution: parseFloat(newGoalWeekly),
             dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         };
 
+        addSavingsGoal(newGoal);
         setGoals([...goals, newGoal]);
         resetNewGoalForm();
     };
@@ -100,10 +87,16 @@ export function JuniorSavingsScreen({
         setNewGoalWeekly("10");
     };
 
-    const handleAddToGoal = (goalId: number, amount: number) => {
+    const handleAddToGoal = (goalId: string, amount: number) => {
+        const goal = goals.find(g => g.id === goalId);
+        if (!goal) return;
+        
+        const newAmount = Math.min(goal.currentAmount + amount, goal.targetAmount);
+        updateSavingsGoal(goalId, { currentAmount: newAmount });
+        
         setGoals(goals.map(g => 
             g.id === goalId 
-                ? { ...g, currentAmount: Math.min(g.currentAmount + amount, g.targetAmount) }
+                ? { ...g, currentAmount: newAmount }
                 : g
         ));
     };
@@ -157,8 +150,11 @@ export function JuniorSavingsScreen({
                 {goals.map((goal) => {
                     const progress = (goal.currentAmount / goal.targetAmount) * 100;
                     const remaining = goal.targetAmount - goal.currentAmount;
-                    const weeksLeft = Math.ceil(remaining / goal.weeklyContribution);
+                    const weeklyContribution = goal.weeklyContribution || 10;
+                    const weeksLeft = Math.ceil(remaining / weeklyContribution);
                     const isComplete = progress >= 100;
+                    const goalColor = getCategoryColor(goal.category || "other");
+                    const goalEmoji = getCategoryEmoji(goal.category || "other");
 
                     return (
                         <motion.div
@@ -167,10 +163,10 @@ export function JuniorSavingsScreen({
                             animate={{ opacity: 1, y: 0 }}
                             className="bg-white rounded-2xl shadow-sm overflow-hidden"
                         >
-                            <div className={`bg-gradient-to-r ${goal.color} p-4 text-white`}>
+                            <div className={`bg-gradient-to-r ${goalColor} p-4 text-white`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-2xl">{goal.emoji}</span>
+                                        <span className="text-2xl">{goalEmoji}</span>
                                         <div>
                                             <div className="font-bold">{goal.name}</div>
                                             <div className="text-sm text-white/80">
@@ -197,7 +193,7 @@ export function JuniorSavingsScreen({
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${progress}%` }}
-                                        className={`bg-gradient-to-r ${goal.color} h-full rounded-full`}
+                                        className={`bg-gradient-to-r ${goalColor} h-full rounded-full`}
                                     />
                                 </div>
 
@@ -216,10 +212,10 @@ export function JuniorSavingsScreen({
                                             + 10 €
                                         </button>
                                         <button
-                                            onClick={() => handleAddToGoal(goal.id, goal.weeklyContribution)}
+                                            onClick={() => handleAddToGoal(goal.id, weeklyContribution)}
                                             className="flex-1 bg-[#FF6200] text-white py-2 rounded-xl text-sm font-bold hover:bg-[#e55800] transition-colors"
                                         >
-                                            + {goal.weeklyContribution} €
+                                            + {weeklyContribution} €
                                         </button>
                                     </div>
                                 )}

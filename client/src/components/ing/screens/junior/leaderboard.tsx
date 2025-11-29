@@ -1,37 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
-import { Trophy, Medal, TrendingUp, TrendingDown, Users, School, Crown, Flame, Star, ChevronRight } from "lucide-react";
+import { Trophy, Medal, TrendingUp, TrendingDown, Users, School, Crown, Flame, Star, ChevronRight, Target, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-
-const WEEKLY_LEADERBOARD = [
-    { rank: 1, name: "MaxMustermann", points: 2450, change: "up", avatar: "🦊", school: "Gymnasium Berlin" },
-    { rank: 2, name: "FinanceQueen", points: 2230, change: "down", avatar: "👸", school: "Realschule München" },
-    { rank: 3, name: "InvestorKid", points: 2100, change: "up", avatar: "🚀", school: "Gesamtschule Hamburg" },
-    { rank: 4, name: "TaxExpert", points: 1980, change: "same", avatar: "📊", school: "Gymnasium Köln" },
-    { rank: 5, name: "StockNerd", points: 1875, change: "up", avatar: "🤓", school: "Realschule Frankfurt" },
-    { rank: 6, name: "SavingsHero", points: 1720, change: "down", avatar: "💪", school: "Gymnasium Berlin" },
-    { rank: 7, name: "QuizMaster", points: 1650, change: "up", avatar: "🧠", school: "Gesamtschule Düsseldorf" },
-    { rank: 8, name: "BudgetBoss", points: 1580, change: "same", avatar: "💼", school: "Realschule Stuttgart" },
-];
-
-const USER_DATA = {
-    rank: 42,
-    name: "Du",
-    points: 840,
-    change: "up",
-    changeAmount: 15,
-    avatar: "🦁",
-    school: "Gymnasium Berlin",
-    streak: 12,
-    achievements: 8,
-};
-
-const SCHOOL_LEADERBOARD = [
-    { rank: 1, name: "Gymnasium Berlin", points: 45200, students: 234, avatar: "🏫" },
-    { rank: 2, name: "Realschule München", points: 42100, students: 198, avatar: "🏫" },
-    { rank: 3, name: "Gesamtschule Hamburg", points: 38500, students: 312, avatar: "🏫" },
-];
+import { getJuniorProfile, getLeaderboard, type LeaderboardEntry, type JuniorProfile } from "@/lib/storage";
 
 type Tab = "weekly" | "alltime" | "school";
 
@@ -45,6 +17,43 @@ export function JuniorLeaderboardScreen({
     onLeoClick?: () => void;
 }) {
     const [activeTab, setActiveTab] = useState<Tab>("weekly");
+    const [profile, setProfile] = useState<JuniorProfile | null>(null);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [schoolLeaderboard, setSchoolLeaderboard] = useState<LeaderboardEntry[]>([]);
+
+    useEffect(() => {
+        const loadData = () => {
+            setProfile(getJuniorProfile());
+            setLeaderboard(getLeaderboard(activeTab === "alltime" ? "allTime" : "weekly"));
+            setSchoolLeaderboard(getLeaderboard("school"));
+        };
+        loadData();
+    }, [activeTab]);
+
+    // Calculate countdown to next reset
+    const getTimeUntilReset = () => {
+        const now = new Date();
+        const nextMonday = new Date(now);
+        nextMonday.setDate(now.getDate() + ((7 - now.getDay() + 1) % 7 || 7));
+        nextMonday.setHours(0, 0, 0, 0);
+        const diff = nextMonday.getTime() - now.getTime();
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        return `${days} Tage ${hours} Std übrig`;
+    };
+
+    // Calculate points needed for next rank
+    const getPointsToNextRank = () => {
+        if (!profile) return 0;
+        const higherRanked = leaderboard.filter(e => e.rank < profile.rank);
+        if (higherRanked.length === 0) return 0;
+        const nextUp = higherRanked[higherRanked.length - 1];
+        return Math.max(0, nextUp.xp - profile.weeklyXp + 1);
+    };
+
+    if (!profile) return null;
+
+    const topThree = leaderboard.slice(0, 3);
 
     return (
         <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
@@ -59,7 +68,7 @@ export function JuniorLeaderboardScreen({
                             <span className="font-bold">Wöchentlicher Preis</span>
                         </div>
                         <div className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                            3 Tage 14 Std übrig
+                            {getTimeUntilReset()}
                         </div>
                     </div>
                     <div className="text-2xl font-bold mb-1">€25 Bonus</div>
@@ -94,22 +103,22 @@ export function JuniorLeaderboardScreen({
                         <div className="text-sm font-medium text-orange-100">Dein Platz</div>
                         <div className="flex items-center gap-1 text-xs bg-white/20 px-2 py-1 rounded-full">
                             <TrendingUp size={12} />
-                            +{USER_DATA.changeAmount} seit gestern
+                            +15 seit gestern
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="text-4xl font-bold">#{USER_DATA.rank}</div>
+                        <div className="text-4xl font-bold">#{profile.rank}</div>
                         <div className="flex-1">
-                            <div className="font-bold">{USER_DATA.points} Punkte</div>
-                            <div className="text-sm text-orange-100">{USER_DATA.school}</div>
+                            <div className="font-bold">{profile.weeklyXp} Punkte</div>
+                            <div className="text-sm text-orange-100">{profile.school}</div>
                         </div>
                         <div className="flex items-center gap-1 text-2xl">
                             <Flame size={20} fill="currentColor" className="text-yellow-300" />
-                            <span className="font-bold">{USER_DATA.streak}</span>
+                            <span className="font-bold">{profile.streak}</span>
                         </div>
                     </div>
                     <div className="mt-3 text-xs text-orange-100">
-                        Noch <span className="font-bold text-white">60 Punkte</span> bis Platz #40!
+                        Noch <span className="font-bold text-white">{getPointsToNextRank()} Punkte</span> bis Platz #{profile.rank - 1}!
                     </div>
                 </div>
 
@@ -121,87 +130,101 @@ export function JuniorLeaderboardScreen({
                             <div className="p-4 bg-gradient-to-b from-amber-50 to-white">
                                 <div className="flex items-end justify-center gap-2 h-32">
                                     {/* 2nd Place */}
+                                    {topThree[1] && (
                                     <motion.div 
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.1 }}
                                         className="flex flex-col items-center"
                                     >
-                                        <div className="text-3xl mb-2">{WEEKLY_LEADERBOARD[1].avatar}</div>
+                                        <div className="text-3xl mb-2">{topThree[1].avatar}</div>
                                         <div className="w-16 h-20 bg-gradient-to-b from-gray-300 to-gray-400 rounded-t-lg flex flex-col items-center justify-end pb-2">
                                             <div className="text-xl mb-1">🥈</div>
                                             <div className="text-[10px] font-bold text-white text-center px-1 truncate w-full">
-                                                {WEEKLY_LEADERBOARD[1].name}
+                                                {topThree[1].name}
                                             </div>
-                                            <div className="text-[8px] text-white/80">{WEEKLY_LEADERBOARD[1].points}</div>
+                                            <div className="text-[8px] text-white/80">{topThree[1].xp.toLocaleString()}</div>
                                         </div>
                                     </motion.div>
+                                    )}
 
                                     {/* 1st Place */}
+                                    {topThree[0] && (
                                     <motion.div 
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         className="flex flex-col items-center"
                                     >
                                         <Crown size={24} className="text-yellow-500 mb-1" fill="currentColor" />
-                                        <div className="text-4xl mb-2">{WEEKLY_LEADERBOARD[0].avatar}</div>
+                                        <div className="text-4xl mb-2">{topThree[0].avatar}</div>
                                         <div className="w-20 h-28 bg-gradient-to-b from-yellow-400 to-amber-500 rounded-t-lg flex flex-col items-center justify-end pb-2">
                                             <div className="text-2xl mb-1">🥇</div>
                                             <div className="text-xs font-bold text-white text-center px-1 truncate w-full">
-                                                {WEEKLY_LEADERBOARD[0].name}
+                                                {topThree[0].name}
                                             </div>
-                                            <div className="text-[10px] text-white/80">{WEEKLY_LEADERBOARD[0].points}</div>
+                                            <div className="text-[10px] text-white/80">{topThree[0].xp.toLocaleString()}</div>
                                         </div>
                                     </motion.div>
+                                    )}
 
                                     {/* 3rd Place */}
+                                    {topThree[2] && (
                                     <motion.div 
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.2 }}
                                         className="flex flex-col items-center"
                                     >
-                                        <div className="text-3xl mb-2">{WEEKLY_LEADERBOARD[2].avatar}</div>
+                                        <div className="text-3xl mb-2">{topThree[2].avatar}</div>
                                         <div className="w-16 h-16 bg-gradient-to-b from-orange-300 to-orange-400 rounded-t-lg flex flex-col items-center justify-end pb-2">
                                             <div className="text-xl mb-1">🥉</div>
                                             <div className="text-[10px] font-bold text-white text-center px-1 truncate w-full">
-                                                {WEEKLY_LEADERBOARD[2].name}
+                                                {topThree[2].name}
                                             </div>
-                                            <div className="text-[8px] text-white/80">{WEEKLY_LEADERBOARD[2].points}</div>
+                                            <div className="text-[8px] text-white/80">{topThree[2].xp.toLocaleString()}</div>
                                         </div>
                                     </motion.div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Rest of Leaderboard */}
                             <div className="divide-y divide-gray-100">
-                                {WEEKLY_LEADERBOARD.slice(3).map((user, idx) => (
-                                    <LeaderboardRow key={user.rank} user={user} />
+                                {leaderboard.slice(3).map((entry) => (
+                                    <LeaderboardRow key={entry.rank} user={{
+                                        rank: entry.rank,
+                                        name: entry.name,
+                                        points: entry.xp,
+                                        change: "up",
+                                        avatar: entry.avatar,
+                                        school: entry.school,
+                                        isCurrentUser: entry.isCurrentUser
+                                    }} />
                                 ))}
                             </div>
                         </>
                     ) : (
                         <div className="divide-y divide-gray-100">
-                            {SCHOOL_LEADERBOARD.map((school) => (
+                            {schoolLeaderboard.map((school, idx) => (
                                 <div key={school.rank} className="p-4 flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                                        school.rank === 1 ? 'bg-yellow-100 text-yellow-600' :
-                                        school.rank === 2 ? 'bg-gray-100 text-gray-600' :
-                                        school.rank === 3 ? 'bg-orange-100 text-orange-600' :
+                                        idx === 0 ? 'bg-yellow-100 text-yellow-600' :
+                                        idx === 1 ? 'bg-gray-100 text-gray-600' :
+                                        idx === 2 ? 'bg-orange-100 text-orange-600' :
                                         'bg-gray-50 text-gray-500'
                                     }`}>
-                                        {school.rank <= 3 ? ['🥇', '🥈', '🥉'][school.rank - 1] : school.rank}
+                                        {idx < 3 ? ['🥇', '🥈', '🥉'][idx] : idx + 1}
                                     </div>
-                                    <div className="text-2xl">{school.avatar}</div>
+                                    <div className="text-2xl">🏫</div>
                                     <div className="flex-1">
-                                        <div className="font-bold text-[#333333] text-sm">{school.name}</div>
+                                        <div className="font-bold text-[#333333] text-sm">{school.school}</div>
                                         <div className="text-xs text-gray-400 flex items-center gap-1">
                                             <Users size={12} />
-                                            {school.students} Schüler
+                                            {school.level || 0} Schüler
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="font-bold text-[#333333]">{school.points.toLocaleString()}</div>
+                                        <div className="font-bold text-[#333333]">{school.xp.toLocaleString()}</div>
                                         <div className="text-xs text-gray-400">Punkte</div>
                                     </div>
                                 </div>
@@ -224,7 +247,7 @@ export function JuniorLeaderboardScreen({
                             <div 
                                 key={i}
                                 className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 ${
-                                    i < USER_DATA.achievements ? 'bg-yellow-100' : 'bg-gray-100 grayscale opacity-50'
+                                    i < profile.badges.length ? 'bg-yellow-100' : 'bg-gray-100 grayscale opacity-50'
                                 }`}
                             >
                                 {emoji}
@@ -232,7 +255,7 @@ export function JuniorLeaderboardScreen({
                         ))}
                     </div>
                     <div className="mt-3 text-xs text-gray-500">
-                        {USER_DATA.achievements}/12 freigeschaltet
+                        {profile.badges.length}/12 freigeschaltet
                     </div>
                 </div>
             </div>
@@ -242,15 +265,27 @@ export function JuniorLeaderboardScreen({
     );
 }
 
-function LeaderboardRow({ user }: { user: typeof WEEKLY_LEADERBOARD[0] }) {
+interface LeaderboardUser {
+    rank: number;
+    name: string;
+    points: number;
+    change: string;
+    avatar: string;
+    school: string;
+    isCurrentUser?: boolean;
+}
+
+function LeaderboardRow({ user }: { user: LeaderboardUser }) {
     return (
-        <div className="p-4 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-sm text-gray-500">
+        <div className={`p-4 flex items-center gap-3 ${user.isCurrentUser ? 'bg-orange-50' : ''}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                user.isCurrentUser ? 'bg-[#FF6200] text-white' : 'bg-gray-100 text-gray-500'
+            }`}>
                 {user.rank}
             </div>
             <div className="text-2xl">{user.avatar}</div>
             <div className="flex-1">
-                <div className="font-bold text-[#333333] text-sm">{user.name}</div>
+                <div className="font-bold text-[#333333] text-sm">{user.isCurrentUser ? 'Du' : user.name}</div>
                 <div className="text-xs text-gray-400">{user.school}</div>
             </div>
             <div className="flex items-center gap-2">

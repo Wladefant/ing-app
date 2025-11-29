@@ -1,8 +1,9 @@
 import { ScreenHeader, BottomNav } from "../layout";
 import { Search, Menu, ArrowUpRight, Eye, CreditCard, MoreHorizontal, ChevronRight, ArrowUp, PieChart } from "lucide-react";
 import { Screen } from "@/pages/ing-app";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AccountOverviewSettingsScreen } from "./settings/account-overview";
+import { getBalance, getPortfolio, formatCurrency } from "@/lib/storage";
 
 export function DashboardScreen({
   onNavigate,
@@ -14,6 +15,37 @@ export function DashboardScreen({
   onLeoClick?: () => void;
 }) {
   const [showSettings, setShowSettings] = useState(false);
+  const [balance, setBalance] = useState({ girokonto: 0, extraKonto: 0, depot: 0 });
+
+  // Load dynamic balances from storage
+  useEffect(() => {
+    const loadBalances = () => {
+      const storedBalance = getBalance();
+      const portfolio = getPortfolio();
+      const depotValue = portfolio.reduce((sum, h) => sum + (h.shares * h.currentPrice), 0);
+      setBalance({
+        girokonto: storedBalance.girokonto,
+        extraKonto: storedBalance.extraKonto,
+        depot: depotValue
+      });
+    };
+    
+    loadBalances();
+    // Refresh balances when window gains focus
+    const handleFocus = () => loadBalances();
+    window.addEventListener("focus", handleFocus);
+    
+    // Also listen for storage events for cross-tab sync
+    const handleStorage = () => loadBalances();
+    window.addEventListener("storage", handleStorage);
+    
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
+
+  const totalBalance = balance.girokonto + balance.extraKonto + balance.depot;
 
   if (showSettings) {
     return <AccountOverviewSettingsScreen onBack={() => setShowSettings(false)} />;
@@ -28,7 +60,7 @@ export function DashboardScreen({
         </div>
         <div className="flex gap-4 text-[#FF6200]">
           <Search size={24} strokeWidth={2.5} />
-          <button onClick={() => setShowSettings(true)}>
+          <button onClick={() => setShowSettings(true)} title="Einstellungen">
             <MoreHorizontal size={24} strokeWidth={2.5} className="rotate-90" />
           </button>
         </div>
@@ -43,7 +75,7 @@ export function DashboardScreen({
             <ChevronRight size={16} />
           </div>
           <div className="text-3xl font-bold text-[#333333]">
-            21.341,58 EUR
+            {formatCurrency(totalBalance).replace('€', 'EUR')}
           </div>
         </div>
 
@@ -77,7 +109,7 @@ export function DashboardScreen({
             icon={<div className="w-10 h-10 bg-[#FF6200] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">🦁</span></div>}
             title="Girokonto"
             subtitle="DE10 1234 5678 1234 5678 90"
-            balance="2.101,10 EUR"
+            balance={formatCurrency(balance.girokonto).replace('€', 'EUR')}
             onClick={() => onSelectAccount("Girokonto")}
           />
         </AccountSection>
@@ -88,7 +120,7 @@ export function DashboardScreen({
             icon={<div className="w-10 h-10 bg-[#FF6200] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">🦁</span></div>}
             title="Extra-Konto"
             subtitle="DE12 5001 0517 1234 5678 66"
-            balance="19.240,48 EUR"
+            balance={formatCurrency(balance.extraKonto).replace('€', 'EUR')}
           />
         </AccountSection>
 
@@ -98,7 +130,7 @@ export function DashboardScreen({
             icon={<div className="w-10 h-10 bg-[#FF6200] rounded-lg flex items-center justify-center"><span className="text-white font-bold text-xl">🦁</span></div>}
             title="Maxi Mustermensch"
             subtitle="Direkt-Depot 1234567890"
-            balance="12.704,96 EUR"
+            balance={formatCurrency(balance.depot).replace('€', 'EUR')}
             onClick={() => onNavigate("invest")}
           />
         </AccountSection>

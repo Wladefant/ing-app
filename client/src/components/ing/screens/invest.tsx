@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../layout";
 import { Screen } from "@/pages/ing-app";
 import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Clock, Star, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical } from "lucide-react";
@@ -6,6 +6,7 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getPortfolio, addToPortfolio, removeFromPortfolio, updateBalance, addTransaction, type Holding, formatCurrency } from "@/lib/storage";
 
 const data = [
   { name: 'Jan', value: 5630 },
@@ -15,14 +16,6 @@ const data = [
   { name: 'May', value: 11000 },
   { name: 'Jun', value: 12963 },
   { name: 'Jul', value: 12704 },
-];
-
-// Portfolio Holdings
-const PORTFOLIO_HOLDINGS = [
-  { symbol: "AAPL", name: "Apple Inc.", shares: 15, avgPrice: 145.20, currentPrice: 178.50, change: 1.3, value: 2677.50 },
-  { symbol: "MSFT", name: "Microsoft Corp.", shares: 10, avgPrice: 320.00, currentPrice: 378.90, change: 1.1, value: 3789.00 },
-  { symbol: "ING", name: "ING Groep N.V.", shares: 200, avgPrice: 11.20, currentPrice: 12.45, change: 1.2, value: 2490.00 },
-  { symbol: "VUSA", name: "Vanguard S&P 500", shares: 25, avgPrice: 72.50, currentPrice: 149.94, change: 0.8, value: 3748.46 },
 ];
 
 // Watchlist
@@ -104,6 +97,27 @@ export function InvestScreen({
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState<any>(null);
   const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
+  const [portfolioHoldings, setPortfolioHoldings] = useState<Holding[]>([]);
+  
+  // Load portfolio from storage on mount
+  useEffect(() => {
+    const loadPortfolio = () => {
+      const holdings = getPortfolio();
+      setPortfolioHoldings(holdings);
+    };
+    
+    loadPortfolio();
+    
+    // Refresh on focus
+    const handleFocus = () => loadPortfolio();
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("storage", handleFocus);
+    
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleFocus);
+    };
+  }, []);
 
   const filteredStocks = searchQuery.length > 0 
     ? SEARCHABLE_STOCKS.filter(s => 
@@ -141,11 +155,11 @@ export function InvestScreen({
     setWatchlist(watchlist.filter(w => w.symbol !== symbol));
   };
 
-  // Calculate total portfolio value and performance
-  const totalValue = PORTFOLIO_HOLDINGS.reduce((sum, h) => sum + h.value, 0);
-  const totalCost = PORTFOLIO_HOLDINGS.reduce((sum, h) => sum + (h.shares * h.avgPrice), 0);
+  // Calculate total portfolio value and performance from storage data
+  const totalValue = portfolioHoldings.reduce((sum, h) => sum + (h.shares * h.currentPrice), 0);
+  const totalCost = portfolioHoldings.reduce((sum, h) => sum + (h.shares * h.avgPrice), 0);
   const totalGain = totalValue - totalCost;
-  const totalGainPercent = ((totalGain / totalCost) * 100).toFixed(2);
+  const totalGainPercent = totalCost > 0 ? ((totalGain / totalCost) * 100).toFixed(2) : "0.00";
 
   return (
     <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
@@ -237,10 +251,23 @@ export function InvestScreen({
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <span className="font-bold text-[#333333]">Meine Positionen</span>
-                <span className="text-xs text-gray-500">{PORTFOLIO_HOLDINGS.length} Werte</span>
+                <span className="text-xs text-gray-500">{portfolioHoldings.length} Werte</span>
               </div>
               <div className="divide-y divide-gray-100">
-                {PORTFOLIO_HOLDINGS.map((holding) => {
+                {portfolioHoldings.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <div className="text-4xl mb-3">📈</div>
+                    <p>Noch keine Positionen vorhanden.</p>
+                    <button 
+                      onClick={() => setShowSearch(true)}
+                      className="mt-4 text-[#FF6200] font-bold"
+                    >
+                      Erste Aktie kaufen
+                    </button>
+                  </div>
+                ) : (
+                portfolioHoldings.map((holding) => {
+                  const value = holding.shares * holding.currentPrice;
                   const gain = (holding.currentPrice - holding.avgPrice) * holding.shares;
                   const gainPercent = ((holding.currentPrice - holding.avgPrice) / holding.avgPrice * 100).toFixed(1);
                   return (
@@ -259,14 +286,15 @@ export function InvestScreen({
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-[#333333]">{holding.value.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
+                        <div className="font-bold text-[#333333]">{value.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
                         <div className={`text-xs font-bold ${gain >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                           {gain >= 0 ? '+' : ''}{gain.toFixed(2)}€ ({gain >= 0 ? '+' : ''}{gainPercent}%)
                         </div>
                       </div>
                     </div>
                   );
-                })}
+                })
+                )}
               </div>
             </div>
 

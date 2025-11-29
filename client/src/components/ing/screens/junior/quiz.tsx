@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
 import { Check, X, Trophy, ArrowRight, Zap, BookOpen, TrendingUp, PiggyBank, CreditCard, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateQuizQuestions, QuizQuestion } from "@/lib/openai";
+import { addXpToProfile, getJuniorProfile, updateLeaderboardPosition } from "@/lib/storage";
 
 // Quiz Topics with icons and colors
 const QUIZ_TOPICS = [
@@ -64,6 +65,7 @@ export function JuniorQuizScreen({
     const [score, setScore] = useState(0);
     const [streak, setStreak] = useState(0);
     const [isAIGenerated, setIsAIGenerated] = useState(false);
+    const [xpSaved, setXpSaved] = useState(false);
 
     const handleTopicSelect = (topicId: string) => {
         setSelectedTopic(topicId);
@@ -143,6 +145,7 @@ export function JuniorQuizScreen({
         setScore(0);
         setStreak(0);
         setIsAIGenerated(false);
+        setXpSaved(false);
     };
 
     // Topic Selection Phase
@@ -272,6 +275,15 @@ export function JuniorQuizScreen({
         const multiplier = selectedDifficulty?.xpMultiplier || 1;
         const totalXP = Math.round(baseXP * multiplier);
         const percentage = Math.round((score / questions.length) * 100);
+        
+        // Add XP to profile when result is shown (only once)
+        if (totalXP > 0 && !xpSaved) {
+            setXpSaved(true);
+            addXpToProfile(totalXP);
+            // Update leaderboard position after gaining XP
+            const updatedProfile = getJuniorProfile();
+            updateLeaderboardPosition(updatedProfile);
+        }
 
         return (
             <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
