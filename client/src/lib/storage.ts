@@ -193,57 +193,169 @@ export function updateTransaction(id: string, updates: Partial<Transaction>): vo
 
 // Default transactions for demo
 function getDefaultTransactions(): Transaction[] {
+  const transactions: Transaction[] = [];
   const today = new Date();
-  return [
-    {
-      id: "demo-1",
-      type: "payment",
-      amount: -40.0,
+  let idCounter = 1;
+  
+  // Helper to create a transaction
+  const createTx = (
+    daysAgo: number, 
+    type: Transaction["type"], 
+    amount: number, 
+    from: string, 
+    to: string, 
+    reference: string, 
+    category: string
+  ): Transaction => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - daysAgo);
+    return {
+      id: `tx-${idCounter++}`,
+      type,
+      amount,
       currency: "EUR",
-      from: "Girokonto",
-      to: "Tankstelle Nord",
-      reference: "Tankfüllung",
-      date: formatDate(today),
+      from,
+      to,
+      reference,
+      date: formatDate(date),
       status: "completed",
-      category: "Transport",
-    },
-    {
-      id: "demo-2",
-      type: "payment",
-      amount: -22.45,
-      currency: "EUR",
-      from: "Girokonto",
-      to: "Einkaufszentrum-Süd",
-      reference: "Einkauf",
-      date: formatDate(today),
-      status: "completed",
-      category: "Einkaufen",
-    },
-    {
-      id: "demo-3",
-      type: "savings",
-      amount: -150.0,
-      currency: "EUR",
-      from: "Girokonto",
-      to: "Extra-Konto Sparen",
-      reference: "Monatliches Sparen",
-      date: formatDate(today),
-      status: "completed",
-      category: "Sparen",
-    },
-    {
-      id: "demo-4",
-      type: "income",
-      amount: 2850.0,
-      currency: "EUR",
-      from: "Arbeitgeber GmbH",
-      to: "Girokonto",
-      reference: "Gehalt Februar",
-      date: formatDate(new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000)),
-      status: "completed",
-      category: "Gehalt",
-    },
-  ];
+      category,
+    };
+  };
+  
+  // Generate 12 months of data
+  for (let month = 0; month < 12; month++) {
+    const daysOffset = month * 30;
+    
+    // Monthly salary (around 1st-5th of each month)
+    const salaryDay = daysOffset + Math.floor(Math.random() * 5) + 1;
+    const salaryAmount = 2850 + Math.floor(Math.random() * 200) - 100; // 2750-2950
+    transactions.push(createTx(salaryDay, "income", salaryAmount, "Arbeitgeber GmbH", "Girokonto", `Gehalt ${new Date(today.getTime() - daysOffset * 24 * 60 * 60 * 1000).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`, "Gehalt"));
+    
+    // Rent (around 1st-3rd of each month)
+    const rentDay = daysOffset + Math.floor(Math.random() * 3) + 1;
+    transactions.push(createTx(rentDay, "payment", -850, "Girokonto", "Hausverwaltung Schmidt", "Miete + NK", "Miete"));
+    
+    // Electricity/Gas (quarterly, every 3rd month)
+    if (month % 3 === 0) {
+      transactions.push(createTx(daysOffset + 10, "payment", -95 - Math.floor(Math.random() * 30), "Girokonto", "Stadtwerke München", "Strom/Gas Abschlag", "Haushalt"));
+    }
+    
+    // Internet/Phone (monthly)
+    transactions.push(createTx(daysOffset + 15, "payment", -49.99, "Girokonto", "Telekom Deutschland", "Mobilfunk + Internet", "Haushalt"));
+    
+    // Streaming subscriptions
+    transactions.push(createTx(daysOffset + 5, "payment", -12.99, "Girokonto", "Netflix", "Streaming Abo", "Entertainment"));
+    transactions.push(createTx(daysOffset + 8, "payment", -9.99, "Girokonto", "Spotify", "Premium Abo", "Entertainment"));
+    
+    // Insurance (monthly)
+    transactions.push(createTx(daysOffset + 1, "payment", -89.50, "Girokonto", "Allianz Versicherung", "Haftpflicht + Hausrat", "Versicherung"));
+    
+    // Gym membership
+    transactions.push(createTx(daysOffset + 1, "payment", -29.90, "Girokonto", "FitX Studio", "Mitgliedschaft", "Gesundheit"));
+    
+    // Monthly savings transfer
+    transactions.push(createTx(daysOffset + 5, "savings", -200, "Girokonto", "Extra-Konto", "Monatliches Sparen", "Sparen"));
+    
+    // Weekly grocery shopping (4 times per month)
+    for (let week = 0; week < 4; week++) {
+      const groceryDay = daysOffset + (week * 7) + Math.floor(Math.random() * 3);
+      const groceryAmount = -45 - Math.floor(Math.random() * 40); // 45-85€
+      const stores = ["REWE", "EDEKA", "Aldi Süd", "Lidl", "dm Drogerie"];
+      const store = stores[Math.floor(Math.random() * stores.length)];
+      transactions.push(createTx(groceryDay, "payment", groceryAmount, "Girokonto", store, "Einkauf Lebensmittel", "Lebensmittel"));
+    }
+    
+    // Restaurant visits (2-4 times per month)
+    const restaurantVisits = 2 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < restaurantVisits; i++) {
+      const restDay = daysOffset + Math.floor(Math.random() * 28);
+      const restAmount = -18 - Math.floor(Math.random() * 35); // 18-53€
+      const restaurants = ["Vapiano", "L'Osteria", "Hans im Glück", "Block House", "Sushi Circle", "Pizza Hut"];
+      const rest = restaurants[Math.floor(Math.random() * restaurants.length)];
+      transactions.push(createTx(restDay, "payment", restAmount, "Girokonto", rest, "Restaurant", "Restaurant"));
+    }
+    
+    // Coffee shops (4-8 times per month)
+    const coffeeVisits = 4 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < coffeeVisits; i++) {
+      const coffeeDay = daysOffset + Math.floor(Math.random() * 28);
+      const coffeeAmount = -3.5 - Math.floor(Math.random() * 6); // 3.50-9.50€
+      const shops = ["Starbucks", "Café Extrablatt", "Balzac Coffee", "Einstein Kaffee"];
+      const shop = shops[Math.floor(Math.random() * shops.length)];
+      transactions.push(createTx(coffeeDay, "payment", coffeeAmount, "Girokonto", shop, "Kaffee & Snack", "Restaurant"));
+    }
+    
+    // Transport - fuel/public transport (3-5 times per month)
+    const transportTimes = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < transportTimes; i++) {
+      const transDay = daysOffset + Math.floor(Math.random() * 28);
+      const isFuel = Math.random() > 0.5;
+      if (isFuel) {
+        const fuelAmount = -45 - Math.floor(Math.random() * 35); // 45-80€
+        const stations = ["Shell", "Aral", "Total", "Esso", "Jet"];
+        const station = stations[Math.floor(Math.random() * stations.length)];
+        transactions.push(createTx(transDay, "payment", fuelAmount, "Girokonto", station, "Tankfüllung", "Transport"));
+      } else {
+        transactions.push(createTx(transDay, "payment", -2.90, "Girokonto", "MVV München", "Einzelfahrt", "Transport"));
+      }
+    }
+    
+    // Shopping (1-3 times per month)
+    const shoppingTimes = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < shoppingTimes; i++) {
+      const shopDay = daysOffset + Math.floor(Math.random() * 28);
+      const shopAmount = -25 - Math.floor(Math.random() * 75); // 25-100€
+      const shops = ["Amazon", "Zalando", "MediaMarkt", "H&M", "Zara", "IKEA", "Saturn"];
+      const shop = shops[Math.floor(Math.random() * shops.length)];
+      transactions.push(createTx(shopDay, "payment", shopAmount, "Girokonto", shop, "Online-Bestellung", "Shopping"));
+    }
+    
+    // ATM withdrawals (1-2 times per month)
+    const atmTimes = 1 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < atmTimes; i++) {
+      const atmDay = daysOffset + Math.floor(Math.random() * 28);
+      const atmAmount = -50 * (1 + Math.floor(Math.random() * 4)); // 50, 100, 150, or 200€
+      transactions.push(createTx(atmDay, "payment", atmAmount, "Girokonto", "Geldautomat", "Bargeldabhebung", "Bargeld"));
+    }
+    
+    // Entertainment (cinema, concerts, etc.) - 1-2 times per month
+    if (Math.random() > 0.3) {
+      const entDay = daysOffset + Math.floor(Math.random() * 28);
+      const entAmount = -12 - Math.floor(Math.random() * 50); // 12-62€
+      const venues = ["CinemaxX", "UCI Kino", "Eventim", "Ticketmaster"];
+      const venue = venues[Math.floor(Math.random() * venues.length)];
+      transactions.push(createTx(entDay, "payment", entAmount, "Girokonto", venue, "Tickets/Events", "Entertainment"));
+    }
+    
+    // Medical expenses (occasionally)
+    if (Math.random() > 0.7) {
+      const medDay = daysOffset + Math.floor(Math.random() * 28);
+      const medAmount = -15 - Math.floor(Math.random() * 40); // 15-55€
+      const places = ["Apotheke", "Arztpraxis", "Optiker"];
+      const place = places[Math.floor(Math.random() * places.length)];
+      transactions.push(createTx(medDay, "payment", medAmount, "Girokonto", place, "Gesundheit", "Gesundheit"));
+    }
+    
+    // Random bonus income (occasionally)
+    if (Math.random() > 0.85 && month > 0) {
+      const bonusDay = daysOffset + Math.floor(Math.random() * 28);
+      const bonusAmount = 50 + Math.floor(Math.random() * 200); // 50-250€
+      transactions.push(createTx(bonusDay, "income", bonusAmount, "Rückerstattung/Bonus", "Girokonto", "Rückerstattung", "Sonstiges"));
+    }
+    
+    // Investment purchase (monthly)
+    if (month > 0 && month % 2 === 0) {
+      const investDay = daysOffset + 15;
+      const investAmount = -100 - Math.floor(Math.random() * 150); // 100-250€
+      transactions.push(createTx(investDay, "investment", investAmount, "Girokonto", "Direkt-Depot", "ETF Sparplan", "Investment"));
+    }
+  }
+  
+  // Sort by date (most recent first)
+  transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  
+  return transactions;
 }
 
 // ============ INVESTMENT ORDERS ============

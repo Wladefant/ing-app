@@ -50,13 +50,15 @@ export function AdultStatisticsScreen({
     
     // Calculate spending by category from real transactions
     const spendingData = useMemo(() => {
-        const categoryTotals = getSpendingByCategory();
-        return Object.entries(categoryTotals)
-            .filter(([_, value]) => value > 0)
-            .map(([name, value]) => ({
-                name,
-                value: Math.round(value),
-                color: getColorForCategory(name),
+        const categories = getSpendingByCategory();
+        return categories
+            .filter(cat => cat.amount > 0)
+            .map(cat => ({
+                name: cat.name,
+                value: Math.round(cat.amount),
+                color: cat.color || getColorForCategory(cat.name),
+                percentage: cat.percentage,
+                trend: cat.trend,
             }))
             .sort((a, b) => b.value - a.value)
             .slice(0, 6); // Top 6 categories
@@ -64,16 +66,31 @@ export function AdultStatisticsScreen({
     
     // Calculate monthly data from real transactions
     const monthlyData = useMemo(() => {
-        const monthly = getMonthlySpending();
-        const months = Object.keys(monthly).sort().slice(-4); // Last 4 months
-        return months.map(month => {
-            const data = monthly[month] || { income: 0, expense: 0 };
-            return {
-                name: new Date(month + "-01").toLocaleDateString('de-DE', { month: 'short' }),
-                income: Math.round(data.income),
-                expense: Math.round(data.expense),
-            };
+        const monthly = getMonthlySpending(6); // Last 6 months
+        
+        // getMonthlySpending returns array of { month: string, amount: number }
+        // We need to also calculate income per month
+        const incomeByMonth = new Map<string, number>();
+        const expenseByMonth = new Map<string, number>();
+        
+        // Group transactions by month
+        transactions.forEach(t => {
+            const tDate = new Date(t.date);
+            const monthKey = tDate.toLocaleDateString("de-DE", { month: "short" });
+            
+            if (t.amount > 0) {
+                incomeByMonth.set(monthKey, (incomeByMonth.get(monthKey) || 0) + t.amount);
+            } else {
+                expenseByMonth.set(monthKey, (expenseByMonth.get(monthKey) || 0) + Math.abs(t.amount));
+            }
         });
+        
+        // Map monthly spending data with income
+        return monthly.map(m => ({
+            name: m.month,
+            income: Math.round(incomeByMonth.get(m.month) || 0),
+            expense: Math.round(m.amount),
+        }));
     }, [transactions]);
     
     // Calculate financial score based on savings rate
