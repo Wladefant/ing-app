@@ -29,6 +29,9 @@ const SCENARIO_ICONS: Record<string, React.ReactNode> = {
     junior_quiz_stocks: <BookOpen size={16} />,
     junior_quiz_taxes: <BookOpen size={16} />,
     junior_first_trade: <Target size={16} />,
+    smart_transfer: <DollarSign size={16} />,
+    investment_walkthrough: <BookOpen size={16} />,
+    savings_challenge: <Trophy size={16} />,
 };
 
 const SCENARIO_COLORS: Record<string, string> = {
@@ -51,6 +54,9 @@ const SCENARIO_COLORS: Record<string, string> = {
     junior_quiz_stocks: "bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100",
     junior_quiz_taxes: "bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100",
     junior_first_trade: "bg-green-50 text-green-600 border-green-100 hover:bg-green-100",
+    smart_transfer: "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100",
+    investment_walkthrough: "bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100",
+    savings_challenge: "bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100",
 };
 
 export function DemoSidebar({ onTriggerScenario, currentProfile, onToggleProfile }: DemoSidebarProps) {

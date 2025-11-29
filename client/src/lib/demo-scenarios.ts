@@ -19,7 +19,10 @@ export type DemoScenarioId =
   | "achievement_unlock"
   | "junior_quiz_stocks"
   | "junior_quiz_taxes"
-  | "junior_first_trade";
+  | "junior_first_trade"
+  | "smart_transfer"
+  | "investment_walkthrough"
+  | "savings_challenge";
 
 export interface ChatMessage {
   id: string;
@@ -410,5 +413,70 @@ export const DEMO_SCENARIOS: Record<DemoScenarioId, DemoScenario> = {
       }
     ],
     systemContext: "You're guiding a teenager through their first virtual stock trade. Budget: €500 play money. Popular picks: Apple €178, Nike €98, Disney €95. Explain what they're doing at each step. Make it educational and fun!"
+  },
+
+  smart_transfer: {
+    id: "smart_transfer",
+    name: "💸 Smart Transfer",
+    description: "Multi-step transfer with AI assistance",
+    category: "adult",
+    initialMessages: [
+      {
+        id: "msg_smarttransfer_1",
+        sender: "user",
+        text: "Ich möchte 150€ an Max schicken",
+        timestamp: Date.now() - 1000,
+      },
+      {
+        id: "msg_smarttransfer_2",
+        sender: "leo",
+        text: "Klar, ich helfe dir dabei! 💸\n\n**Ich habe Max in deinen Kontakten gefunden:**\n• Max Müller (DE34 1234 5678 1234 5678 01)\n• Max Schmidt (DE45 9876 5432 1234 5678 02)\n\nWelchen Max meinst du?",
+        timestamp: Date.now(),
+      }
+    ],
+    systemContext: "The user wants to send €150 to 'Max'. You found two Max contacts. After they choose, confirm the transfer details and ask for a reference/reason. Then confirm and process. This is a multi-step conversational transfer flow."
+  },
+
+  investment_walkthrough: {
+    id: "investment_walkthrough",
+    name: "📚 Investment Guide",
+    description: "Step-by-step investment tutorial",
+    category: "both",
+    initialMessages: [
+      {
+        id: "msg_investguide_1",
+        sender: "user",
+        text: "Ich möchte anfangen zu investieren, aber ich weiß nicht wie",
+        timestamp: Date.now() - 1000,
+      },
+      {
+        id: "msg_investguide_2",
+        sender: "leo",
+        text: "Super, dass du anfangen möchtest! 🌱 Ich führe dich Schritt für Schritt:\n\n**Schritt 1 von 4: Dein Risikoprofil**\n\nStell dir vor, du investierst €1.000 und nach einem Monat ist es nur noch €800 wert. Wie reagierst du?\n\nA) 😰 Sofort verkaufen - das ist mir zu riskant\nB) 😐 Abwarten und beobachten\nC) 😎 Nachkaufen - günstige Gelegenheit!\n\nWas passt zu dir?",
+        timestamp: Date.now(),
+      }
+    ],
+    systemContext: "You're guiding a beginner through their first investment journey in 4 steps: 1) Risk profile (A=conservative, B=moderate, C=aggressive), 2) Investment amount, 3) Investment type recommendation, 4) How to set up a savings plan. Be patient and educational."
+  },
+
+  savings_challenge: {
+    id: "savings_challenge",
+    name: "🏆 Savings Challenge",
+    description: "Fun savings competition with rewards",
+    category: "junior",
+    initialMessages: [
+      {
+        id: "msg_challenge_1",
+        sender: "leo",
+        text: "🏆 **Neue Challenge verfügbar!**\n\n**\"7-Tage Spar-Sprint\"**\n\n💪 **Ziel:** 7 Tage lang jeden Tag mindestens €5 sparen\n\n🎁 **Belohnungen:**\n• Tag 3: +50 XP\n• Tag 5: Exklusives Badge \"Spar-Sprinter\"\n• Tag 7: +200 XP + Bonusverzinsung 0.5%\n\n👥 **12 andere Jugendliche** machen schon mit!\n\nBist du dabei? 🔥",
+        timestamp: Date.now(),
+      }
+    ],
+    notification: {
+      title: "🏆 Neue Challenge!",
+      message: "7-Tage Spar-Sprint startet - bist du dabei?",
+      actionLabel: "Mitmachen",
+    },
+    systemContext: "You're offering a 7-day savings challenge. If they join, track their daily progress. Day 3: +50 XP, Day 5: badge, Day 7: +200 XP + bonus interest. Make it gamified and motivating!"
   }
 };
