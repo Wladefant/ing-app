@@ -1,11 +1,36 @@
 import { ScreenHeader } from "../layout";
 import { Search, MoreVertical, ArrowUp, Eye, CreditCard, MoreHorizontal } from "lucide-react";
 import { INGButton } from "../layout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CardsListScreen } from "./cards/cards-list";
+import { getTransactions, getBalance, formatCurrency, type Transaction } from "@/lib/storage";
 
 export function TransactionDetailScreen({ accountType, onBack }: { accountType: string; onBack: () => void }) {
   const [showCards, setShowCards] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [balance, setBalance] = useState({ girokonto: 0, extraKonto: 0, depot: 0 });
+
+  // Load transactions and balance on mount
+  useEffect(() => {
+    setTransactions(getTransactions());
+    setBalance(getBalance());
+  }, []);
+
+  // Group transactions by date
+  const groupedTransactions = transactions.reduce((groups, transaction) => {
+    const date = transaction.date;
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(transaction);
+    return groups;
+  }, {} as Record<string, Transaction[]>);
+
+  // Format date for display
+  const formatDateDisplay = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' });
+  };
 
   if (showCards) {
     return <CardsListScreen onBack={() => setShowCards(false)} />;
@@ -16,7 +41,7 @@ export function TransactionDetailScreen({ accountType, onBack }: { accountType: 
       {/* Header */}
       <div className="h-14 px-4 flex items-center justify-between bg-white shrink-0 border-b border-gray-100">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="text-[#FF6200]">
+          <button onClick={onBack} className="text-[#FF6200]" title="Zurück">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6"/>
             </svg>
@@ -42,7 +67,7 @@ export function TransactionDetailScreen({ accountType, onBack }: { accountType: 
                         <div className="font-bold text-[#333333]">{accountType}</div>
                         <div className="text-xs text-gray-400">DE10 1234 5678 1234 5678 90</div>
                      </div>
-                     <div className="font-bold text-[#333333]">2.101,10 EUR</div>
+                     <div className="font-bold text-[#333333]">{formatCurrency(balance.girokonto)}</div>
                   </div>
                </div>
             </div>
@@ -58,26 +83,29 @@ export function TransactionDetailScreen({ accountType, onBack }: { accountType: 
 
          {/* Transactions List */}
          <div className="bg-white">
-            <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-y border-gray-100">
-               12. Februar
-               <span className="float-right">EUR</span>
-            </div>
-            
-            <TransactionRow 
-               name="Tankstelle Nord"
-               amount="-40,00"
-               type="expense"
-            />
-            <TransactionRow 
-               name="Einkaufszentrum-Süd"
-               amount="-22,45"
-               type="expense"
-            />
-            <TransactionRow 
-               name="Sparen"
-               amount="-150,00"
-               type="expense"
-            />
+            {Object.entries(groupedTransactions)
+              .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+              .map(([date, txns]) => (
+                <div key={date}>
+                  <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-y border-gray-100">
+                    {formatDateDisplay(date)}
+                    <span className="float-right">EUR</span>
+                  </div>
+                  {txns.map((txn) => (
+                    <TransactionRow 
+                      key={txn.id}
+                      name={txn.amount < 0 ? txn.to : txn.from}
+                      amount={txn.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, signDisplay: 'always' }).replace('+', '')}
+                      type={txn.amount < 0 ? "expense" : "income"}
+                    />
+                  ))}
+                </div>
+              ))}
+            {transactions.length === 0 && (
+              <div className="p-8 text-center text-gray-500">
+                Keine Transaktionen vorhanden
+              </div>
+            )}
          </div>
       </div>
     </div>
