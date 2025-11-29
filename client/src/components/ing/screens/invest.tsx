@@ -59,12 +59,42 @@ const RECENT_SEARCHES = ["Apple", "Tesla", "ETF Welt"];
 
 type InvestTab = "portfolio" | "watchlist" | "news";
 
+// Tab Button Component
+function TabButton({ 
+  label, 
+  icon, 
+  active, 
+  onClick 
+}: { 
+  label: string; 
+  icon: React.ReactNode; 
+  active: boolean; 
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium transition-colors border-b-2",
+        active 
+          ? "text-[#FF6200] border-[#FF6200]" 
+          : "text-gray-500 border-transparent hover:text-gray-700"
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
 export function InvestScreen({
   onBack,
-  onNavigate
+  onNavigate,
+  onLeoClick
 }: {
   onBack: () => void,
-  onNavigate: (s: Screen) => void
+  onNavigate: (s: Screen) => void,
+  onLeoClick?: () => void
 }) {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -392,7 +422,7 @@ export function InvestScreen({
         )}
       </div>
 
-      <BottomNav activeTab="invest" onNavigate={onNavigate} profile="adult" />
+      <BottomNav activeTab="invest" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="adult" />
 
       {/* Search Modal */}
       <AnimatePresence>

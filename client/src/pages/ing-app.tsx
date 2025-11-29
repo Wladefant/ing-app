@@ -247,6 +247,7 @@ export function INGApp() {
           <InvestScreen
             onBack={() => navigate("dashboard")}
             onNavigate={navigate}
+            onLeoClick={() => setIsChatOpen(true)}
           />
         ) : (
           <JuniorInvestmentScreen
@@ -295,7 +296,7 @@ export function INGApp() {
 
       {currentScreen === "stock-detail" && (
         <StockDetailScreen
-          symbol="ING"
+          symbol={localStorage.getItem("selectedStock") || "ING"}
           onBack={() => navigate("invest")}
           onLeoClick={() => setIsChatOpen(true)}
           isJunior={userProfile === "junior"}
