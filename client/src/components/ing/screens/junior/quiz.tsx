@@ -196,6 +196,7 @@ export function JuniorQuizScreen({
                         </p>
                     </div>
                 </div>
+                <BottomNav activeTab="learn" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
             </div>
         );
     }
@@ -238,6 +239,7 @@ export function JuniorQuizScreen({
                         ))}
                     </div>
                 </div>
+                <BottomNav activeTab="learn" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
             </div>
         );
     }
@@ -245,18 +247,21 @@ export function JuniorQuizScreen({
     // Loading Phase
     if (phase === "loading") {
         return (
-            <div className="flex-1 flex flex-col bg-[#F3F3F3] items-center justify-center p-6">
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-16 h-16 bg-gradient-to-br from-[#FF6200] to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                >
-                    <Loader2 size={32} className="text-white" />
-                </motion.div>
-                <h2 className="text-xl font-bold text-[#333333] mb-2">Leo erstellt dein Quiz...</h2>
-                <p className="text-gray-500 text-sm text-center">
-                    Die KI generiert einzigartige Fragen für dich! 🦁✨
-                </p>
+            <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
+                <div className="flex-1 flex flex-col items-center justify-center p-6">
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-16 h-16 bg-gradient-to-br from-[#FF6200] to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
+                    >
+                        <Loader2 size={32} className="text-white" />
+                    </motion.div>
+                    <h2 className="text-xl font-bold text-[#333333] mb-2">Leo erstellt dein Quiz...</h2>
+                    <p className="text-gray-500 text-sm text-center">
+                        Die KI generiert einzigartige Fragen für dich! 🦁✨
+                    </p>
+                </div>
+                <BottomNav activeTab="learn" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
             </div>
         );
     }
@@ -269,64 +274,67 @@ export function JuniorQuizScreen({
         const percentage = Math.round((score / questions.length) * 100);
 
         return (
-            <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden items-center justify-center p-6 text-center">
-                <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm"
-                >
-                    <motion.div 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", delay: 0.2 }}
-                        className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${
-                            percentage >= 70 ? "bg-yellow-100" : percentage >= 40 ? "bg-blue-100" : "bg-gray-100"
-                        }`}
+            <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
+                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
+                    <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm"
                     >
-                        <Trophy size={48} className={
-                            percentage >= 70 ? "text-yellow-500" : percentage >= 40 ? "text-blue-500" : "text-gray-500"
-                        } fill="currentColor" />
-                    </motion.div>
-                    
-                    <h2 className="text-2xl font-bold text-[#333333] mb-2">
-                        {percentage >= 70 ? "Super gemacht! 🎉" : percentage >= 40 ? "Gut gemacht!" : "Weiter üben!"}
-                    </h2>
-                    <p className="text-gray-500 mb-6">
-                        Du hast {score} von {questions.length} Fragen richtig beantwortet ({percentage}%)
-                    </p>
+                        <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", delay: 0.2 }}
+                            className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${
+                                percentage >= 70 ? "bg-yellow-100" : percentage >= 40 ? "bg-blue-100" : "bg-gray-100"
+                            }`}
+                        >
+                            <Trophy size={48} className={
+                                percentage >= 70 ? "text-yellow-500" : percentage >= 40 ? "text-blue-500" : "text-gray-500"
+                            } fill="currentColor" />
+                        </motion.div>
+                        
+                        <h2 className="text-2xl font-bold text-[#333333] mb-2">
+                            {percentage >= 70 ? "Super gemacht! 🎉" : percentage >= 40 ? "Gut gemacht!" : "Weiter üben!"}
+                        </h2>
+                        <p className="text-gray-500 mb-6">
+                            Du hast {score} von {questions.length} Fragen richtig beantwortet ({percentage}%)
+                        </p>
 
-                    {isAIGenerated && (
-                        <div className="text-xs text-purple-600 bg-purple-50 px-3 py-1 rounded-full inline-block mb-4">
-                            ✨ KI-generiertes Quiz
-                        </div>
-                    )}
-
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl mb-6 border border-orange-200">
-                        <div className="text-sm font-bold text-orange-600 uppercase tracking-wide mb-1">Belohnung</div>
-                        <div className="text-3xl font-bold text-[#FF6200]">+ {totalXP} XP</div>
-                        {multiplier > 1 && (
-                            <div className="text-xs text-orange-500 mt-1">
-                                inkl. {selectedDifficulty?.name} Bonus (x{multiplier})
+                        {isAIGenerated && (
+                            <div className="text-xs text-purple-600 bg-purple-50 px-3 py-1 rounded-full inline-block mb-4">
+                                ✨ KI-generiertes Quiz
                             </div>
                         )}
-                    </div>
 
-                    <div className="space-y-3">
-                        <button
-                            onClick={handleRestart}
-                            className="w-full bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors flex items-center justify-center gap-2"
-                        >
-                            <RefreshCw size={18} />
-                            Neues Quiz starten
-                        </button>
-                        <button
-                            onClick={onBack}
-                            className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
-                        >
-                            Zurück zum Dashboard
-                        </button>
-                    </div>
-                </motion.div>
+                        <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl mb-6 border border-orange-200">
+                            <div className="text-sm font-bold text-orange-600 uppercase tracking-wide mb-1">Belohnung</div>
+                            <div className="text-3xl font-bold text-[#FF6200]">+ {totalXP} XP</div>
+                            {multiplier > 1 && (
+                                <div className="text-xs text-orange-500 mt-1">
+                                    inkl. {selectedDifficulty?.name} Bonus (x{multiplier})
+                                </div>
+                        )}
+                        </div>
+
+                        <div className="space-y-3">
+                            <button
+                                onClick={handleRestart}
+                                className="w-full bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors flex items-center justify-center gap-2"
+                            >
+                                <RefreshCw size={18} />
+                                Neues Quiz starten
+                            </button>
+                            <button
+                                onClick={onBack}
+                                className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                            >
+                                Zurück zum Dashboard
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+                <BottomNav activeTab="learn" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
             </div>
         );
     }
@@ -466,6 +474,7 @@ export function JuniorQuizScreen({
                     </motion.div>
                 </AnimatePresence>
             </div>
+            <BottomNav activeTab="learn" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
         </div>
     );
 }
