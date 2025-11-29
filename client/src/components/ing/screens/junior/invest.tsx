@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScreenHeader } from "../../layout";
+import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
 import { TrendingUp, TrendingDown, Info, RefreshCw } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, Tooltip } from "recharts";
@@ -16,10 +16,12 @@ const MOCK_DATA = [
 
 export function JuniorInvestmentScreen({
     onBack,
-    onNavigate
+    onNavigate,
+    onLeoClick
 }: {
     onBack: () => void;
     onNavigate: (screen: Screen) => void;
+    onLeoClick?: () => void;
 }) {
     return (
         <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
@@ -93,6 +95,8 @@ export function JuniorInvestmentScreen({
                     </div>
                 </div>
             </div>
+            
+            <BottomNav activeTab="invest" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
         </div>
     );
 }

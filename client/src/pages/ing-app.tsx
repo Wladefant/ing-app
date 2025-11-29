@@ -23,6 +23,7 @@ import { JuniorDashboardScreen } from "@/components/ing/screens/junior/dashboard
 import { JuniorInvestmentScreen } from "@/components/ing/screens/junior/invest";
 import { JuniorQuizScreen } from "@/components/ing/screens/junior/quiz";
 import { JuniorLeaderboardScreen } from "@/components/ing/screens/junior/leaderboard";
+import { JuniorSavingsScreen } from "@/components/ing/screens/junior/savings";
 
 // Adult Screens
 import { AdultStatisticsScreen } from "@/components/ing/screens/adult/statistics";
@@ -46,9 +47,10 @@ export type Screen =
   | "statistics"
   | "subscriptions"
   | "stock-detail"
-  | "leaderboard";
+  | "leaderboard"
+  | "savings";
 
-import { sendMessageToOpenAI } from "@/lib/openai";
+import { sendMessageToOpenAI, WidgetAction } from "@/lib/openai";
 
 export function INGApp() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
@@ -57,6 +59,7 @@ export function INGApp() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // New state for typing indicator
   const [activeScenarioContext, setActiveScenarioContext] = useState<string | undefined>(undefined); // New state for context
+  const [pendingWidgets, setPendingWidgets] = useState<WidgetAction[]>([]); // Widgets from AI agent
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -69,6 +72,32 @@ export function INGApp() {
   const { toast } = useToast();
 
   const navigate = (screen: Screen) => setCurrentScreen(screen);
+
+  // Handle navigation from AI agent
+  const handleAgentNavigate = (screen: string) => {
+    const screenMap: Record<string, Screen> = {
+      dashboard: "dashboard",
+      invest: "invest",
+      transfer: "transfer",
+      subscriptions: "subscriptions",
+      statistics: "statistics",
+      savings: "savings",
+      quiz: "learn",
+      profile: "service",
+      settings: "service",
+      leaderboard: "leaderboard",
+    };
+    const targetScreen = screenMap[screen] || "dashboard";
+    setIsChatOpen(false);
+    navigate(targetScreen);
+  };
+
+  // Handle quiz start from AI agent
+  const handleStartQuiz = (topic: string, difficulty?: string) => {
+    setIsChatOpen(false);
+    // Navigate to quiz screen - in the future, pass topic/difficulty as state
+    navigate("learn");
+  };
 
   const handleTriggerScenario = (id: DemoScenarioId) => {
     const scenario = DEMO_SCENARIOS[id];
@@ -117,17 +146,55 @@ export function INGApp() {
     };
     setChatMessages(prev => [...prev, newMessage]);
     setIsTyping(true);
+    setPendingWidgets([]); // Clear previous widgets
 
-    // Call OpenAI
-    const responseText = await sendMessageToOpenAI([...chatMessages, newMessage], activeScenarioContext);
+    // Call OpenAI with agent capabilities
+    const agentResponse = await sendMessageToOpenAI(
+      [...chatMessages, newMessage], 
+      activeScenarioContext,
+      userProfile
+    );
 
     setIsTyping(false);
+
+    // Create response message - may include widget type if agent returned widgets
     const response: ChatMessage = {
       id: (Date.now() + 1).toString(),
       sender: "leo",
-      text: responseText,
+      text: agentResponse.response,
       timestamp: Date.now(),
     };
+
+    // If we have widgets from the agent, attach the first one to the message
+    if (agentResponse.widgets && agentResponse.widgets.length > 0) {
+      const firstWidget = agentResponse.widgets[0];
+      
+      // Map agent actions to widget types
+      const widgetTypeMap: Record<string, string> = {
+        show_stock_widget: "stock",
+        show_transfer_widget: "transfer",
+        start_quiz: "quiz",
+        show_achievement: "achievement",
+        show_savings_goal: "savings_goal",
+        show_spending_chart: "spending_chart",
+      };
+
+      if (widgetTypeMap[firstWidget.action]) {
+        response.widgetType = widgetTypeMap[firstWidget.action] as any;
+        response.widgetData = firstWidget.data;
+      }
+
+      // Store remaining widgets as pending
+      if (agentResponse.widgets.length > 1) {
+        setPendingWidgets(agentResponse.widgets.slice(1));
+      }
+
+      // Handle navigation action immediately
+      if (firstWidget.action === "navigate_to_screen") {
+        setTimeout(() => handleAgentNavigate(firstWidget.data.screen), 1500);
+      }
+    }
+
     setChatMessages(prev => [...prev, response]);
   };
 
@@ -185,6 +252,7 @@ export function INGApp() {
           <JuniorInvestmentScreen
             onBack={() => navigate("dashboard")}
             onNavigate={navigate}
+            onLeoClick={() => setIsChatOpen(true)}
           />
         )
       )}
@@ -201,6 +269,7 @@ export function INGApp() {
         <JuniorQuizScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
+          onLeoClick={() => setIsChatOpen(true)}
         />
       )}
 
@@ -237,6 +306,15 @@ export function INGApp() {
         <JuniorLeaderboardScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
+          onLeoClick={() => setIsChatOpen(true)}
+        />
+      )}
+
+      {currentScreen === "savings" && (
+        <JuniorSavingsScreen
+          onBack={() => navigate("dashboard")}
+          onNavigate={navigate}
+          onLeoClick={() => setIsChatOpen(true)}
         />
       )}
 
@@ -247,6 +325,9 @@ export function INGApp() {
         messages={chatMessages}
         onSendMessage={handleSendMessage}
         isTyping={isTyping}
+        onNavigate={handleAgentNavigate}
+        onStartQuiz={handleStartQuiz}
+        pendingWidgets={pendingWidgets}
       />
     </MobileLayout>
   );

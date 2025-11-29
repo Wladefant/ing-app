@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScreenHeader } from "../../layout";
+import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
 import { Trophy, Medal, TrendingUp, TrendingDown, Users, School, Crown, Flame, Star, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -38,9 +38,11 @@ type Tab = "weekly" | "alltime" | "school";
 export function JuniorLeaderboardScreen({
     onBack,
     onNavigate,
+    onLeoClick
 }: {
     onBack: () => void;
     onNavigate: (screen: Screen) => void;
+    onLeoClick?: () => void;
 }) {
     const [activeTab, setActiveTab] = useState<Tab>("weekly");
 
@@ -234,6 +236,8 @@ export function JuniorLeaderboardScreen({
                     </div>
                 </div>
             </div>
+            
+            <BottomNav activeTab="leaderboard" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
         </div>
     );
 }
