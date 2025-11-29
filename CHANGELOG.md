@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2025-11-29
+
+### 🐛 Bug Fixes
+
+#### Investment Screen Fixes
+- **TabButton Component**: Added missing TabButton component definition to invest.tsx
+- **Leo Chat Access**: Added onLeoClick prop to InvestScreen for Leo chat functionality
+- **BottomNav Integration**: Properly pass onLeoClick to BottomNav in InvestScreen
+
+#### Stock Detail Enhancements
+- **Dynamic Navigation**: StockDetailScreen now reads selectedStock from localStorage
+- **More Stocks**: Added data for MSFT, VUSA, NVDA, META, AMZN in stock-detail.tsx
+
+---
+
 ## [2.1.0] - 2025-11-29
 
 ### 🚀 New Features
