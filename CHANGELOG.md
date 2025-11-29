@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - 2025-11-29
+
+### 🐛 Bug Fixes
+
+#### Junior Quiz Screen
+- **BottomNav Missing**: Fixed missing BottomNav in Junior Quiz screen
+- **All Phases Fixed**: Added BottomNav to all 5 quiz phases (topic selection, difficulty, loading, quiz, result)
+- **Consistent Navigation**: Junior users can now navigate from any quiz phase
+
+---
+
 ## [2.1.1] - 2025-11-29
 
 ### 🐛 Bug Fixes
