@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Mic, Image, Paperclip, Send, ChevronDown, Trophy, Zap, TrendingUp, ArrowRight, Check, Volume2, Target, PieChart, Loader2, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { ChatMessage } from "@/lib/demo-scenarios";
 import { WidgetAction } from "@/lib/openai";
-import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import lionIcon from "@/assets/lion-logo.png";
 import ReactMarkdown from 'react-markdown';
 
 // Quiz Question interface
@@ -44,7 +44,7 @@ function StockWidget({ symbol, price, change, analysis }: { symbol: string; pric
     const isPositive = (change || 0) >= 0;
     const displayPrice = price || (symbol === "AAPL" ? 178.50 : symbol === "ING" ? 12.45 : symbol === "TSLA" ? 245.60 : 100);
     const displayChange = change || (symbol === "AAPL" ? 1.5 : symbol === "ING" ? 1.2 : symbol === "TSLA" ? -3.3 : 0.5);
-    
+
     return (
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between mb-2">
@@ -77,7 +77,7 @@ function StockWidget({ symbol, price, change, analysis }: { symbol: string; pric
 // Transfer Widget Component
 function TransferWidget({ recipient, amount, reference }: { recipient: string; amount: number; reference?: string }) {
     const [isSent, setIsSent] = useState(false);
-    
+
     if (isSent) {
         return (
             <div className="bg-green-50 rounded-xl p-4 border border-green-200 text-center">
@@ -89,7 +89,7 @@ function TransferWidget({ recipient, amount, reference }: { recipient: string; a
             </div>
         );
     }
-    
+
     return (
         <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-200">
             <div className="flex items-center gap-3 mb-3">
@@ -102,7 +102,7 @@ function TransferWidget({ recipient, amount, reference }: { recipient: string; a
                 </div>
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-3">€{amount.toFixed(2)}</div>
-            <button 
+            <button
                 onClick={() => setIsSent(true)}
                 className="w-full bg-violet-600 text-white py-3 rounded-xl font-bold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
             >
@@ -129,7 +129,7 @@ function QuizWidget({ topic, questions, xp, difficulty, onStart }: { topic: stri
             <div className="text-lg font-bold mb-1">{topic}</div>
             <div className="text-white/80 text-sm mb-1">{questions || 3} Fragen</div>
             {difficulty && <div className="text-white/60 text-xs mb-3">Schwierigkeit: {difficulty}</div>}
-            <button 
+            <button
                 onClick={onStart}
                 className="w-full bg-white text-violet-600 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors"
             >
@@ -140,12 +140,12 @@ function QuizWidget({ topic, questions, xp, difficulty, onStart }: { topic: stri
 }
 
 // Interactive Quiz Interface Component - The actual quiz with questions
-function InteractiveQuiz({ 
-    quizState, 
-    onAnswer, 
-    onNext, 
-    onFinish 
-}: { 
+function InteractiveQuiz({
+    quizState,
+    onAnswer,
+    onNext,
+    onFinish
+}: {
     quizState: QuizState;
     onAnswer: (answerIndex: number) => void;
     onNext: () => void;
@@ -153,19 +153,19 @@ function InteractiveQuiz({
 }) {
     const { questions, currentQuestion, score, answered, selectedAnswer, showExplanation, completed, topic, difficulty } = quizState;
     const question = questions[currentQuestion];
-    
+
     if (completed) {
         const totalQuestions = questions.length;
         const percentage = Math.round((score / totalQuestions) * 100);
         const xpEarned = score * 20 + (percentage === 100 ? 50 : 0);
-        
+
         return (
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-5 text-white text-center"
             >
-                <motion.div 
+                <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", delay: 0.2 }}
@@ -177,15 +177,15 @@ function InteractiveQuiz({
                         <Sparkles size={40} className="text-white" />
                     )}
                 </motion.div>
-                
+
                 <h3 className="text-xl font-bold mb-2">Quiz abgeschlossen!</h3>
                 <p className="text-white/80 mb-4">{topic} - {difficulty}</p>
-                
+
                 <div className="bg-white/20 rounded-xl p-4 mb-4">
                     <div className="text-4xl font-bold mb-1">{score}/{totalQuestions}</div>
                     <div className="text-sm text-white/80">Richtige Antworten</div>
                     <div className="mt-2 h-2 bg-white/20 rounded-full overflow-hidden">
-                        <motion.div 
+                        <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentage}%` }}
                             transition={{ duration: 0.5, delay: 0.3 }}
@@ -193,13 +193,13 @@ function InteractiveQuiz({
                         />
                     </div>
                 </div>
-                
+
                 <div className="flex items-center justify-center gap-2 mb-4">
                     <Zap size={20} fill="currentColor" className="text-yellow-300" />
                     <span className="font-bold text-lg">+{xpEarned} XP verdient!</span>
                 </div>
-                
-                <button 
+
+                <button
                     onClick={onFinish}
                     className="w-full bg-white text-violet-600 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors"
                 >
@@ -208,11 +208,11 @@ function InteractiveQuiz({
             </motion.div>
         );
     }
-    
+
     if (!question) return null;
-    
+
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-4 text-white"
@@ -227,30 +227,30 @@ function InteractiveQuiz({
                     Frage {currentQuestion + 1}/{questions.length}
                 </div>
             </div>
-            
+
             {/* Progress bar */}
             <div className="h-1.5 bg-white/20 rounded-full mb-4 overflow-hidden">
-                <motion.div 
+                <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentQuestion + (answered ? 1 : 0)) / questions.length) * 100}%` }}
                     className="h-full bg-white rounded-full"
                 />
             </div>
-            
+
             {/* Question */}
             <div className="text-lg font-bold mb-4 leading-snug">
                 {question.question}
             </div>
-            
+
             {/* Answer Options */}
             <div className="space-y-2 mb-4">
                 {question.options.map((option, index) => {
                     const isSelected = selectedAnswer === index;
                     const isCorrect = index === question.correctAnswer;
                     const showResult = answered;
-                    
+
                     let buttonClass = "w-full text-left px-4 py-3 rounded-xl font-medium transition-all flex items-center gap-3 ";
-                    
+
                     if (showResult) {
                         if (isCorrect) {
                             buttonClass += "bg-green-500 text-white border-2 border-green-300";
@@ -260,11 +260,11 @@ function InteractiveQuiz({
                             buttonClass += "bg-white/10 text-white/50 border-2 border-transparent";
                         }
                     } else {
-                        buttonClass += isSelected 
-                            ? "bg-white text-violet-600 border-2 border-white" 
+                        buttonClass += isSelected
+                            ? "bg-white text-violet-600 border-2 border-white"
                             : "bg-white/20 text-white hover:bg-white/30 border-2 border-transparent";
                     }
-                    
+
                     return (
                         <motion.button
                             key={index}
@@ -288,7 +288,7 @@ function InteractiveQuiz({
                     );
                 })}
             </div>
-            
+
             {/* Explanation after answering */}
             <AnimatePresence>
                 {showExplanation && question.explanation && (
@@ -303,14 +303,14 @@ function InteractiveQuiz({
                     </motion.div>
                 )}
             </AnimatePresence>
-            
+
             {/* Score and Next button */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Trophy size={16} className="text-yellow-300" />
                     <span className="text-sm font-bold">{score} Punkte</span>
                 </div>
-                
+
                 {answered && (
                     <motion.button
                         initial={{ opacity: 0, x: 20 }}
@@ -331,7 +331,7 @@ function InteractiveQuiz({
 function AchievementWidget({ name, xp, description }: { name: string; xp: number; description?: string }) {
     return (
         <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-4 text-white text-center">
-            <motion.div 
+            <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.2 }}
@@ -349,7 +349,7 @@ function AchievementWidget({ name, xp, description }: { name: string; xp: number
 // Savings Goal Widget Component
 function SavingsGoalWidget({ goalName, targetAmount, currentAmount, weeksRemaining }: { goalName: string; targetAmount: number; currentAmount: number; weeksRemaining?: number }) {
     const progress = Math.min((currentAmount / targetAmount) * 100, 100);
-    
+
     return (
         <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-200">
             <div className="flex items-center gap-2 mb-3">
@@ -366,7 +366,7 @@ function SavingsGoalWidget({ goalName, targetAmount, currentAmount, weeksRemaini
                 <span className="font-bold text-emerald-600">€{targetAmount.toFixed(0)}</span>
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden mb-2">
-                <motion.div 
+                <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     className="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full"
@@ -381,9 +381,9 @@ function SavingsGoalWidget({ goalName, targetAmount, currentAmount, weeksRemaini
 }
 
 // Spending Chart Widget Component
-function SpendingChartWidget({ category, amount, percentChange, breakdown }: { category: string; amount: number; percentChange?: number; breakdown?: Array<{name: string; amount: number}> }) {
+function SpendingChartWidget({ category, amount, percentChange, breakdown }: { category: string; amount: number; percentChange?: number; breakdown?: Array<{ name: string; amount: number }> }) {
     const isUp = (percentChange || 0) > 0;
-    
+
     return (
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
             <div className="flex items-center gap-2 mb-3">
@@ -601,7 +601,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                 }
             ]
         };
-        
+
         // Default questions if topic not found
         const defaultQuestions: QuizQuestion[] = [
             {
@@ -623,12 +623,12 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                 explanation: "Vor jeder Investition sollte man das Produkt verstehen und die Risiken kennen."
             }
         ];
-        
+
         let questions = quizBank[topic] || defaultQuestions;
-        
+
         // Adjust number of questions based on difficulty
         const numQuestions = difficulty === "einfach" ? 3 : difficulty === "schwer" ? 5 : 4;
-        
+
         // Shuffle and limit questions
         const shuffled = [...questions].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, numQuestions);
@@ -655,7 +655,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
     const handleQuizAnswer = (answerIndex: number) => {
         const question = quizState.questions[quizState.currentQuestion];
         const isCorrect = answerIndex === question.correctAnswer;
-        
+
         setQuizState(prev => ({
             ...prev,
             answered: true,
@@ -708,7 +708,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                     .map((result: any) => result[0].transcript)
                     .join('');
                 setInputValue(transcript);
-                
+
                 // If it's a final result, send the message
                 if (event.results[0].isFinal) {
                     setIsListening(false);
@@ -734,7 +734,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
 
     const toggleVoice = () => {
         if (!recognitionRef.current) return;
-        
+
         if (isListening) {
             recognitionRef.current.stop();
             setIsListening(false);
@@ -762,7 +762,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
     // Render widget based on type (from demo scenarios or AI-generated)
     const renderWidget = (msg: ChatMessage) => {
         if (!msg.widgetType || !msg.widgetData) return null;
-        
+
         switch (msg.widgetType) {
             case "stock":
                 return <StockWidget {...msg.widgetData} />;
@@ -801,7 +801,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
             case "navigate_to_screen":
                 // Show a navigation button
                 return (
-                    <button 
+                    <button
                         onClick={() => onNavigate?.(widget.data.screen)}
                         className="w-full bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors flex items-center justify-center gap-2"
                     >
@@ -815,7 +815,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
     };
 
     // Quick suggestion chips
-    const suggestions = mode === "general" 
+    const suggestions = mode === "general"
         ? ["Wie viel habe ich ausgegeben?", "Zeig mir mein Portfolio", "Erkläre ETFs"]
         : ["Quiz starten", "Aktien-Grundlagen", "Steuern lernen"];
 
@@ -831,7 +831,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                         onClick={onClose}
                         className="absolute inset-0 bg-black/30 z-40"
                     />
-                    
+
                     <motion.div
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
@@ -842,7 +842,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                         {/* Header */}
                         <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100 shrink-0">
                             <div className="flex items-center gap-3">
-                                <motion.div 
+                                <motion.div
                                     animate={{ scale: [1, 1.1, 1] }}
                                     transition={{ repeat: Infinity, duration: 2 }}
                                     className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center shadow-lg shadow-orange-200"
@@ -852,10 +852,10 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                 <div>
                                     <div className="font-bold text-[#333333]">Leo</div>
                                     <div className="text-xs text-[#FF6200] font-medium flex items-center gap-1">
-                                        <motion.span 
+                                        <motion.span
                                             animate={{ opacity: [1, 0.5, 1] }}
                                             transition={{ repeat: Infinity, duration: 1.5 }}
-                                            className="w-2 h-2 bg-green-500 rounded-full" 
+                                            className="w-2 h-2 bg-green-500 rounded-full"
                                         />
                                         Online • Powered by AI
                                     </div>
@@ -864,13 +864,13 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
 
                             <div className="flex items-center gap-2">
                                 <div className="flex bg-gray-100 rounded-full p-1">
-                                    <button 
+                                    <button
                                         onClick={() => setMode("general")}
                                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${mode === "general" ? "bg-white text-[#333333] shadow-sm" : "text-gray-500"}`}
                                     >
                                         💬 Chat
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => setMode("quiz")}
                                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${mode === "quiz" ? "bg-white text-[#333333] shadow-sm" : "text-gray-500"}`}
                                     >
@@ -888,14 +888,14 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
                             {/* Active Quiz Interface */}
                             {quizState.isActive && (
-                                <InteractiveQuiz 
+                                <InteractiveQuiz
                                     quizState={quizState}
                                     onAnswer={handleQuizAnswer}
                                     onNext={handleNextQuestion}
                                     onFinish={handleFinishQuiz}
                                 />
                             )}
-                            
+
                             {/* Regular Chat when no quiz is active */}
                             {!quizState.isActive && (
                                 <>
@@ -950,7 +950,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
 
                                                 {/* Render widget if present */}
                                                 {msg.widgetType && msg.widgetData && (
-                                                    <motion.div 
+                                                    <motion.div
                                                         initial={{ opacity: 0, scale: 0.95 }}
                                                         animate={{ opacity: 1, scale: 1 }}
                                                         transition={{ delay: 0.2 }}
@@ -981,7 +981,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                     ))}
 
                                     {isTyping && (
-                                        <motion.div 
+                                        <motion.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             className="flex justify-start"
@@ -994,20 +994,20 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                                     <span className="text-xs font-medium text-gray-500">Leo denkt nach...</span>
                                                 </div>
                                                 <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm flex gap-1">
-                                                    <motion.div 
+                                                    <motion.div
                                                         animate={{ y: [0, -5, 0] }}
                                                         transition={{ repeat: Infinity, duration: 0.6, delay: 0 }}
-                                                        className="w-2 h-2 bg-[#FF6200] rounded-full" 
+                                                        className="w-2 h-2 bg-[#FF6200] rounded-full"
                                                     />
-                                                    <motion.div 
+                                                    <motion.div
                                                         animate={{ y: [0, -5, 0] }}
                                                         transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }}
-                                                        className="w-2 h-2 bg-[#FF6200] rounded-full" 
+                                                        className="w-2 h-2 bg-[#FF6200] rounded-full"
                                                     />
-                                                    <motion.div 
+                                                    <motion.div
                                                         animate={{ y: [0, -5, 0] }}
                                                         transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }}
-                                                        className="w-2 h-2 bg-[#FF6200] rounded-full" 
+                                                        className="w-2 h-2 bg-[#FF6200] rounded-full"
                                                     />
                                                 </div>
                                             </div>
@@ -1057,12 +1057,12 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                         {/* Input Area */}
                         <div className="bg-white p-4 border-t border-gray-100 shrink-0 pb-8">
                             {isListening && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="flex items-center justify-center gap-2 mb-2 text-[#FF6200]"
                                 >
-                                    <motion.div 
+                                    <motion.div
                                         animate={{ scale: [1, 1.2, 1] }}
                                         transition={{ repeat: Infinity, duration: 0.8 }}
                                         className="w-2 h-2 bg-[#FF6200] rounded-full"
@@ -1071,7 +1071,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                 </motion.div>
                             )}
                             <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200 focus-within:border-[#FF6200] focus-within:ring-2 focus-within:ring-[#FF6200]/20 transition-all">
-                                <button 
+                                <button
                                     className="p-2 text-gray-400 hover:text-[#FF6200] transition-colors rounded-full hover:bg-gray-100"
                                     title="Datei anhängen"
                                 >
@@ -1097,20 +1097,19 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                     </motion.button>
                                 ) : (
                                     <>
-                                        <button 
+                                        <button
                                             className="p-2 text-gray-400 hover:text-[#FF6200] transition-colors rounded-full hover:bg-gray-100"
                                             title="Bild anhängen"
                                         >
                                             <Image size={20} />
                                         </button>
                                         {speechSupported && (
-                                            <motion.button 
+                                            <motion.button
                                                 onClick={toggleVoice}
-                                                className={`p-2 transition-colors rounded-full ${
-                                                    isListening 
-                                                        ? 'bg-[#FF6200] text-white' 
+                                                className={`p-2 transition-colors rounded-full ${isListening
+                                                        ? 'bg-[#FF6200] text-white'
                                                         : 'text-gray-400 hover:text-[#FF6200] hover:bg-gray-100'
-                                                }`}
+                                                    }`}
                                                 animate={isListening ? { scale: [1, 1.1, 1] } : {}}
                                                 transition={{ repeat: isListening ? Infinity : 0, duration: 1 }}
                                                 title={isListening ? "Aufnahme stoppen" : "Sprachaufnahme starten"}
@@ -1119,7 +1118,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                             </motion.button>
                                         )}
                                         {!speechSupported && (
-                                            <button 
+                                            <button
                                                 className="p-2 text-gray-300 cursor-not-allowed rounded-full"
                                                 title="Spracheingabe nicht unterstützt"
                                                 disabled
