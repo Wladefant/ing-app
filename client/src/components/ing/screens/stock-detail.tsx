@@ -4,16 +4,17 @@ import { Screen } from "@/pages/ing-app";
 import { TrendingUp, TrendingDown, Info, Star, Bell, Share2, MessageCircle, ChevronRight, ExternalLink, X, Plus, Minus, Check, AlertTriangle } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import lionIcon from "@/assets/lion-logo.png";
 import { addToPortfolio, removeFromPortfolio, getPortfolio, updateBalance, addTransaction, getBalance, formatCurrency, type Holding } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { BuySellDialog } from "./junior/buy-sell-dialog";
 
 // Generate mock price data
 const generatePriceData = (days: number, basePrice: number, volatility: number) => {
     const data = [];
     let price = basePrice;
     const now = new Date();
-    
+
     for (let i = days; i >= 0; i--) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
@@ -212,10 +213,10 @@ export function StockDetailScreen({
     const [orderStep, setOrderStep] = useState<"amount" | "confirm" | "success">("amount");
     const [selectedNews, setSelectedNews] = useState<{ title: string; time: string; sentiment: string } | null>(null);
     const { toast } = useToast();
-    
+
     const stock = STOCK_DATA[symbol as keyof typeof STOCK_DATA] || STOCK_DATA.ING;
     const isPositive = stock.changePercent >= 0;
-    
+
     // Generate chart data based on time range
     const chartDays = { "1D": 1, "1W": 7, "1M": 30, "3M": 90, "1Y": 365, "ALL": 730 };
     const priceData = generatePriceData(chartDays[timeRange], stock.price, stock.price * 0.02);
@@ -238,7 +239,7 @@ export function StockDetailScreen({
                 avgPrice: stock.price,
                 currentPrice: stock.price,
             });
-            
+
             // Deduct from account balance
             if (!isJunior) {
                 updateBalance("girokonto", -totalCost);
@@ -256,7 +257,7 @@ export function StockDetailScreen({
         } else {
             // Sell from portfolio
             removeFromPortfolio(stock.symbol, quantity);
-            
+
             // Add to account balance
             if (!isJunior) {
                 updateBalance("girokonto", totalCost);
@@ -272,7 +273,7 @@ export function StockDetailScreen({
                 });
             }
         }
-        
+
         setOrderStep("success");
     };
 
@@ -287,19 +288,19 @@ export function StockDetailScreen({
 
     return (
         <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
-            <ScreenHeader 
-                title={stock.symbol} 
+            <ScreenHeader
+                title={stock.symbol}
                 onBack={onBack}
                 rightAction={
                     <div className="flex gap-2">
-                        <button 
+                        <button
                             onClick={() => setIsWatchlisted(!isWatchlisted)}
                             className={`p-2 rounded-full transition-colors ${isWatchlisted ? 'text-yellow-500' : 'text-gray-400'}`}
                             title={isWatchlisted ? "Von Watchlist entfernen" : "Zur Watchlist hinzufügen"}
                         >
                             <Star size={20} fill={isWatchlisted ? "currentColor" : "none"} />
                         </button>
-                        <button 
+                        <button
                             onClick={() => toast({ title: "Teilen", description: `${stock.symbol} Link wurde kopiert!` })}
                             className="p-2 text-gray-400 rounded-full"
                             title="Teilen"
@@ -322,12 +323,11 @@ export function StockDetailScreen({
                             <div className="text-sm text-gray-500">{stock.symbol} • XETRA</div>
                         </div>
                     </div>
-                    
+
                     <div className="flex items-end gap-3">
                         <div className="text-4xl font-bold text-[#333333]">€{stock.price.toFixed(2)}</div>
-                        <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold ${
-                            isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                        }`}>
+                        <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold ${isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                            }`}>
                             {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                             {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
                         </div>
@@ -342,46 +342,45 @@ export function StockDetailScreen({
                             <button
                                 key={range}
                                 onClick={() => setTimeRange(range)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                                    timeRange === range 
-                                        ? 'bg-[#FF6200] text-white' 
-                                        : 'text-gray-500 hover:bg-gray-100'
-                                }`}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${timeRange === range
+                                    ? 'bg-[#FF6200] text-white'
+                                    : 'text-gray-500 hover:bg-gray-100'
+                                    }`}
                             >
                                 {range}
                             </button>
                         ))}
                     </div>
-                    
+
                     {/* Chart */}
                     <div className="h-48">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={priceData}>
                                 <defs>
                                     <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={isPositive ? "#22c55e" : "#ef4444"} stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor={isPositive ? "#22c55e" : "#ef4444"} stopOpacity={0}/>
+                                        <stop offset="5%" stopColor={isPositive ? "#22c55e" : "#ef4444"} stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor={isPositive ? "#22c55e" : "#ef4444"} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis 
-                                    dataKey="date" 
-                                    axisLine={false} 
-                                    tickLine={false} 
+                                <XAxis
+                                    dataKey="date"
+                                    axisLine={false}
+                                    tickLine={false}
                                     tick={{ fontSize: 10, fill: '#999' }}
                                     interval="preserveStartEnd"
                                 />
-                                <YAxis 
-                                    domain={['auto', 'auto']} 
-                                    axisLine={false} 
+                                <YAxis
+                                    domain={['auto', 'auto']}
+                                    axisLine={false}
                                     tickLine={false}
                                     tick={{ fontSize: 10, fill: '#999' }}
                                     width={40}
                                     tickFormatter={(v) => `€${v}`}
                                 />
-                                <Tooltip 
-                                    contentStyle={{ 
-                                        borderRadius: '12px', 
-                                        border: 'none', 
+                                <Tooltip
+                                    contentStyle={{
+                                        borderRadius: '12px',
+                                        border: 'none',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                         fontSize: '12px'
                                     }}
@@ -403,13 +402,13 @@ export function StockDetailScreen({
                 <div className="bg-white mt-2 p-4 flex gap-3">
                     {isJunior ? (
                         <>
-                            <button 
+                            <button
                                 onClick={() => handleOpenOrder("buy")}
                                 className="flex-1 bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors"
                             >
                                 Virtuell kaufen
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setIsWatchlisted(!isWatchlisted)}
                                 className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
                             >
@@ -418,13 +417,13 @@ export function StockDetailScreen({
                         </>
                     ) : (
                         <>
-                            <button 
+                            <button
                                 onClick={() => handleOpenOrder("buy")}
                                 className="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-colors"
                             >
                                 Kaufen
                             </button>
-                            <button 
+                            <button
                                 onClick={() => handleOpenOrder("sell")}
                                 className="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-colors"
                             >
@@ -456,17 +455,17 @@ export function StockDetailScreen({
                 <div className="bg-gradient-to-br from-orange-50 to-amber-50 mx-4 mt-4 p-4 rounded-2xl border border-orange-100">
                     <div className="flex items-start gap-3">
                         <div className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center shrink-0">
-                            <img src={lionIcon} alt="Leo" className="w-6 h-6 object-contain brightness-0 invert" />
+                            <img src={lionIcon} alt="Leo" className="w-8 h-8 object-contain" />
                         </div>
                         <div className="flex-1">
                             <div className="font-bold text-orange-700 text-sm mb-1">Leo's Einschätzung</div>
                             <p className="text-xs text-orange-600 leading-relaxed mb-3">
-                                {stock.symbol} ist {isPositive ? 'heute im Plus' : 'heute im Minus'}. 
-                                {isJunior 
-                                    ? " Möchtest du ein Quiz über diese Aktie machen? 🧠" 
+                                {stock.symbol} ist {isPositive ? 'heute im Plus' : 'heute im Minus'}.
+                                {isJunior
+                                    ? " Möchtest du ein Quiz über diese Aktie machen? 🧠"
                                     : " Soll ich dir erklären, wie diese Aktie in dein Portfolio passt?"}
                             </p>
-                            <button 
+                            <button
                                 onClick={onLeoClick}
                                 className="flex items-center gap-2 text-xs font-bold text-[#FF6200] hover:underline"
                             >
@@ -485,15 +484,14 @@ export function StockDetailScreen({
                     </h3>
                     <div className="space-y-3">
                         {stock.news.map((item, idx) => (
-                            <button 
-                                key={idx} 
+                            <button
+                                key={idx}
                                 onClick={() => setSelectedNews(item)}
                                 className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl w-full text-left hover:bg-gray-100 transition-colors"
                             >
-                                <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                                    item.sentiment === 'positive' ? 'bg-green-500' :
+                                <div className={`w-2 h-2 rounded-full mt-1.5 ${item.sentiment === 'positive' ? 'bg-green-500' :
                                     item.sentiment === 'negative' ? 'bg-red-500' : 'bg-gray-400'
-                                }`} />
+                                    }`} />
                                 <div className="flex-1">
                                     <div className="font-medium text-sm text-[#333333]">{item.title}</div>
                                     <div className="text-xs text-gray-400 mt-1">{item.time}</div>
@@ -524,13 +522,12 @@ export function StockDetailScreen({
                             className="w-full bg-white rounded-t-3xl p-6 pb-10 max-h-[80vh] overflow-y-auto"
                         >
                             <div className="flex items-center justify-between mb-4">
-                                <span className={`px-2 py-1 rounded text-xs font-bold ${
-                                    selectedNews.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
-                                    selectedNews.sentiment === 'negative' ? 'bg-red-100 text-red-700' : 
-                                    'bg-gray-100 text-gray-700'
-                                }`}>
+                                <span className={`px-2 py-1 rounded text-xs font-bold ${selectedNews.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
+                                    selectedNews.sentiment === 'negative' ? 'bg-red-100 text-red-700' :
+                                        'bg-gray-100 text-gray-700'
+                                    }`}>
                                     {selectedNews.sentiment === 'positive' ? '📈 Positiv' :
-                                     selectedNews.sentiment === 'negative' ? '📉 Negativ' : '📊 Neutral'}
+                                        selectedNews.sentiment === 'negative' ? '📉 Negativ' : '📊 Neutral'}
                                 </span>
                                 <button
                                     onClick={() => setSelectedNews(null)}
@@ -547,11 +544,11 @@ export function StockDetailScreen({
                             {/* Mock article content */}
                             <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
                                 <p>
-                                    {selectedNews.sentiment === 'positive' 
+                                    {selectedNews.sentiment === 'positive'
                                         ? `Die jüngsten Entwicklungen bei ${stock.name} sorgen für Optimismus an den Märkten. Analysten sehen weiteres Wachstumspotenzial und empfehlen die Aktie zum Kauf.`
                                         : selectedNews.sentiment === 'negative'
-                                        ? `${stock.name} steht vor Herausforderungen. Experten raten zur Vorsicht, beobachten aber die weitere Entwicklung genau.`
-                                        : `Die neuesten Nachrichten zu ${stock.name} werden von Marktteilnehmern aufmerksam verfolgt. Die Auswirkungen auf den Aktienkurs bleiben abzuwarten.`
+                                            ? `${stock.name} steht vor Herausforderungen. Experten raten zur Vorsicht, beobachten aber die weitere Entwicklung genau.`
+                                            : `Die neuesten Nachrichten zu ${stock.name} werden von Marktteilnehmern aufmerksam verfolgt. Die Auswirkungen auf den Aktienkurs bleiben abzuwarten.`
                                     }
                                 </p>
                                 <p>
@@ -574,207 +571,194 @@ export function StockDetailScreen({
             </AnimatePresence>
 
             {/* Order Modal */}
-            <AnimatePresence>
-                {showOrderModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-black/50 z-50 flex items-end"
-                        onClick={handleCloseOrder}
-                    >
+            {isJunior ? (
+                <BuySellDialog
+                    isOpen={showOrderModal}
+                    onClose={handleCloseOrder}
+                    mode={orderType}
+                    stock={stock}
+                />
+            ) : (
+                <AnimatePresence>
+                    {showOrderModal && (
                         <motion.div
-                            initial={{ y: "100%" }}
-                            animate={{ y: 0 }}
-                            exit={{ y: "100%" }}
-                            transition={{ type: "spring", damping: 25 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-full bg-white rounded-t-3xl p-6 pb-10"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/50 z-50 flex items-end"
+                            onClick={handleCloseOrder}
                         >
-                            {/* Amount Step */}
-                            {orderStep === "amount" && (
-                                <>
-                                    <div className="flex items-center justify-between mb-6">
-                                        <h2 className="text-xl font-bold text-[#333333]">
-                                            {isJunior ? "Virtuell " : ""}{orderType === "buy" ? "Kaufen" : "Verkaufen"}
-                                        </h2>
-                                        <button
-                                            onClick={handleCloseOrder}
-                                            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
-                                            aria-label="Schließen"
-                                        >
-                                            <X size={18} className="text-gray-500" />
-                                        </button>
-                                    </div>
-
-                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
-                                        <span className="text-3xl">{stock.logo}</span>
-                                        <div>
-                                            <div className="font-bold text-[#333333]">{stock.name}</div>
-                                            <div className="text-sm text-gray-500">€{stock.price.toFixed(2)} pro Aktie</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="text-center mb-6">
-                                        <label className="text-sm text-gray-500 block mb-3">Anzahl Aktien</label>
-                                        <div className="flex items-center justify-center gap-6">
+                            <motion.div
+                                initial={{ y: "100%" }}
+                                animate={{ y: 0 }}
+                                exit={{ y: "100%" }}
+                                transition={{ type: "spring", damping: 25 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full bg-white rounded-t-3xl p-6 pb-10"
+                            >
+                                {/* Amount Step */}
+                                {orderStep === "amount" && (
+                                    <>
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h2 className="text-xl font-bold text-[#333333]">
+                                                {orderType === "buy" ? "Kaufen" : "Verkaufen"}
+                                            </h2>
                                             <button
-                                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                                                aria-label="Weniger"
+                                                onClick={handleCloseOrder}
+                                                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                                aria-label="Schließen"
                                             >
-                                                <Minus size={20} className="text-gray-600" />
-                                            </button>
-                                            <div className="text-5xl font-bold text-[#333333] w-24">{quantity}</div>
-                                            <button
-                                                onClick={() => setQuantity(quantity + 1)}
-                                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                                                aria-label="Mehr"
-                                            >
-                                                <Plus size={20} className="text-gray-600" />
+                                                <X size={18} className="text-gray-500" />
                                             </button>
                                         </div>
-                                    </div>
 
-                                    <div className="space-y-2 mb-6">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-500">Summe</span>
-                                            <span className="font-bold">€{totalCost.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-500">Ordergebühr</span>
-                                            <span className="font-bold text-green-600">€0,00</span>
-                                        </div>
-                                        <div className="border-t pt-2 flex justify-between">
-                                            <span className="font-bold text-[#333333]">Gesamt</span>
-                                            <span className="font-bold text-xl text-[#333333]">€{totalCost.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => setOrderStep("confirm")}
-                                        className={`w-full py-4 rounded-xl font-bold transition-colors ${
-                                            orderType === "buy"
-                                                ? "bg-green-500 text-white hover:bg-green-600"
-                                                : "bg-red-500 text-white hover:bg-red-600"
-                                        }`}
-                                    >
-                                        Weiter zur Bestätigung
-                                    </button>
-                                </>
-                            )}
-
-                            {/* Confirm Step */}
-                            {orderStep === "confirm" && (
-                                <>
-                                    <div className="flex items-center justify-between mb-6">
-                                        <h2 className="text-xl font-bold text-[#333333]">Order bestätigen</h2>
-                                        <button
-                                            onClick={handleCloseOrder}
-                                            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
-                                            aria-label="Schließen"
-                                        >
-                                            <X size={18} className="text-gray-500" />
-                                        </button>
-                                    </div>
-
-                                    <div className={`p-4 rounded-xl mb-6 ${
-                                        orderType === "buy" ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
-                                    }`}>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
                                             <span className="text-3xl">{stock.logo}</span>
                                             <div>
-                                                <div className="font-bold text-[#333333]">
-                                                    {quantity}x {stock.symbol} {orderType === "buy" ? "kaufen" : "verkaufen"}
-                                                </div>
-                                                <div className="text-2xl font-bold mt-1 text-[#333333]">
-                                                    €{totalCost.toFixed(2)}
+                                                <div className="font-bold text-[#333333]">{stock.name}</div>
+                                                <div className="text-sm text-gray-500">€{stock.price.toFixed(2)} pro Aktie</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-center mb-6">
+                                            <label className="text-sm text-gray-500 block mb-3">Anzahl Aktien</label>
+                                            <div className="flex items-center justify-center gap-6">
+                                                <button
+                                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                                    className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                                                    aria-label="Weniger"
+                                                >
+                                                    <Minus size={20} className="text-gray-600" />
+                                                </button>
+                                                <div className="text-5xl font-bold text-[#333333] w-24">{quantity}</div>
+                                                <button
+                                                    onClick={() => setQuantity(quantity + 1)}
+                                                    className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                                                    aria-label="Mehr"
+                                                >
+                                                    <Plus size={20} className="text-gray-600" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2 mb-6">
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-500">Summe</span>
+                                                <span className="font-bold">€{totalCost.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-500">Ordergebühr</span>
+                                                <span className="font-bold text-green-600">€0,00</span>
+                                            </div>
+                                            <div className="border-t pt-2 flex justify-between">
+                                                <span className="font-bold text-[#333333]">Gesamt</span>
+                                                <span className="font-bold text-xl text-[#333333]">€{totalCost.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setOrderStep("confirm")}
+                                            className={`w-full py-4 rounded-xl font-bold transition-colors ${orderType === "buy"
+                                                ? "bg-green-500 text-white hover:bg-green-600"
+                                                : "bg-red-500 text-white hover:bg-red-600"
+                                                }`}
+                                        >
+                                            Weiter zur Bestätigung
+                                        </button>
+                                    </>
+                                )}
+
+                                {/* Confirm Step */}
+                                {orderStep === "confirm" && (
+                                    <>
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h2 className="text-xl font-bold text-[#333333]">Order bestätigen</h2>
+                                            <button
+                                                onClick={handleCloseOrder}
+                                                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                                aria-label="Schließen"
+                                            >
+                                                <X size={18} className="text-gray-500" />
+                                            </button>
+                                        </div>
+
+                                        <div className={`p-4 rounded-xl mb-6 ${orderType === "buy" ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+                                            }`}>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-3xl">{stock.logo}</span>
+                                                <div>
+                                                    <div className="font-bold text-[#333333]">
+                                                        {quantity}x {stock.symbol} {orderType === "buy" ? "kaufen" : "verkaufen"}
+                                                    </div>
+                                                    <div className="text-2xl font-bold mt-1 text-[#333333]">
+                                                        €{totalCost.toFixed(2)}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {!isJunior && (
                                         <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-200 mb-6">
                                             <AlertTriangle size={20} className="text-amber-600 shrink-0 mt-0.5" />
                                             <p className="text-sm text-amber-700">
-                                                Mit dem Klick auf "Order ausführen" bestätigst du den {orderType === "buy" ? "Kauf" : "Verkauf"} 
+                                                Mit dem Klick auf "Order ausführen" bestätigst du den {orderType === "buy" ? "Kauf" : "Verkauf"}
                                                 zum aktuellen Marktpreis. Der finale Preis kann leicht abweichen.
                                             </p>
                                         </div>
-                                    )}
 
-                                    {isJunior && (
-                                        <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-xl border border-purple-200 mb-6">
-                                            <span className="text-lg">🎮</span>
-                                            <p className="text-sm text-purple-700">
-                                                Dies ist ein virtueller Kauf zum Üben. Du verwendest kein echtes Geld!
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    <div className="flex gap-3">
-                                        <button
-                                            onClick={() => setOrderStep("amount")}
-                                            className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors"
-                                        >
-                                            Zurück
-                                        </button>
-                                        <button
-                                            onClick={handleConfirmOrder}
-                                            className={`flex-1 py-4 rounded-xl font-bold transition-colors ${
-                                                orderType === "buy"
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => setOrderStep("amount")}
+                                                className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                                            >
+                                                Zurück
+                                            </button>
+                                            <button
+                                                onClick={handleConfirmOrder}
+                                                className={`flex-1 py-4 rounded-xl font-bold transition-colors ${orderType === "buy"
                                                     ? "bg-green-500 text-white hover:bg-green-600"
                                                     : "bg-red-500 text-white hover:bg-red-600"
-                                            }`}
+                                                    }`}
+                                            >
+                                                Order ausführen
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Success Step */}
+                                {orderStep === "success" && (
+                                    <div className="text-center py-6">
+                                        <motion.div
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{ type: "spring", delay: 0.1 }}
+                                            className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${orderType === "buy" ? "bg-green-100" : "bg-red-100"
+                                                }`}
                                         >
-                                            Order ausführen
+                                            <Check size={40} className={orderType === "buy" ? "text-green-600" : "text-red-600"} />
+                                        </motion.div>
+
+                                        <h2 className="text-2xl font-bold text-[#333333] mb-2">
+                                            Order ausgeführt!
+                                        </h2>
+                                        <p className="text-gray-500 mb-6">
+                                            Du hast {quantity} {stock.symbol} Aktie{quantity > 1 ? "n" : ""}
+                                            {orderType === "buy" ? " gekauft" : " verkauft"} für €{totalCost.toFixed(2)}.
+                                        </p>
+
+                                        <button
+                                            onClick={handleCloseOrder}
+                                            className="w-full bg-[#FF6200] text-white py-4 rounded-xl font-bold hover:bg-[#e55800] transition-colors"
+                                        >
+                                            Fertig
                                         </button>
                                     </div>
-                                </>
-                            )}
-
-                            {/* Success Step */}
-                            {orderStep === "success" && (
-                                <div className="text-center py-6">
-                                    <motion.div
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ type: "spring", delay: 0.1 }}
-                                        className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
-                                            orderType === "buy" ? "bg-green-100" : "bg-red-100"
-                                        }`}
-                                    >
-                                        <Check size={40} className={orderType === "buy" ? "text-green-600" : "text-red-600"} />
-                                    </motion.div>
-
-                                    <h2 className="text-2xl font-bold text-[#333333] mb-2">
-                                        {isJunior ? "Virtueller Kauf erfolgreich!" : "Order ausgeführt!"}
-                                    </h2>
-                                    <p className="text-gray-500 mb-6">
-                                        Du hast {quantity} {stock.symbol} Aktie{quantity > 1 ? "n" : ""} 
-                                        {orderType === "buy" ? " gekauft" : " verkauft"} für €{totalCost.toFixed(2)}.
-                                    </p>
-
-                                    {isJunior && (
-                                        <div className="bg-purple-50 p-4 rounded-xl mb-6 border border-purple-200">
-                                            <div className="text-sm font-bold text-purple-600 mb-1">🎉 +25 XP erhalten!</div>
-                                            <p className="text-xs text-purple-500">Für deinen ersten virtuellen Trade</p>
-                                        </div>
-                                    )}
-
-                                    <button
-                                        onClick={handleCloseOrder}
-                                        className="w-full bg-[#FF6200] text-white py-4 rounded-xl font-bold hover:bg-[#e55800] transition-colors"
-                                    >
-                                        Fertig
-                                    </button>
-                                </div>
-                            )}
+                                )}
+                            </motion.div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )}
+                </AnimatePresence>
+            )}
         </div>
     );
 }
