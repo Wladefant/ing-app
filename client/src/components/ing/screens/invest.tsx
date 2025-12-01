@@ -22,12 +22,9 @@ const data = [
 ];
 
 // Watchlist
-const WATCHLIST = [
-  { symbol: "TSLA", name: "Tesla Inc.", price: 245.60, change: -3.3 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", price: 420.50, change: 3.2 },
-  { symbol: "AMZN", name: "Amazon.com Inc.", price: 178.90, change: 1.8 },
-  { symbol: "META", name: "Meta Platforms", price: 485.20, change: 2.1 },
-];
+// Watchlist
+const WATCHLIST_SYMBOLS = ["TSLA", "NVDA", "AMZN", "META"];
+const INITIAL_WATCHLIST = STOCK_DATABASE.filter(s => WATCHLIST_SYMBOLS.includes(s.symbol));
 
 // Market News
 const MARKET_NEWS = [
@@ -40,15 +37,15 @@ const MARKET_NEWS = [
 type InvestTab = "portfolio" | "watchlist" | "news";
 
 // Tab Button Component
-function TabButton({ 
-  label, 
-  icon, 
-  active, 
-  onClick 
-}: { 
-  label: string; 
-  icon: React.ReactNode; 
-  active: boolean; 
+function TabButton({
+  label,
+  icon,
+  active,
+  onClick
+}: {
+  label: string;
+  icon: React.ReactNode;
+  active: boolean;
   onClick: () => void;
 }) {
   return (
@@ -56,8 +53,8 @@ function TabButton({
       onClick={onClick}
       className={cn(
         "flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium transition-colors border-b-2",
-        active 
-          ? "text-[#FF6200] border-[#FF6200]" 
+        active
+          ? "text-[#FF6200] border-[#FF6200]"
           : "text-gray-500 border-transparent hover:text-gray-700"
       )}
     >
@@ -78,28 +75,25 @@ export function InvestScreen({
 }) {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [activeTab, setActiveTab] = useState<InvestTab>("portfolio");
-  const [watchlist, setWatchlist] = useState(WATCHLIST);
-  const [showOrderModal, setShowOrderModal] = useState(false);
-  const [selectedStock, setSelectedStock] = useState<any>(null);
-  const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
+  const [watchlist, setWatchlist] = useState(INITIAL_WATCHLIST);
   const [portfolioHoldings, setPortfolioHoldings] = useState<Holding[]>([]);
   const [showSparplanModal, setShowSparplanModal] = useState(false);
   const [showAnalyseModal, setShowAnalyseModal] = useState(false);
-  
+
   // Load portfolio from storage on mount
   useEffect(() => {
     const loadPortfolio = () => {
       const holdings = getPortfolio();
       setPortfolioHoldings(holdings);
     };
-    
+
     loadPortfolio();
-    
+
     // Refresh on focus
     const handleFocus = () => loadPortfolio();
     window.addEventListener("focus", handleFocus);
     window.addEventListener("storage", handleFocus);
-    
+
     return () => {
       window.removeEventListener("focus", handleFocus);
       window.removeEventListener("storage", handleFocus);
@@ -112,11 +106,7 @@ export function InvestScreen({
     onNavigate("stock-detail");
   };
 
-  const handleBuySell = (stock: any, type: "buy" | "sell") => {
-    setSelectedStock(stock);
-    setOrderType(type);
-    setShowOrderModal(true);
-  };
+
 
   const addToWatchlist = (stock: any) => {
     if (!watchlist.find(w => w.symbol === stock.symbol)) {
@@ -143,7 +133,7 @@ export function InvestScreen({
         <div className="px-4 py-3 flex justify-between items-center">
           <span className="font-bold text-lg text-[#FF6200]">Investieren</span>
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={() => setShowSearchModal(true)}
               className="w-10 h-10 rounded-full bg-[#FF6200]/10 hover:bg-[#FF6200]/20 flex items-center justify-center transition-colors"
               title="Aktie suchen"
@@ -153,26 +143,26 @@ export function InvestScreen({
             </button>
           </div>
         </div>
-        
+
         {/* Tab Bar */}
         <div className="flex border-b border-gray-100">
-          <TabButton 
-            label="Portfolio" 
-            icon={<Briefcase size={16} />} 
-            active={activeTab === "portfolio"} 
-            onClick={() => setActiveTab("portfolio")} 
+          <TabButton
+            label="Portfolio"
+            icon={<Briefcase size={16} />}
+            active={activeTab === "portfolio"}
+            onClick={() => setActiveTab("portfolio")}
           />
-          <TabButton 
-            label="Watchlist" 
-            icon={<Bookmark size={16} />} 
-            active={activeTab === "watchlist"} 
-            onClick={() => setActiveTab("watchlist")} 
+          <TabButton
+            label="Watchlist"
+            icon={<Bookmark size={16} />}
+            active={activeTab === "watchlist"}
+            onClick={() => setActiveTab("watchlist")}
           />
-          <TabButton 
-            label="News" 
-            icon={<Newspaper size={16} />} 
-            active={activeTab === "news"} 
-            onClick={() => setActiveTab("news")} 
+          <TabButton
+            label="News"
+            icon={<Newspaper size={16} />}
+            active={activeTab === "news"}
+            onClick={() => setActiveTab("news")}
           />
         </div>
       </div>
@@ -234,7 +224,7 @@ export function InvestScreen({
                   <div className="p-8 text-center text-gray-500">
                     <div className="text-4xl mb-3">📈</div>
                     <p>Noch keine Positionen vorhanden.</p>
-                    <button 
+                    <button
                       onClick={() => setShowSearchModal(true)}
                       className="mt-4 text-[#FF6200] font-bold"
                     >
@@ -242,62 +232,62 @@ export function InvestScreen({
                     </button>
                   </div>
                 ) : (
-                portfolioHoldings.map((holding) => {
-                  const value = holding.shares * holding.currentPrice;
-                  const gain = (holding.currentPrice - holding.avgPrice) * holding.shares;
-                  const gainPercent = ((holding.currentPrice - holding.avgPrice) / holding.avgPrice * 100).toFixed(1);
-                  return (
-                    <div 
-                      key={holding.symbol}
-                      onClick={() => handleSelectStock(holding.symbol)}
-                      className="p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center font-bold text-[#33307E] text-xs">
-                          {holding.symbol.substring(0, 2)}
+                  portfolioHoldings.map((holding) => {
+                    const value = holding.shares * holding.currentPrice;
+                    const gain = (holding.currentPrice - holding.avgPrice) * holding.shares;
+                    const gainPercent = ((holding.currentPrice - holding.avgPrice) / holding.avgPrice * 100).toFixed(1);
+                    return (
+                      <div
+                        key={holding.symbol}
+                        onClick={() => handleSelectStock(holding.symbol)}
+                        className="p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center font-bold text-[#33307E] text-xs">
+                            {holding.symbol.substring(0, 2)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-[#333333] text-sm">{holding.symbol}</div>
+                            <div className="text-xs text-gray-500">{holding.shares} Stk. × {holding.currentPrice.toFixed(2)}€</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-bold text-[#333333] text-sm">{holding.symbol}</div>
-                          <div className="text-xs text-gray-500">{holding.shares} Stk. × {holding.currentPrice.toFixed(2)}€</div>
+                        <div className="text-right">
+                          <div className="font-bold text-[#333333]">{value.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
+                          <div className={`text-xs font-bold ${gain >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {gain >= 0 ? '+' : ''}{gain.toFixed(2)}€ ({gain >= 0 ? '+' : ''}{gainPercent}%)
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold text-[#333333]">{value.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
-                        <div className={`text-xs font-bold ${gain >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                          {gain >= 0 ? '+' : ''}{gain.toFixed(2)}€ ({gain >= 0 ? '+' : ''}{gainPercent}%)
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
+                    );
+                  })
                 )}
               </div>
             </div>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3">
-              <button 
+              <button
                 onClick={() => setShowSearchModal(true)}
                 className="bg-[#33307E] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
               >
                 <Plus size={18} />
                 Kaufen
               </button>
-              <button 
+              <button
                 onClick={() => onNavigate("orders")}
                 className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
               >
                 <ArrowRightLeft size={18} />
                 Orders
               </button>
-              <button 
+              <button
                 onClick={() => setShowSparplanModal(true)}
                 className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
               >
                 <Repeat size={18} />
                 Sparplan
               </button>
-              <button 
+              <button
                 onClick={() => setShowAnalyseModal(true)}
                 className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
               >
@@ -318,7 +308,7 @@ export function InvestScreen({
                 </div>
                 <h3 className="font-bold text-[#333333] mb-2">Watchlist leer</h3>
                 <p className="text-sm text-gray-500 mb-4">Füge Aktien hinzu, die du beobachten möchtest.</p>
-                <button 
+                <button
                   onClick={() => setShowSearchModal(true)}
                   className="bg-[#FF6200] text-white px-6 py-2 rounded-xl font-bold"
                 >
@@ -329,7 +319,7 @@ export function InvestScreen({
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                   <span className="font-bold text-[#333333]">Beobachtete Werte</span>
-                  <button 
+                  <button
                     onClick={() => setShowSearchModal(true)}
                     className="text-xs text-[#FF6200] font-bold flex items-center gap-1"
                   >
@@ -338,7 +328,7 @@ export function InvestScreen({
                 </div>
                 <div className="divide-y divide-gray-100">
                   {watchlist.map((stock) => (
-                    <div 
+                    <div
                       key={stock.symbol}
                       className="p-4 flex items-center justify-between"
                     >
@@ -357,11 +347,11 @@ export function InvestScreen({
                       <div className="text-right flex items-center gap-3">
                         <div>
                           <div className="font-bold text-[#333333]">{stock.price.toFixed(2)} €</div>
-                          <div className={`text-xs font-bold ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(1)}%
+                          <div className={`text-xs font-bold ${stock.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
                           </div>
                         </div>
-                        <button 
+                        <button
                           onClick={() => removeFromWatchlist(stock.symbol)}
                           className="p-2 hover:bg-gray-100 rounded-full"
                           title="Entfernen"
@@ -379,13 +369,13 @@ export function InvestScreen({
             <div className="bg-white rounded-2xl p-4 shadow-sm">
               <div className="font-bold text-[#333333] mb-3">Top Movers heute</div>
               <div className="space-y-3">
-                {SEARCHABLE_STOCKS.slice(0, 3).sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).map((stock) => (
-                  <MoverRow 
+                {STOCK_DATABASE.slice(0, 3).sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).map((stock) => (
+                  <MoverRow
                     key={stock.symbol}
-                    name={stock.name} 
-                    change={`${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(1)}%`} 
-                    isPositive={stock.change >= 0} 
-                    price={`${stock.price.toFixed(2)} €`} 
+                    name={stock.name}
+                    change={`${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(1)}%`}
+                    isPositive={stock.change >= 0}
+                    price={`${stock.price.toFixed(2)} €`}
                   />
                 ))}
               </div>
@@ -404,8 +394,9 @@ export function InvestScreen({
                 <span className="font-bold text-sm">Leo's Markt-Update</span>
               </div>
               <p className="text-sm leading-relaxed text-blue-100 relative z-10">
-                Dein Portfolio ist gut diversifiziert! 🌍 Tech-Aktien sind diese Woche um 2,4% gestiegen. 
-                NVIDIA meldet Rekordgewinne, Tesla unter Druck.
+                {totalGain >= 0
+                  ? "Dein Portfolio ist gut diversifiziert! 🌍 Tech-Aktien sind diese Woche gestiegen. NVIDIA meldet Rekordgewinne."
+                  : "Die Märkte sind aktuell etwas volatil. 📉 Aber keine Sorge, langfristig zahlt sich Geduld aus. Sparpläne nutzen den Cost-Average-Effekt."}
               </p>
             </div>
 
@@ -416,7 +407,7 @@ export function InvestScreen({
               </div>
               <div className="divide-y divide-gray-100">
                 {MARKET_NEWS.map((news) => (
-                  <button 
+                  <button
                     key={news.id}
                     className="p-4 w-full text-left hover:bg-gray-50 transition-colors"
                   >
@@ -498,7 +489,7 @@ export function InvestScreen({
               <div className="space-y-4 mb-6">
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <label className="text-sm text-gray-500 block mb-2">Wertpapier auswählen</label>
-                  <button 
+                  <button
                     onClick={() => { setShowSparplanModal(false); setShowSearchModal(true); }}
                     className="w-full p-3 bg-white rounded-lg border border-gray-200 text-left flex items-center justify-between"
                   >
@@ -510,9 +501,9 @@ export function InvestScreen({
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <label className="text-sm text-gray-500 block mb-2">Sparbetrag</label>
                   <div className="flex items-center gap-2">
-                    <input 
-                      type="number" 
-                      placeholder="50" 
+                    <input
+                      type="number"
+                      placeholder="50"
                       className="flex-1 p-3 bg-white rounded-lg border border-gray-200 font-bold text-lg"
                     />
                     <span className="text-lg font-bold text-gray-500">€ / Monat</span>
@@ -604,8 +595,8 @@ export function InvestScreen({
                         <span className="font-bold">{sector.percent}%</span>
                       </div>
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${sector.color} rounded-full`} 
+                        <div
+                          className={`h-full ${sector.color} rounded-full`}
                           style={{ width: `${sector.percent}%` }}
                         />
                       </div>
@@ -649,16 +640,7 @@ export function InvestScreen({
   );
 }
 
-function InvestAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
-  return (
-    <button onClick={onClick} className="flex flex-col items-center gap-2">
-      <div className="w-14 h-14 rounded-full bg-[#33307E] flex items-center justify-center text-white shadow-md active:scale-95 transition-transform">
-        {icon}
-      </div>
-      <span className="text-xs text-gray-500 font-medium">{label}</span>
-    </button>
-  );
-}
+
 
 function TimeSelector({ label, active }: { label: string; active?: boolean }) {
   return (
