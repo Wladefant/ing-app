@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Search, X, Clock, TrendingUp, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -117,7 +117,14 @@ export function StockSearchModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="sm:max-w-[425px] p-0 gap-0 bg-white rounded-2xl overflow-hidden max-h-[85vh]">
+      <DialogContent 
+        className="w-[calc(100%-32px)] max-w-[340px] p-0 gap-0 bg-white rounded-2xl overflow-hidden max-h-[65vh] mx-auto"
+        hideCloseButton
+      >
+        <DialogHeader className="sr-only">
+          <DialogTitle>Aktie suchen</DialogTitle>
+          <DialogDescription>Suche nach Aktien, ETFs oder Fonds</DialogDescription>
+        </DialogHeader>
         {/* Header with Search */}
         <div className="p-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
@@ -152,7 +159,7 @@ export function StockSearchModal({
         </div>
         
         {/* Content */}
-        <div className="flex-1 overflow-y-auto max-h-[60vh]">
+        <div className="flex-1 overflow-y-auto max-h-[55vh]">
           <AnimatePresence mode="wait">
             {/* Loading State */}
             {isSearching && (
@@ -201,7 +208,7 @@ export function StockSearchModal({
                         className="w-full p-4 bg-gray-50 hover:bg-gray-100 rounded-xl flex items-center justify-between transition-colors group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#33307E] border border-gray-200 group-hover:border-[#FF6200] transition-colors text-sm">
+                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-bold text-[#33307E] border border-gray-200 group-hover:border-[#FF6200] transition-colors text-base">
                             {stock.symbol.substring(0, 2)}
                           </div>
                           <div className="text-left">
@@ -288,10 +295,10 @@ export function StockSearchModal({
                       >
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center",
+                            "w-10 h-10 rounded-xl flex items-center justify-center",
                             stock.changePercent >= 0 ? "bg-green-100" : "bg-red-100"
                           )}>
-                            <TrendingUp size={14} className={cn(
+                            <TrendingUp size={18} className={cn(
                               stock.changePercent >= 0 ? "text-green-600" : "text-red-600 rotate-180"
                             )} />
                           </div>
