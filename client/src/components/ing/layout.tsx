@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Briefcase, Calendar, PieChart, User, Package, TrendingUp, Home, BookOpen, Trophy } from "lucide-react";
-import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import lionIcon from "@/assets/lion-logo.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,10 +11,12 @@ interface LayoutProps {
 export function MobileLayout({ children, className }: LayoutProps) {
   return (
     <div className="min-h-screen w-full bg-neutral-100 flex justify-center items-center p-4 font-sans">
-      <div className={cn(
-        "w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500 ring-4 ring-gray-200",
-        className
-      )}>
+      <div
+        id="mobile-container"
+        className={cn(
+          "w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500 ring-4 ring-gray-200",
+          className
+        )}>
         {/* Status Bar Mockup */}
         <div className="h-8 bg-[#F3F3F3] flex justify-between items-center px-6 text-xs font-medium text-gray-500 shrink-0 z-50">
           <span>09:41</span>
@@ -34,18 +36,18 @@ export function MobileLayout({ children, className }: LayoutProps) {
   );
 }
 
-export function ScreenHeader({ title, onBack, rightAction }: { title?: string; onBack?: () => void; rightAction?: ReactNode }) {
+export function ScreenHeader({ title, onBack, rightAction, className }: { title?: string; onBack?: () => void; rightAction?: ReactNode; className?: string }) {
   return (
-    <div className="h-14 px-4 flex items-center justify-between bg-[#F3F3F3] shrink-0">
+    <div className={cn("h-14 px-4 flex items-center justify-between bg-[#F3F3F3] shrink-0", className)}>
       <div className="flex items-center gap-4">
         {onBack && (
-          <button onClick={onBack} className="text-orange-500" title="Zurück">
+          <button onClick={onBack} className={cn("text-orange-500", className?.includes("text-white") && "text-white")} title="Zurück">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
         )}
-        {title && <h1 className="text-lg font-bold text-[#333333]">{title}</h1>}
+        {title && <h1 className={cn("text-lg font-bold text-[#333333]", className?.includes("text-white") && "text-white")}>{title}</h1>}
       </div>
       {rightAction}
     </div>
@@ -106,7 +108,7 @@ export function BottomNav({
           className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(255,98,0,0.3)] border-4 border-[#F3F3F3] active:scale-95 transition-transform"
         >
           <div className="w-12 h-12 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
-            <img src={lionIcon} alt="Leo" className="w-8 h-8 object-contain brightness-0 invert" />
+            <img src={lionIcon} alt="Leo" className="w-full h-full object-cover scale-110" />
           </div>
         </button>
       </div>
