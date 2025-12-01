@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../layout";
 import { Screen } from "@/pages/ing-app";
-import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Clock, Star, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical, Calendar, BarChart3, Target, Repeat } from "lucide-react";
+import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical, Calendar, BarChart3, Target, Repeat } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPortfolio, addToPortfolio, removeFromPortfolio, updateBalance, addTransaction, type Holding, formatCurrency } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { StockSearchModal } from "@/components/ui/stock-search-modal";
+import { STOCK_DATABASE } from "@/lib/stock-data";
 
 const data = [
   { name: 'Jan', value: 5630 },
@@ -34,22 +36,6 @@ const MARKET_NEWS = [
   { id: 3, title: "NVIDIA meldet Rekordgewinn", source: "Bloomberg", time: "vor 6 Std", sentiment: "positive" },
   { id: 4, title: "Tesla Aktie unter Druck nach Gewinnwarnung", source: "CNBC", time: "vor 8 Std", sentiment: "negative" },
 ];
-
-// Available stocks for search
-const SEARCHABLE_STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", price: 178.50, change: 1.3 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", price: 138.20, change: -1.1 },
-  { symbol: "MSFT", name: "Microsoft Corp.", price: 378.90, change: 1.1 },
-  { symbol: "TSLA", name: "Tesla Inc.", price: 245.60, change: -3.3 },
-  { symbol: "AMZN", name: "Amazon.com Inc.", price: 178.90, change: 1.8 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", price: 420.50, change: 3.2 },
-  { symbol: "META", name: "Meta Platforms", price: 485.20, change: 2.1 },
-  { symbol: "ING", name: "ING Groep N.V.", price: 12.45, change: 1.2 },
-  { symbol: "SAP", name: "SAP SE", price: 178.30, change: 0.5 },
-  { symbol: "NFLX", name: "Netflix Inc.", price: 485.20, change: -1.0 },
-];
-
-const RECENT_SEARCHES = ["Apple", "Tesla", "ETF Welt"];
 
 type InvestTab = "portfolio" | "watchlist" | "news";
 
@@ -90,9 +76,7 @@ export function InvestScreen({
   onNavigate: (s: Screen) => void,
   onLeoClick?: () => void
 }) {
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [recentSearches, setRecentSearches] = useState(RECENT_SEARCHES);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [activeTab, setActiveTab] = useState<InvestTab>("portfolio");
   const [watchlist, setWatchlist] = useState(WATCHLIST);
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -122,22 +106,8 @@ export function InvestScreen({
     };
   }, []);
 
-  const filteredStocks = searchQuery.length > 0 
-    ? SEARCHABLE_STOCKS.filter(s => 
-        s.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
-
   const handleSelectStock = (symbol: string) => {
-    // Add to recent searches
-    if (!recentSearches.includes(symbol)) {
-      setRecentSearches([symbol, ...recentSearches.slice(0, 2)]);
-    }
-    // Navigate to stock detail
-    setShowSearch(false);
-    setSearchQuery("");
-    // Use the stock-detail screen (stored in localStorage for now)
+    // Navigate to stock detail screen
     localStorage.setItem("selectedStock", symbol);
     onNavigate("stock-detail");
   };
@@ -174,11 +144,12 @@ export function InvestScreen({
           <span className="font-bold text-lg text-[#FF6200]">Investieren</span>
           <div className="flex gap-2">
             <button 
-              onClick={() => setShowSearch(true)}
-              className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"
-              title="Suchen"
+              onClick={() => setShowSearchModal(true)}
+              className="w-10 h-10 rounded-full bg-[#FF6200]/10 hover:bg-[#FF6200]/20 flex items-center justify-center transition-colors"
+              title="Aktie suchen"
+              aria-label="Aktie suchen"
             >
-              <Search size={18} className="text-gray-600" />
+              <Search size={20} className="text-[#FF6200]" />
             </button>
           </div>
         </div>
@@ -264,7 +235,7 @@ export function InvestScreen({
                     <div className="text-4xl mb-3">📈</div>
                     <p>Noch keine Positionen vorhanden.</p>
                     <button 
-                      onClick={() => setShowSearch(true)}
+                      onClick={() => setShowSearchModal(true)}
                       className="mt-4 text-[#FF6200] font-bold"
                     >
                       Erste Aktie kaufen
@@ -306,7 +277,7 @@ export function InvestScreen({
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3">
               <button 
-                onClick={() => setShowSearch(true)}
+                onClick={() => setShowSearchModal(true)}
                 className="bg-[#33307E] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
               >
                 <Plus size={18} />
@@ -348,7 +319,7 @@ export function InvestScreen({
                 <h3 className="font-bold text-[#333333] mb-2">Watchlist leer</h3>
                 <p className="text-sm text-gray-500 mb-4">Füge Aktien hinzu, die du beobachten möchtest.</p>
                 <button 
-                  onClick={() => setShowSearch(true)}
+                  onClick={() => setShowSearchModal(true)}
                   className="bg-[#FF6200] text-white px-6 py-2 rounded-xl font-bold"
                 >
                   Aktie suchen
@@ -359,7 +330,7 @@ export function InvestScreen({
                 <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                   <span className="font-bold text-[#333333]">Beobachtete Werte</span>
                   <button 
-                    onClick={() => setShowSearch(true)}
+                    onClick={() => setShowSearchModal(true)}
                     className="text-xs text-[#FF6200] font-bold flex items-center gap-1"
                   >
                     <Plus size={14} /> Hinzufügen
@@ -471,122 +442,12 @@ export function InvestScreen({
 
       <BottomNav activeTab="invest" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="adult" />
 
-      {/* Search Modal */}
-      <AnimatePresence>
-        {showSearch && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-white z-50 flex flex-col"
-          >
-            {/* Search Header */}
-            <div className="p-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => {
-                    setShowSearch(false);
-                    setSearchQuery("");
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                  aria-label="Schließen"
-                >
-                  <X size={24} className="text-gray-500" />
-                </button>
-                <div className="flex-1 relative">
-                  <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Aktie, ETF oder Fonds suchen..."
-                    autoFocus
-                    className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-[#33307E]/20"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Search Results */}
-            <div className="flex-1 overflow-y-auto">
-              {searchQuery.length === 0 ? (
-                <>
-                  {/* Recent Searches */}
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-bold text-gray-500">Letzte Suchen</span>
-                      <button 
-                        onClick={() => setRecentSearches([])}
-                        className="text-xs text-[#FF6200] font-bold"
-                      >
-                        Löschen
-                      </button>
-                    </div>
-                    {recentSearches.map((search, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSearchQuery(search)}
-                        className="flex items-center gap-3 w-full p-3 hover:bg-gray-50 rounded-xl"
-                      >
-                        <Clock size={18} className="text-gray-400" />
-                        <span className="text-[#333333]">{search}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Popular */}
-                  <div className="p-4 border-t border-gray-100">
-                    <span className="text-sm font-bold text-gray-500 block mb-3">Beliebt</span>
-                    <div className="flex flex-wrap gap-2">
-                      {["Apple", "Tesla", "Microsoft", "NVIDIA", "ETF Welt"].map((term) => (
-                        <button
-                          key={term}
-                          onClick={() => setSearchQuery(term)}
-                          className="px-3 py-2 bg-gray-100 rounded-full text-sm text-[#333333] hover:bg-gray-200 transition-colors"
-                        >
-                          {term}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="p-4 space-y-2">
-                  {filteredStocks.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      Keine Ergebnisse für "{searchQuery}"
-                    </div>
-                  ) : (
-                    filteredStocks.map((stock) => (
-                      <button
-                        key={stock.symbol}
-                        onClick={() => handleSelectStock(stock.symbol)}
-                        className="w-full p-4 bg-gray-50 rounded-xl flex items-center justify-between hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#33307E] border border-gray-200">
-                            {stock.symbol.substring(0, 2)}
-                          </div>
-                          <div className="text-left">
-                            <div className="font-bold text-[#333333]">{stock.symbol}</div>
-                            <div className="text-xs text-gray-500">{stock.name}</div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-[#333333]">€{stock.price.toFixed(2)}</div>
-                          <div className={`text-xs font-bold ${stock.change >= 0 ? "text-green-500" : "text-red-500"}`}>
-                            {stock.change >= 0 ? "+" : ""}{stock.change.toFixed(1)}%
-                          </div>
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Stock Search Modal */}
+      <StockSearchModal
+        open={showSearchModal}
+        onOpenChange={setShowSearchModal}
+        onSelectStock={handleSelectStock}
+      />
 
       {/* Sparplan Modal */}
       <AnimatePresence>
@@ -638,7 +499,7 @@ export function InvestScreen({
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <label className="text-sm text-gray-500 block mb-2">Wertpapier auswählen</label>
                   <button 
-                    onClick={() => { setShowSparplanModal(false); setShowSearch(true); }}
+                    onClick={() => { setShowSparplanModal(false); setShowSearchModal(true); }}
                     className="w-full p-3 bg-white rounded-lg border border-gray-200 text-left flex items-center justify-between"
                   >
                     <span className="text-gray-400">ETF oder Aktie suchen...</span>
