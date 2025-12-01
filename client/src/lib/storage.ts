@@ -105,12 +105,14 @@ export interface JuniorSavingsGoal {
 export interface JuniorPortfolio {
   totalValue: number;
   totalInvested: number;
+  cashBalance: number;
   holdings: JuniorHolding[];
   trades: JuniorTrade[];
 }
 
 export interface JuniorHolding {
   id: string;
+  symbol: string;
   name: string;
   icon: string;
   shares: number;
@@ -196,15 +198,15 @@ function getDefaultTransactions(): Transaction[] {
   const transactions: Transaction[] = [];
   const today = new Date();
   let idCounter = 1;
-  
+
   // Helper to create a transaction
   const createTx = (
-    daysAgo: number, 
-    type: Transaction["type"], 
-    amount: number, 
-    from: string, 
-    to: string, 
-    reference: string, 
+    daysAgo: number,
+    type: Transaction["type"],
+    amount: number,
+    from: string,
+    to: string,
+    reference: string,
     category: string
   ): Transaction => {
     const date = new Date(today);
@@ -222,41 +224,41 @@ function getDefaultTransactions(): Transaction[] {
       category,
     };
   };
-  
+
   // Generate 12 months of data
   for (let month = 0; month < 12; month++) {
     const daysOffset = month * 30;
-    
+
     // Monthly salary (around 1st-5th of each month)
     const salaryDay = daysOffset + Math.floor(Math.random() * 5) + 1;
     const salaryAmount = 2850 + Math.floor(Math.random() * 200) - 100; // 2750-2950
     transactions.push(createTx(salaryDay, "income", salaryAmount, "Arbeitgeber GmbH", "Girokonto", `Gehalt ${new Date(today.getTime() - daysOffset * 24 * 60 * 60 * 1000).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`, "Gehalt"));
-    
+
     // Rent (around 1st-3rd of each month)
     const rentDay = daysOffset + Math.floor(Math.random() * 3) + 1;
     transactions.push(createTx(rentDay, "payment", -850, "Girokonto", "Hausverwaltung Schmidt", "Miete + NK", "Miete"));
-    
+
     // Electricity/Gas (quarterly, every 3rd month)
     if (month % 3 === 0) {
       transactions.push(createTx(daysOffset + 10, "payment", -95 - Math.floor(Math.random() * 30), "Girokonto", "Stadtwerke München", "Strom/Gas Abschlag", "Haushalt"));
     }
-    
+
     // Internet/Phone (monthly)
     transactions.push(createTx(daysOffset + 15, "payment", -49.99, "Girokonto", "Telekom Deutschland", "Mobilfunk + Internet", "Haushalt"));
-    
+
     // Streaming subscriptions
     transactions.push(createTx(daysOffset + 5, "payment", -12.99, "Girokonto", "Netflix", "Streaming Abo", "Entertainment"));
     transactions.push(createTx(daysOffset + 8, "payment", -9.99, "Girokonto", "Spotify", "Premium Abo", "Entertainment"));
-    
+
     // Insurance (monthly)
     transactions.push(createTx(daysOffset + 1, "payment", -89.50, "Girokonto", "Allianz Versicherung", "Haftpflicht + Hausrat", "Versicherung"));
-    
+
     // Gym membership
     transactions.push(createTx(daysOffset + 1, "payment", -29.90, "Girokonto", "FitX Studio", "Mitgliedschaft", "Gesundheit"));
-    
+
     // Monthly savings transfer
     transactions.push(createTx(daysOffset + 5, "savings", -200, "Girokonto", "Extra-Konto", "Monatliches Sparen", "Sparen"));
-    
+
     // Weekly grocery shopping (4 times per month)
     for (let week = 0; week < 4; week++) {
       const groceryDay = daysOffset + (week * 7) + Math.floor(Math.random() * 3);
@@ -265,7 +267,7 @@ function getDefaultTransactions(): Transaction[] {
       const store = stores[Math.floor(Math.random() * stores.length)];
       transactions.push(createTx(groceryDay, "payment", groceryAmount, "Girokonto", store, "Einkauf Lebensmittel", "Lebensmittel"));
     }
-    
+
     // Restaurant visits (2-4 times per month)
     const restaurantVisits = 2 + Math.floor(Math.random() * 3);
     for (let i = 0; i < restaurantVisits; i++) {
@@ -275,7 +277,7 @@ function getDefaultTransactions(): Transaction[] {
       const rest = restaurants[Math.floor(Math.random() * restaurants.length)];
       transactions.push(createTx(restDay, "payment", restAmount, "Girokonto", rest, "Restaurant", "Restaurant"));
     }
-    
+
     // Coffee shops (4-8 times per month)
     const coffeeVisits = 4 + Math.floor(Math.random() * 5);
     for (let i = 0; i < coffeeVisits; i++) {
@@ -285,7 +287,7 @@ function getDefaultTransactions(): Transaction[] {
       const shop = shops[Math.floor(Math.random() * shops.length)];
       transactions.push(createTx(coffeeDay, "payment", coffeeAmount, "Girokonto", shop, "Kaffee & Snack", "Restaurant"));
     }
-    
+
     // Transport - fuel/public transport (3-5 times per month)
     const transportTimes = 3 + Math.floor(Math.random() * 3);
     for (let i = 0; i < transportTimes; i++) {
@@ -300,7 +302,7 @@ function getDefaultTransactions(): Transaction[] {
         transactions.push(createTx(transDay, "payment", -2.90, "Girokonto", "MVV München", "Einzelfahrt", "Transport"));
       }
     }
-    
+
     // Shopping (1-3 times per month)
     const shoppingTimes = 1 + Math.floor(Math.random() * 3);
     for (let i = 0; i < shoppingTimes; i++) {
@@ -310,7 +312,7 @@ function getDefaultTransactions(): Transaction[] {
       const shop = shops[Math.floor(Math.random() * shops.length)];
       transactions.push(createTx(shopDay, "payment", shopAmount, "Girokonto", shop, "Online-Bestellung", "Shopping"));
     }
-    
+
     // ATM withdrawals (1-2 times per month)
     const atmTimes = 1 + Math.floor(Math.random() * 2);
     for (let i = 0; i < atmTimes; i++) {
@@ -318,7 +320,7 @@ function getDefaultTransactions(): Transaction[] {
       const atmAmount = -50 * (1 + Math.floor(Math.random() * 4)); // 50, 100, 150, or 200€
       transactions.push(createTx(atmDay, "payment", atmAmount, "Girokonto", "Geldautomat", "Bargeldabhebung", "Bargeld"));
     }
-    
+
     // Entertainment (cinema, concerts, etc.) - 1-2 times per month
     if (Math.random() > 0.3) {
       const entDay = daysOffset + Math.floor(Math.random() * 28);
@@ -327,7 +329,7 @@ function getDefaultTransactions(): Transaction[] {
       const venue = venues[Math.floor(Math.random() * venues.length)];
       transactions.push(createTx(entDay, "payment", entAmount, "Girokonto", venue, "Tickets/Events", "Entertainment"));
     }
-    
+
     // Medical expenses (occasionally)
     if (Math.random() > 0.7) {
       const medDay = daysOffset + Math.floor(Math.random() * 28);
@@ -336,14 +338,14 @@ function getDefaultTransactions(): Transaction[] {
       const place = places[Math.floor(Math.random() * places.length)];
       transactions.push(createTx(medDay, "payment", medAmount, "Girokonto", place, "Gesundheit", "Gesundheit"));
     }
-    
+
     // Random bonus income (occasionally)
     if (Math.random() > 0.85 && month > 0) {
       const bonusDay = daysOffset + Math.floor(Math.random() * 28);
       const bonusAmount = 50 + Math.floor(Math.random() * 200); // 50-250€
       transactions.push(createTx(bonusDay, "income", bonusAmount, "Rückerstattung/Bonus", "Girokonto", "Rückerstattung", "Sonstiges"));
     }
-    
+
     // Investment purchase (monthly)
     if (month > 0 && month % 2 === 0) {
       const investDay = daysOffset + 15;
@@ -351,10 +353,10 @@ function getDefaultTransactions(): Transaction[] {
       transactions.push(createTx(investDay, "investment", investAmount, "Girokonto", "Direkt-Depot", "ETF Sparplan", "Investment"));
     }
   }
-  
+
   // Sort by date (most recent first)
   transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  
+
   return transactions;
 }
 
@@ -642,7 +644,7 @@ export function updateStreak(): { streakIncreased: boolean; newStreak: number } 
   const profile = getJuniorProfile();
   const today = new Date().toISOString().split("T")[0];
   const lastActive = profile.lastActiveDate;
-  
+
   let newStreak = profile.streak;
   let streakIncreased = false;
 
@@ -675,7 +677,7 @@ export function addQuizResult(correct: number, total: number): void {
 export function unlockAchievement(achievement: Achievement): boolean {
   const profile = getJuniorProfile();
   if (profile.badges.includes(achievement.id)) return false;
-  
+
   updateJuniorProfile({
     badges: [...profile.badges, achievement.id],
     achievements: [...profile.achievements, achievement],
@@ -722,27 +724,27 @@ export function getLeaderboard(type: "weekly" | "monthly" | "allTime" | "school"
 export function updateLeaderboardRank(newRank: number): void {
   const profile = getJuniorProfile();
   updateJuniorProfile({ rank: newRank });
-  
+
   // Update in leaderboard data
   const leaderboard = getFromStorage<Record<string, LeaderboardEntry[]>>(STORAGE_KEYS.LEADERBOARD, getDefaultLeaderboard());
-  
+
   Object.keys(leaderboard).forEach(key => {
-    leaderboard[key] = leaderboard[key].map(entry => 
+    leaderboard[key] = leaderboard[key].map(entry =>
       entry.isCurrentUser ? { ...entry, rank: newRank, xp: profile.weeklyXp } : entry
     );
   });
-  
+
   setToStorage(STORAGE_KEYS.LEADERBOARD, leaderboard);
 }
 
 // Update leaderboard position based on new XP - recalculates rank
 export function updateLeaderboardPosition(profile: JuniorProfile): void {
   const leaderboard = getFromStorage<Record<string, LeaderboardEntry[]>>(STORAGE_KEYS.LEADERBOARD, getDefaultLeaderboard());
-  
+
   // Get all entries as flat array, update current user's XP
   Object.keys(leaderboard).forEach(key => {
     const entries = leaderboard[key];
-    
+
     // Update current user's entry with new XP
     entries.forEach(entry => {
       if (entry.isCurrentUser) {
@@ -750,26 +752,26 @@ export function updateLeaderboardPosition(profile: JuniorProfile): void {
         entry.level = profile.level;
       }
     });
-    
+
     // Sort by XP to determine new ranks
     entries.sort((a, b) => b.xp - a.xp);
-    
+
     // Reassign ranks
     entries.forEach((entry, index) => {
       entry.rank = index + 1;
     });
-    
+
     leaderboard[key] = entries;
   });
-  
+
   // Find new rank for current user
   const globalLeaderboard = leaderboard['global'] || [];
   const currentUserEntry = globalLeaderboard.find(e => e.isCurrentUser);
   const newRank = currentUserEntry?.rank || profile.rank;
-  
+
   // Update profile rank
   updateJuniorProfile({ rank: newRank });
-  
+
   setToStorage(STORAGE_KEYS.LEADERBOARD, leaderboard);
 }
 
@@ -873,64 +875,102 @@ export function getJuniorPortfolio(): JuniorPortfolio {
   return getFromStorage<JuniorPortfolio>(STORAGE_KEYS.JUNIOR_PORTFOLIO, getDefaultJuniorPortfolio());
 }
 
-export function buyJuniorStock(holdingId: string, shares: number, price: number): void {
+export function buyJuniorStock(symbol: string, name: string, icon: string, shares: number, price: number): { success: boolean; error?: string } {
   const portfolio = getJuniorPortfolio();
-  const holding = portfolio.holdings.find(h => h.id === holdingId);
-  
-  if (holding) {
-    holding.shares += shares;
-    holding.buyPrice = ((holding.buyPrice * (holding.shares - shares)) + (price * shares)) / holding.shares;
+  const totalCost = shares * price;
+
+  if (portfolio.cashBalance < totalCost) {
+    return { success: false, error: "Nicht genügend Spielgeld verfügbar." };
   }
-  
+
+  let holding = portfolio.holdings.find(h => h.symbol === symbol);
+
+  if (holding) {
+    // Update existing holding
+    const oldTotalCost = holding.shares * holding.buyPrice;
+    const newTotalCost = oldTotalCost + totalCost;
+    holding.shares += shares;
+    holding.buyPrice = newTotalCost / holding.shares;
+    holding.currentPrice = price; // Update current price
+  } else {
+    // Create new holding
+    holding = {
+      id: generateId(),
+      symbol,
+      name,
+      icon,
+      shares,
+      buyPrice: price,
+      currentPrice: price
+    };
+    portfolio.holdings.push(holding);
+  }
+
   const trade: JuniorTrade = {
     id: generateId(),
     type: "buy",
-    holdingId,
-    holdingName: holding?.name || "Unknown",
+    holdingId: holding.id,
+    holdingName: name,
     shares,
     price,
     date: new Date().toISOString(),
   };
-  
+
   portfolio.trades.unshift(trade);
-  portfolio.totalInvested += shares * price;
+  portfolio.cashBalance -= totalCost;
+  portfolio.totalInvested += totalCost;
   portfolio.totalValue = portfolio.holdings.reduce((sum, h) => sum + (h.shares * h.currentPrice), 0);
-  
+
   setToStorage(STORAGE_KEYS.JUNIOR_PORTFOLIO, portfolio);
+  return { success: true };
 }
 
-export function sellJuniorStock(holdingId: string, shares: number, price: number): void {
+export function sellJuniorStock(symbol: string, shares: number, price: number): { success: boolean; error?: string } {
   const portfolio = getJuniorPortfolio();
-  const holding = portfolio.holdings.find(h => h.id === holdingId);
-  
-  if (holding && holding.shares >= shares) {
-    holding.shares -= shares;
-    
-    const trade: JuniorTrade = {
-      id: generateId(),
-      type: "sell",
-      holdingId,
-      holdingName: holding.name,
-      shares,
-      price,
-      date: new Date().toISOString(),
-    };
-    
-    portfolio.trades.unshift(trade);
-    portfolio.totalValue = portfolio.holdings.reduce((sum, h) => sum + (h.shares * h.currentPrice), 0);
-    
-    setToStorage(STORAGE_KEYS.JUNIOR_PORTFOLIO, portfolio);
+  const holding = portfolio.holdings.find(h => h.symbol === symbol);
+
+  if (!holding || holding.shares < shares) {
+    return { success: false, error: "Nicht genügend Anteile vorhanden." };
   }
+
+  const totalProceeds = shares * price;
+  holding.shares -= shares;
+
+  // Remove holding if shares are 0
+  if (holding.shares <= 0) {
+    portfolio.holdings = portfolio.holdings.filter(h => h.symbol !== symbol);
+  }
+
+  const trade: JuniorTrade = {
+    id: generateId(),
+    type: "sell",
+    holdingId: holding.id,
+    holdingName: holding.name,
+    shares,
+    price,
+    date: new Date().toISOString(),
+  };
+
+  portfolio.trades.unshift(trade);
+  portfolio.cashBalance += totalProceeds;
+  // totalInvested doesn't necessarily decrease on sell in a simple model, or we can adjust it. 
+  // Let's leave totalInvested as cumulative investment or adjust it proportionally? 
+  // For simplicity, let's just update totalValue.
+  portfolio.totalValue = portfolio.holdings.reduce((sum, h) => sum + (h.shares * h.currentPrice), 0);
+
+  setToStorage(STORAGE_KEYS.JUNIOR_PORTFOLIO, portfolio);
+  return { success: true };
 }
 
 function getDefaultJuniorPortfolio(): JuniorPortfolio {
   return {
     totalValue: 1240.50,
     totalInvested: 1100,
+    cashBalance: 5000.00, // Start with 5000 virtual euros
     holdings: [
-      { id: "jh-1", name: "GameTech Corp", icon: "🎮", shares: 12, buyPrice: 35.50, currentPrice: 37.52 },
-      { id: "jh-2", name: "Sneaker World", icon: "👟", shares: 8, buyPrice: 28.50, currentPrice: 40.10 },
-      { id: "jh-3", name: "Burger King", icon: "🍔", shares: 6, buyPrice: 18.00, currentPrice: 35.08 },
+      { id: "jh-1", symbol: "GAME", name: "GameTech Corp", icon: "🎮", shares: 12, buyPrice: 35.50, currentPrice: 37.52 },
+      { id: "jh-2", symbol: "SNKR", name: "Sneaker World", icon: "👟", shares: 8, buyPrice: 28.50, currentPrice: 40.10 },
+      { id: "jh-3", symbol: "BRGR", name: "Burger King", icon: "🍔", shares: 6, buyPrice: 18.00, currentPrice: 35.08 },
     ],
     trades: [
       { id: "jt-1", type: "buy", holdingId: "jh-1", holdingName: "GameTech Corp", shares: 5, price: 35.50, date: "2025-09-15" },
@@ -956,13 +996,13 @@ export function getSpendingByCategory(): SpendingCategory[] {
   const transactions = getTransactions();
   const thisMonth = new Date().getMonth();
   const thisYear = new Date().getFullYear();
-  
+
   // Filter expenses from this month
   const expenses = transactions.filter(t => {
     const date = new Date(t.date);
     return t.amount < 0 && date.getMonth() === thisMonth && date.getFullYear() === thisYear;
   });
-  
+
   // Category mappings
   const categoryConfig: Record<string, { icon: string; color: string }> = {
     "Transport": { icon: "🚗", color: "#FF6B6B" },
@@ -975,16 +1015,16 @@ export function getSpendingByCategory(): SpendingCategory[] {
     "Gehalt": { icon: "💵", color: "#82E0AA" },
     "Sonstiges": { icon: "📦", color: "#AED6F1" },
   };
-  
+
   // Group by category
   const categoryTotals: Record<string, number> = {};
   expenses.forEach(t => {
     const cat = t.category || "Sonstiges";
     categoryTotals[cat] = (categoryTotals[cat] || 0) + Math.abs(t.amount);
   });
-  
+
   const totalSpending = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
-  
+
   // Convert to array with percentages
   const categories: SpendingCategory[] = Object.entries(categoryTotals).map(([name, amount]) => ({
     name,
@@ -994,31 +1034,31 @@ export function getSpendingByCategory(): SpendingCategory[] {
     color: categoryConfig[name]?.color || "#AED6F1",
     trend: Math.random() * 20 - 10, // Random trend for demo (-10% to +10%)
   }));
-  
+
   return categories.sort((a, b) => b.amount - a.amount);
 }
 
 export function getMonthlySpending(months: number = 6): { month: string; amount: number }[] {
   const transactions = getTransactions();
   const result: { month: string; amount: number }[] = [];
-  
+
   for (let i = 0; i < months; i++) {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
     const month = date.toLocaleDateString("de-DE", { month: "short" });
     const year = date.getFullYear();
     const monthNum = date.getMonth();
-    
+
     const monthSpending = transactions
       .filter(t => {
         const tDate = new Date(t.date);
         return t.amount < 0 && tDate.getMonth() === monthNum && tDate.getFullYear() === year;
       })
       .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
+
     result.unshift({ month, amount: monthSpending });
   }
-  
+
   return result;
 }
 
@@ -1061,7 +1101,7 @@ function getDefaultRecurringPayments(): RecurringPayment[] {
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   nextMonth.setDate(1);
-  
+
   return [
     { id: "rp-1", name: "Miete", amount: 850, frequency: "monthly", category: "Haushalt", nextDate: nextMonth.toISOString().split("T")[0], icon: "🏠", active: true },
     { id: "rp-2", name: "Netflix", amount: 12.99, frequency: "monthly", category: "Entertainment", nextDate: "2025-12-15", icon: "📺", active: true },
@@ -1077,7 +1117,7 @@ function getDefaultRecurringPayments(): RecurringPayment[] {
 
 export function depositMoney(account: "girokonto" | "extraKonto", amount: number, reference: string = "Einzahlung"): Transaction {
   updateBalance(account, amount);
-  
+
   return addTransaction({
     type: "income",
     amount: amount,
@@ -1094,9 +1134,9 @@ export function depositMoney(account: "girokonto" | "extraKonto", amount: number
 export function withdrawMoney(account: "girokonto" | "extraKonto", amount: number, reference: string = "Auszahlung"): Transaction | null {
   const balance = getBalance();
   if (balance[account] < amount) return null;
-  
+
   updateBalance(account, -amount);
-  
+
   return addTransaction({
     type: "payment",
     amount: -amount,
@@ -1118,10 +1158,10 @@ export function transferBetweenAccounts(
 ): Transaction | null {
   const balance = getBalance();
   if (balance[from] < amount) return null;
-  
+
   updateBalance(from, -amount);
   updateBalance(to, amount);
-  
+
   return addTransaction({
     type: "transfer",
     amount: -amount,
@@ -1140,14 +1180,14 @@ export function transferBetweenAccounts(
 export function executeBuyOrder(symbol: string, name: string, shares: number, price: number): { success: boolean; order?: InvestmentOrder; error?: string } {
   const total = shares * price;
   const balance = getBalance();
-  
+
   if (balance.girokonto < total) {
     return { success: false, error: "Nicht genügend Guthaben" };
   }
-  
+
   // Deduct from Girokonto
   updateBalance("girokonto", -total);
-  
+
   // Add to portfolio
   addToPortfolio({
     symbol,
@@ -1156,7 +1196,7 @@ export function executeBuyOrder(symbol: string, name: string, shares: number, pr
     avgPrice: price,
     currentPrice: price,
   });
-  
+
   // Create order record
   const order = addInvestmentOrder({
     type: "buy",
@@ -1168,7 +1208,7 @@ export function executeBuyOrder(symbol: string, name: string, shares: number, pr
     date: new Date().toISOString().split("T")[0],
     status: "executed",
   });
-  
+
   // Add transaction
   addTransaction({
     type: "investment",
@@ -1181,26 +1221,26 @@ export function executeBuyOrder(symbol: string, name: string, shares: number, pr
     status: "completed",
     category: "Investment",
   });
-  
+
   return { success: true, order };
 }
 
 export function executeSellOrder(symbol: string, name: string, shares: number, price: number): { success: boolean; order?: InvestmentOrder; error?: string } {
   const portfolio = getPortfolio();
   const holding = portfolio.find(h => h.symbol === symbol);
-  
+
   if (!holding || holding.shares < shares) {
     return { success: false, error: "Nicht genügend Anteile" };
   }
-  
+
   const total = shares * price;
-  
+
   // Add to Girokonto
   updateBalance("girokonto", total);
-  
+
   // Remove from portfolio
   removeFromPortfolio(symbol, shares);
-  
+
   // Create order record
   const order = addInvestmentOrder({
     type: "sell",
@@ -1212,7 +1252,7 @@ export function executeSellOrder(symbol: string, name: string, shares: number, p
     date: new Date().toISOString().split("T")[0],
     status: "executed",
   });
-  
+
   // Add transaction
   addTransaction({
     type: "investment",
@@ -1225,7 +1265,7 @@ export function executeSellOrder(symbol: string, name: string, shares: number, p
     status: "completed",
     category: "Investment",
   });
-  
+
   return { success: true, order };
 }
 
@@ -1237,7 +1277,7 @@ export function initializeDemoData(): void {
   if (existingTransactions.length > 10) {
     return; // Already has demo data
   }
-  
+
   // Add demo transactions for the last 3 months
   const today = new Date();
   const demoTransactions: Omit<Transaction, "id">[] = [
@@ -1245,42 +1285,42 @@ export function initializeDemoData(): void {
     { type: "transfer", amount: 2500, currency: "EUR", from: "Arbeitgeber GmbH", to: "Girokonto", reference: "Gehalt November", date: getDateDaysAgo(5), status: "completed", category: "Gehalt" },
     { type: "transfer", amount: 2500, currency: "EUR", from: "Arbeitgeber GmbH", to: "Girokonto", reference: "Gehalt Oktober", date: getDateDaysAgo(35), status: "completed", category: "Gehalt" },
     { type: "transfer", amount: 2500, currency: "EUR", from: "Arbeitgeber GmbH", to: "Girokonto", reference: "Gehalt September", date: getDateDaysAgo(65), status: "completed", category: "Gehalt" },
-    
+
     // Recurring expenses
     { type: "transfer", amount: -800, currency: "EUR", from: "Girokonto", to: "Vermieter GmbH", reference: "Miete November", date: getDateDaysAgo(3), status: "completed", category: "Wohnen" },
     { type: "transfer", amount: -800, currency: "EUR", from: "Girokonto", to: "Vermieter GmbH", reference: "Miete Oktober", date: getDateDaysAgo(33), status: "completed", category: "Wohnen" },
     { type: "transfer", amount: -800, currency: "EUR", from: "Girokonto", to: "Vermieter GmbH", reference: "Miete September", date: getDateDaysAgo(63), status: "completed", category: "Wohnen" },
-    
+
     // Food & Restaurants
     { type: "transfer", amount: -45, currency: "EUR", from: "Girokonto", to: "REWE", reference: "Einkauf", date: getDateDaysAgo(2), status: "completed", category: "Lebensmittel" },
     { type: "transfer", amount: -32, currency: "EUR", from: "Girokonto", to: "Lieferando", reference: "Pizza", date: getDateDaysAgo(4), status: "completed", category: "Restaurant" },
     { type: "transfer", amount: -28, currency: "EUR", from: "Girokonto", to: "Vapiano", reference: "Mittagessen", date: getDateDaysAgo(7), status: "completed", category: "Restaurant" },
     { type: "transfer", amount: -65, currency: "EUR", from: "Girokonto", to: "EDEKA", reference: "Wocheneinkauf", date: getDateDaysAgo(9), status: "completed", category: "Lebensmittel" },
     { type: "transfer", amount: -18, currency: "EUR", from: "Girokonto", to: "Starbucks", reference: "Kaffee", date: getDateDaysAgo(1), status: "completed", category: "Restaurant" },
-    
+
     // Subscriptions
     { type: "transfer", amount: -17.99, currency: "EUR", from: "Girokonto", to: "Netflix", reference: "Abo", date: getDateDaysAgo(10), status: "completed", category: "Entertainment" },
     { type: "transfer", amount: -9.99, currency: "EUR", from: "Girokonto", to: "Spotify", reference: "Premium", date: getDateDaysAgo(12), status: "completed", category: "Entertainment" },
     { type: "transfer", amount: -45, currency: "EUR", from: "Girokonto", to: "Vodafone", reference: "Internet", date: getDateDaysAgo(15), status: "completed", category: "Mobilität" },
-    
+
     // Shopping
     { type: "transfer", amount: -89, currency: "EUR", from: "Girokonto", to: "Amazon", reference: "Kopfhörer", date: getDateDaysAgo(8), status: "completed", category: "Shopping" },
     { type: "transfer", amount: -45, currency: "EUR", from: "Girokonto", to: "Zalando", reference: "Schuhe", date: getDateDaysAgo(20), status: "completed", category: "Shopping" },
-    
+
     // Transport
     { type: "transfer", amount: -89, currency: "EUR", from: "Girokonto", to: "BVG", reference: "Monatskarte", date: getDateDaysAgo(6), status: "completed", category: "Transport" },
     { type: "transfer", amount: -35, currency: "EUR", from: "Girokonto", to: "Shell Tankstelle", reference: "Tanken", date: getDateDaysAgo(14), status: "completed", category: "Transport" },
-    
+
     // Entertainment
     { type: "transfer", amount: -25, currency: "EUR", from: "Girokonto", to: "CineStar", reference: "Kino", date: getDateDaysAgo(11), status: "completed", category: "Freizeit" },
     { type: "transfer", amount: -80, currency: "EUR", from: "Girokonto", to: "Fitness First", reference: "Gym", date: getDateDaysAgo(2), status: "completed", category: "Freizeit" },
   ];
-  
+
   // Add each transaction
   demoTransactions.forEach(tx => {
     addTransaction(tx);
   });
-  
+
   // Add demo savings goals for Junior
   const existingGoals = getSavingsGoals();
   if (existingGoals.length === 0) {
