@@ -16,7 +16,7 @@ import { DemoSidebar } from "@/components/ing/leo/demo-sidebar";
 import { DEMO_SCENARIOS, DemoScenarioId, ChatMessage } from "@/lib/demo-scenarios";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import lionIcon from "@/assets/lion-logo.png";
 
 // Junior Screens
 import { JuniorDashboardScreen } from "@/components/ing/screens/junior/dashboard";
@@ -24,6 +24,7 @@ import { JuniorInvestmentScreen } from "@/components/ing/screens/junior/invest";
 import { JuniorQuizScreen } from "@/components/ing/screens/junior/quiz";
 import { JuniorLeaderboardScreen } from "@/components/ing/screens/junior/leaderboard";
 import { JuniorSavingsScreen } from "@/components/ing/screens/junior/savings";
+import { KahootChallengeScreen } from "@/components/ing/screens/junior/kahoot-challenge";
 
 // Adult Screens
 import { AdultStatisticsScreen } from "@/components/ing/screens/adult/statistics";
@@ -48,7 +49,8 @@ export type Screen =
   | "subscriptions"
   | "stock-detail"
   | "leaderboard"
-  | "savings";
+  | "savings"
+  | "kahoot";
 
 import { sendMessageToOpenAI, WidgetAction } from "@/lib/openai";
 
@@ -115,7 +117,7 @@ export function INGApp() {
         title: (
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center">
-              <img src={lionIcon} alt="Leo" className="w-4 h-4 object-contain brightness-0 invert" />
+              <img src={lionIcon} alt="Leo" className="w-5 h-5 object-contain" />
             </div>
             <span>{scenario.notification.title}</span>
           </div>
@@ -150,7 +152,7 @@ export function INGApp() {
 
     // Call OpenAI with agent capabilities
     const agentResponse = await sendMessageToOpenAI(
-      [...chatMessages, newMessage], 
+      [...chatMessages, newMessage],
       activeScenarioContext,
       userProfile
     );
@@ -168,7 +170,7 @@ export function INGApp() {
     // If we have widgets from the agent, attach the first one to the message
     if (agentResponse.widgets && agentResponse.widgets.length > 0) {
       const firstWidget = agentResponse.widgets[0];
-      
+
       // Map agent actions to widget types
       const widgetTypeMap: Record<string, string> = {
         show_stock_widget: "stock",
@@ -313,6 +315,14 @@ export function INGApp() {
 
       {currentScreen === "savings" && (
         <JuniorSavingsScreen
+          onBack={() => navigate("dashboard")}
+          onNavigate={navigate}
+          onLeoClick={() => setIsChatOpen(true)}
+        />
+      )}
+
+      {currentScreen === "kahoot" && (
+        <KahootChallengeScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
           onLeoClick={() => setIsChatOpen(true)}
