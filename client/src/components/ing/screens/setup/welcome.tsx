@@ -1,5 +1,5 @@
 import { INGButton } from "../../layout";
-import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
+import lionIcon from "@/assets/lion-logo.png";
 import welcomeIllustration from "@assets/generated_images/minimalist_illustration_of_woman_relaxing_on_beanbag_with_tablet.png";
 import { MoreHorizontal } from "lucide-react";
 
@@ -12,19 +12,19 @@ export function SetupWelcomeScreen({ onStartSetup }: { onStartSetup: () => void 
         <div className="flex items-center gap-2">
           <span className="text-[#33307E] font-bold text-2xl tracking-tight">ING</span>
           <div className="w-8 h-8 bg-[#FF6200] rounded-lg flex items-center justify-center">
-             <img src={lionIcon} alt="ING Lion" className="w-6 h-6 object-contain brightness-0 invert" />
+            <img src={lionIcon} alt="ING Lion" className="w-7 h-7 object-contain" />
           </div>
         </div>
         <button className="text-[#FF6200]">
-           <MoreHorizontal size={24} />
+          <MoreHorizontal size={24} />
         </button>
       </div>
 
       {/* Illustration */}
       <div className="flex justify-center mb-8">
-        <img 
-          src={welcomeIllustration} 
-          alt="Welcome Illustration" 
+        <img
+          src={welcomeIllustration}
+          alt="Welcome Illustration"
           className="w-48 h-48 object-contain"
         />
       </div>
