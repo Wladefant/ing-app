@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
-import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal, X, Lock } from "lucide-react";
+import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal, X, Lock, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getJuniorProfile, getLeaderboard, getBalance, formatCurrency, JuniorProfile, LeaderboardEntry } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import { XPProgressBar, XPGainToast, LevelUpAnimation, BadgeUnlockToast, StreakCounter } from "../../gamification/xp-components";
 
 // All available badges
 const ALL_BADGES = [
@@ -51,23 +53,41 @@ export function JuniorDashboardScreen({
     const [pointsToNextRank, setPointsToNextRank] = useState(60);
     const [balance, setBalance] = useState(145.50);
     const [showBadges, setShowBadges] = useState(false);
+    const [showLevelUp, setShowLevelUp] = useState(false);
+    const [showXPGain, setShowXPGain] = useState(false);
+    const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
     const { toast } = useToast();
+    
+    // Use the gamification hook
+    const { 
+        progress, 
+        levelInfo, 
+        xpProgress, 
+        streakMultiplier,
+        allBadges,
+        unlockedBadges,
+        lastXPGain,
+        lastStreakResult,
+        isNewDay,
+        checkStreak 
+    } = useUserProgress();
     
     useEffect(() => {
         const loadedProfile = getJuniorProfile();
         setProfile(loadedProfile);
         
         // Get leaderboard and find user's rank
-        const leaderboard = getLeaderboard();
-        const myEntry = leaderboard.find(e => e.name === "Du");
+        const leaderboard = getLeaderboard("weekly");
+        const myEntry = leaderboard.find(e => e.isCurrentUser);
         if (myEntry) {
-            const rank = leaderboard.indexOf(myEntry) + 1;
-            setUserRank(rank);
+            setUserRank(myEntry.rank);
             
             // Calculate points to next rank
-            if (rank > 1) {
-                const nextUser = leaderboard[rank - 2]; // -2 because array is 0-indexed and we want the one above
-                setPointsToNextRank(nextUser.weeklyXp - myEntry.weeklyXp);
+            if (myEntry.rank > 1) {
+                const nextUser = leaderboard.find(e => e.rank === myEntry.rank - 1);
+                if (nextUser) {
+                    setPointsToNextRank(nextUser.xp - myEntry.xp);
+                }
             }
         }
         
@@ -76,12 +96,44 @@ export function JuniorDashboardScreen({
         setBalance(balances.extraKonto || 145.50);
     }, []);
     
-    // Default values if profile not loaded yet
-    const level = profile?.level ?? 5;
-    const levelTitle = getLevelTitle(level);
-    const xp = profile?.xp ?? 1240;
-    const streak = profile?.streak ?? 12;
-    const badges = profile?.badges?.length ?? 8;
+    // Show level up animation when triggered
+    useEffect(() => {
+        if (lastXPGain?.levelUp) {
+            setShowLevelUp(true);
+        }
+        if (lastXPGain && lastXPGain.xpGained > 0) {
+            setShowXPGain(true);
+            setTimeout(() => setShowXPGain(false), 3000);
+        }
+        if (lastXPGain?.badgesUnlocked && lastXPGain.badgesUnlocked.length > 0) {
+            setShowBadgeUnlock(true);
+            setTimeout(() => setShowBadgeUnlock(false), 4000);
+        }
+    }, [lastXPGain]);
+    
+    // Show streak notification on new day
+    useEffect(() => {
+        if (isNewDay && lastStreakResult) {
+            if (lastStreakResult.streakBroken) {
+                toast({
+                    title: "😢 Streak verloren",
+                    description: `Dein Streak wurde zurückgesetzt. Starte heute neu!`,
+                });
+            } else if (lastStreakResult.streakIncreased) {
+                toast({
+                    title: `🔥 ${lastStreakResult.newStreak} Tage Streak!`,
+                    description: `+${lastStreakResult.xpBonus} XP verdient. Weiter so!`,
+                });
+            }
+        }
+    }, [isNewDay, lastStreakResult, toast]);
+    
+    // Use values from gamification system with fallback to profile
+    const level = progress.level || profile?.level || 5;
+    const levelTitle = levelInfo.title || getLevelTitle(level);
+    const xp = progress.totalXP || profile?.xp || 1240;
+    const streak = progress.streak || profile?.streak || 12;
+    const badges = unlockedBadges.length || profile?.badges?.length || 8;
     return (
         <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
             {/* Header with Gamification */}
@@ -257,14 +309,6 @@ export function JuniorDashboardScreen({
                             </div>
                         </button>
 
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 opacity-60">
-                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-lg shadow-sm grayscale">
-                                🏦
-                            </div>
-                            <div className="flex-1">
-                                <div className="font-bold text-sm text-[#333333]">ETFs erklärt</div>
-                                <div className="text-xs text-gray-500">Fortgeschritten • 7 Min</div>
-                            </div>
                         <button 
                             onClick={() => toast({ 
                                 title: "🔒 Noch gesperrt", 
@@ -344,33 +388,33 @@ export function JuniorDashboardScreen({
                             </div>
 
                             <div className="text-sm text-gray-500 mb-4">
-                                {ALL_BADGES.filter(b => b.unlocked).length} von {ALL_BADGES.length} Badges freigeschaltet
+                                {unlockedBadges.length} von {allBadges.length} Badges freigeschaltet
                             </div>
 
                             <div className="grid grid-cols-3 gap-3">
-                                {ALL_BADGES.map((badge) => (
+                                {allBadges.map((badge) => (
                                     <button
                                         key={badge.id}
                                         onClick={() => {
-                                            if (badge.unlocked) {
+                                            if (badge.isUnlocked) {
                                                 toast({ title: badge.name, description: badge.description });
                                             } else {
                                                 toast({ 
                                                     title: "🔒 Noch nicht freigeschaltet", 
-                                                    description: badge.description 
+                                                    description: badge.requirement 
                                                 });
                                             }
                                         }}
                                         className={`p-4 rounded-xl text-center transition-all ${
-                                            badge.unlocked 
+                                            badge.isUnlocked 
                                                 ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 hover:scale-105' 
                                                 : 'bg-gray-100 border border-gray-200 opacity-50'
                                         }`}
                                     >
-                                        <div className={`text-3xl mb-2 ${!badge.unlocked && 'grayscale'}`}>
-                                            {badge.unlocked ? badge.emoji : '🔒'}
+                                        <div className={`text-3xl mb-2 ${!badge.isUnlocked && 'grayscale'}`}>
+                                            {badge.isUnlocked ? badge.icon : '🔒'}
                                         </div>
-                                        <div className={`text-xs font-bold ${badge.unlocked ? 'text-[#333333]' : 'text-gray-400'}`}>
+                                        <div className={`text-xs font-bold ${badge.isUnlocked ? 'text-[#333333]' : 'text-gray-400'}`}>
                                             {badge.name}
                                         </div>
                                     </button>
@@ -385,6 +429,45 @@ export function JuniorDashboardScreen({
                             </button>
                         </motion.div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* XP Gain Toast */}
+            <AnimatePresence>
+                {showXPGain && lastXPGain && (
+                    <XPGainToast
+                        amount={lastXPGain.xpGained}
+                        source="Aktivität"
+                        bonusAmount={lastXPGain.streakBonus}
+                        isLevelUp={lastXPGain.levelUp}
+                        newLevel={lastXPGain.newLevel || undefined}
+                        onClose={() => setShowXPGain(false)}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Level Up Animation */}
+            <AnimatePresence>
+                {showLevelUp && lastXPGain?.newLevel && (
+                    <LevelUpAnimation
+                        newLevel={lastXPGain.newLevel}
+                        levelTitle={levelInfo.title}
+                        levelIcon={levelInfo.icon}
+                        onComplete={() => setShowLevelUp(false)}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Badge Unlock Toast */}
+            <AnimatePresence>
+                {showBadgeUnlock && lastXPGain?.badgesUnlocked && lastXPGain.badgesUnlocked[0] && (
+                    <BadgeUnlockToast
+                        badgeName={lastXPGain.badgesUnlocked[0].name}
+                        badgeIcon={lastXPGain.badgesUnlocked[0].icon}
+                        badgeDescription={lastXPGain.badgesUnlocked[0].description}
+                        xpBonus={lastXPGain.badgesUnlocked[0].xpBonus}
+                        onClose={() => setShowBadgeUnlock(false)}
+                    />
                 )}
             </AnimatePresence>
 

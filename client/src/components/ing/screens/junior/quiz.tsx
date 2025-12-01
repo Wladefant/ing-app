@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
 import { Check, X, Trophy, ArrowRight, Zap, BookOpen, TrendingUp, PiggyBank, CreditCard, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateQuizQuestions, QuizQuestion } from "@/lib/openai";
-import { addXpToProfile, getJuniorProfile, updateLeaderboardPosition } from "@/lib/storage";
+import { getJuniorProfile, updateLeaderboardPosition } from "@/lib/storage";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import { XPGainToast, LevelUpAnimation, BadgeUnlockToast } from "../../gamification/xp-components";
 
 // Quiz Topics with icons and colors
 const QUIZ_TOPICS = [
@@ -66,6 +68,16 @@ export function JuniorQuizScreen({
     const [streak, setStreak] = useState(0);
     const [isAIGenerated, setIsAIGenerated] = useState(false);
     const [xpSaved, setXpSaved] = useState(false);
+    const [showXPGain, setShowXPGain] = useState(false);
+    const [showLevelUp, setShowLevelUp] = useState(false);
+    const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
+    
+    // Use the gamification hook
+    const { 
+        recordQuizResult, 
+        lastXPGain,
+        levelInfo 
+    } = useUserProgress();
 
     const handleTopicSelect = (topicId: string) => {
         setSelectedTopic(topicId);
@@ -147,6 +159,47 @@ export function JuniorQuizScreen({
         setIsAIGenerated(false);
         setXpSaved(false);
     };
+
+    // Calculate XP values for result phase (moved outside conditional for hooks rules)
+    const baseXP = score * 50;
+    const multiplier = selectedDifficulty?.xpMultiplier || 1;
+    const totalXP = Math.round(baseXP * multiplier);
+    const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
+    
+    // Map difficulty to gamification system format
+    const difficultyMap: Record<string, "easy" | "medium" | "hard"> = {
+        "einfach": "easy",
+        "mittel": "medium",
+        "schwer": "hard"
+    };
+    const difficulty = difficultyMap[selectedDifficulty?.id || "einfach"] || "easy";
+    
+    // Effect to handle XP saving when quiz result is shown
+    useEffect(() => {
+        if (phase === "result" && totalXP > 0 && !xpSaved) {
+            setXpSaved(true);
+            const topic = QUIZ_TOPICS.find(t => t.id === selectedTopic);
+            const result = recordQuizResult(topic?.name || "Finanzen", difficulty, score, questions.length);
+            
+            // Show XP animation
+            setShowXPGain(true);
+            setTimeout(() => setShowXPGain(false), 3000);
+            
+            // Check for level up
+            if (result.levelUp) {
+                setTimeout(() => setShowLevelUp(true), 1000);
+            }
+            
+            // Check for badge unlocks
+            if (result.badgesUnlocked && result.badgesUnlocked.length > 0) {
+                setTimeout(() => setShowBadgeUnlock(true), result.levelUp ? 3000 : 1500);
+            }
+            
+            // Update leaderboard position after gaining XP
+            const updatedProfile = getJuniorProfile();
+            updateLeaderboardPosition(updatedProfile);
+        }
+    }, [phase, totalXP, xpSaved, recordQuizResult, selectedTopic, difficulty, score, questions.length]);
 
     // Topic Selection Phase
     if (phase === "topic") {
@@ -269,22 +322,8 @@ export function JuniorQuizScreen({
         );
     }
 
-    // Result Phase
+    // Result Phase - values are calculated above (outside conditionals for hooks rules)
     if (phase === "result") {
-        const baseXP = score * 50;
-        const multiplier = selectedDifficulty?.xpMultiplier || 1;
-        const totalXP = Math.round(baseXP * multiplier);
-        const percentage = Math.round((score / questions.length) * 100);
-        
-        // Add XP to profile when result is shown (only once)
-        if (totalXP > 0 && !xpSaved) {
-            setXpSaved(true);
-            addXpToProfile(totalXP);
-            // Update leaderboard position after gaining XP
-            const updatedProfile = getJuniorProfile();
-            updateLeaderboardPosition(updatedProfile);
-        }
-
         return (
             <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
@@ -346,6 +385,46 @@ export function JuniorQuizScreen({
                         </div>
                     </motion.div>
                 </div>
+                
+                {/* XP Gain Toast */}
+                <AnimatePresence>
+                    {showXPGain && lastXPGain && (
+                        <XPGainToast
+                            amount={lastXPGain.xpGained}
+                            source={`${QUIZ_TOPICS.find(t => t.id === selectedTopic)?.name || "Quiz"}`}
+                            bonusAmount={lastXPGain.streakBonus}
+                            isLevelUp={lastXPGain.levelUp}
+                            newLevel={lastXPGain.newLevel || undefined}
+                            onClose={() => setShowXPGain(false)}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Level Up Animation */}
+                <AnimatePresence>
+                    {showLevelUp && lastXPGain?.newLevel && (
+                        <LevelUpAnimation
+                            newLevel={lastXPGain.newLevel}
+                            levelTitle={levelInfo.title}
+                            levelIcon={levelInfo.icon}
+                            onComplete={() => setShowLevelUp(false)}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Badge Unlock Toast */}
+                <AnimatePresence>
+                    {showBadgeUnlock && lastXPGain?.badgesUnlocked && lastXPGain.badgesUnlocked[0] && (
+                        <BadgeUnlockToast
+                            badgeName={lastXPGain.badgesUnlocked[0].name}
+                            badgeIcon={lastXPGain.badgesUnlocked[0].icon}
+                            badgeDescription={lastXPGain.badgesUnlocked[0].description}
+                            xpBonus={lastXPGain.badgesUnlocked[0].xpBonus}
+                            onClose={() => setShowBadgeUnlock(false)}
+                        />
+                    )}
+                </AnimatePresence>
+                
                 <BottomNav activeTab="learn" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
             </div>
         );
