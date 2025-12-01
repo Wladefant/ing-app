@@ -57,31 +57,31 @@ export function JuniorDashboardScreen({
     const [showXPGain, setShowXPGain] = useState(false);
     const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
     const { toast } = useToast();
-    
+
     // Use the gamification hook
-    const { 
-        progress, 
-        levelInfo, 
-        xpProgress, 
+    const {
+        progress,
+        levelInfo,
+        xpProgress,
         streakMultiplier,
         allBadges,
         unlockedBadges,
         lastXPGain,
         lastStreakResult,
         isNewDay,
-        checkStreak 
+        checkStreak
     } = useUserProgress();
-    
+
     useEffect(() => {
         const loadedProfile = getJuniorProfile();
         setProfile(loadedProfile);
-        
+
         // Get leaderboard and find user's rank
         const leaderboard = getLeaderboard("weekly");
         const myEntry = leaderboard.find(e => e.isCurrentUser);
         if (myEntry) {
             setUserRank(myEntry.rank);
-            
+
             // Calculate points to next rank
             if (myEntry.rank > 1) {
                 const nextUser = leaderboard.find(e => e.rank === myEntry.rank - 1);
@@ -90,12 +90,12 @@ export function JuniorDashboardScreen({
                 }
             }
         }
-        
+
         // Get junior balance (using extra account as junior savings)
         const balances = getBalance();
         setBalance(balances.extraKonto || 145.50);
     }, []);
-    
+
     // Show level up animation when triggered
     useEffect(() => {
         if (lastXPGain?.levelUp) {
@@ -110,7 +110,7 @@ export function JuniorDashboardScreen({
             setTimeout(() => setShowBadgeUnlock(false), 4000);
         }
     }, [lastXPGain]);
-    
+
     // Show streak notification on new day
     useEffect(() => {
         if (isNewDay && lastStreakResult) {
@@ -127,7 +127,7 @@ export function JuniorDashboardScreen({
             }
         }
     }, [isNewDay, lastStreakResult, toast]);
-    
+
     // Use values from gamification system with fallback to profile
     const level = progress.level || profile?.level || 5;
     const levelTitle = levelInfo.title || getLevelTitle(level);
@@ -140,7 +140,7 @@ export function JuniorDashboardScreen({
             <div className="bg-white px-4 py-4 pb-6 rounded-b-[30px] shadow-sm z-10">
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
-                        <motion.div 
+                        <motion.div
                             animate={{ rotate: [0, 10, -10, 0] }}
                             transition={{ repeat: Infinity, duration: 2, repeatDelay: 3 }}
                             className="w-12 h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center text-2xl shadow-sm"
@@ -152,7 +152,7 @@ export function JuniorDashboardScreen({
                             <div className="font-bold text-[#333333]">{levelTitle}</div>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={() => onNavigate("leaderboard")}
                         className="flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-colors"
                     >
@@ -176,14 +176,14 @@ export function JuniorDashboardScreen({
                         <div className="text-4xl font-bold mb-4">{formatCurrency(balance)}</div>
 
                         <div className="flex gap-3">
-                            <button 
+                            <button
                                 onClick={() => onNavigate("invest")}
                                 className="flex-1 bg-white/20 backdrop-blur-sm py-2.5 rounded-xl text-sm font-bold hover:bg-white/30 transition-colors flex items-center justify-center gap-2"
                             >
                                 <TrendingUp size={16} />
                                 Investieren
                             </button>
-                            <button 
+                            <button
                                 onClick={() => onNavigate("savings")}
                                 className="flex-1 bg-white text-[#FF6200] py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
                             >
@@ -199,7 +199,7 @@ export function JuniorDashboardScreen({
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {/* Quick Stats Row */}
                 <div className="grid grid-cols-3 gap-3">
-                    <motion.button 
+                    <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onNavigate("leaderboard")}
                         className="bg-white p-3 rounded-xl shadow-sm text-center"
@@ -208,7 +208,7 @@ export function JuniorDashboardScreen({
                         <div className="text-lg font-bold text-[#333333]">#{userRank}</div>
                         <div className="text-[10px] text-gray-400">Rang</div>
                     </motion.button>
-                    <motion.button 
+                    <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setShowBadges(true)}
                         className="bg-white p-3 rounded-xl shadow-sm text-center"
@@ -217,7 +217,7 @@ export function JuniorDashboardScreen({
                         <div className="text-lg font-bold text-[#333333]">{badges}/12</div>
                         <div className="text-[10px] text-gray-400">Badges</div>
                     </motion.button>
-                    <motion.button 
+                    <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onNavigate("invest")}
                         className="bg-white p-3 rounded-xl shadow-sm text-center"
@@ -229,7 +229,7 @@ export function JuniorDashboardScreen({
                 </div>
 
                 {/* Daily Challenge */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg text-white"
@@ -243,16 +243,16 @@ export function JuniorDashboardScreen({
                     </div>
                     <p className="text-sm text-blue-100 mb-3">Beantworte 3 Fragen im Finanz-Quiz richtig.</p>
                     <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
-                        <motion.div 
+                        <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: "33%" }}
                             transition={{ delay: 0.5 }}
-                            className="bg-white w-1/3 h-full rounded-full" 
+                            className="bg-white w-1/3 h-full rounded-full"
                         />
                     </div>
                     <div className="mt-2 flex justify-between items-center text-xs">
                         <span className="text-blue-100">1/3 erledigt</span>
-                        <button 
+                        <button
                             onClick={() => onNavigate("learn")}
                             className="flex items-center gap-1 font-bold hover:underline"
                         >
@@ -261,6 +261,33 @@ export function JuniorDashboardScreen({
                     </div>
                 </motion.div>
 
+                {/* Multiplayer Quiz Teaser */}
+                <motion.button
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    onClick={() => onNavigate("kahoot")}
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-2xl shadow-lg text-white text-left relative overflow-hidden group"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110" />
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2 font-bold">
+                                <Zap size={20} className="text-yellow-400" fill="currentColor" />
+                                <span>Live Quiz Battle</span>
+                            </div>
+                            <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-md">NEU</span>
+                        </div>
+                        <p className="text-sm text-indigo-100 mb-3 pr-8">
+                            Fordere deine Freunde heraus! Wer weiß mehr über Geld?
+                        </p>
+                        <div className="flex items-center gap-2 text-xs font-bold text-yellow-300">
+                            <span>Jetzt spielen</span>
+                            <ChevronRight size={14} />
+                        </div>
+                    </div>
+                </motion.button>
+
                 {/* Learning Path */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm">
                     <div className="flex justify-between items-center mb-4">
@@ -268,7 +295,7 @@ export function JuniorDashboardScreen({
                             <Brain size={20} className="text-purple-500" />
                             <span>Dein Wissen</span>
                         </div>
-                        <button 
+                        <button
                             onClick={() => onNavigate("learn")}
                             className="text-xs text-[#FF6200] font-bold flex items-center gap-1"
                         >
@@ -277,7 +304,7 @@ export function JuniorDashboardScreen({
                     </div>
 
                     <div className="space-y-3">
-                        <button 
+                        <button
                             onClick={() => onNavigate("learn")}
                             className="w-full flex items-center gap-3 p-3 bg-purple-50 rounded-xl border border-purple-100 hover:bg-purple-100 transition-colors text-left"
                         >
@@ -293,7 +320,7 @@ export function JuniorDashboardScreen({
                             </div>
                         </button>
 
-                        <button 
+                        <button
                             onClick={() => onNavigate("learn")}
                             className="w-full flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-100 hover:bg-green-100 transition-colors text-left"
                         >
@@ -309,10 +336,10 @@ export function JuniorDashboardScreen({
                             </div>
                         </button>
 
-                        <button 
-                            onClick={() => toast({ 
-                                title: "🔒 Noch gesperrt", 
-                                description: "Schließe erst 'Aktien verstehen' ab, um diese Lektion freizuschalten!" 
+                        <button
+                            onClick={() => toast({
+                                title: "🔒 Noch gesperrt",
+                                description: "Schließe erst 'Aktien verstehen' ab, um diese Lektion freizuschalten!"
                             })}
                             className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 opacity-60 cursor-pointer hover:opacity-80 transition-opacity text-left"
                         >
@@ -331,7 +358,7 @@ export function JuniorDashboardScreen({
                 </div>
 
                 {/* Leaderboard Preview */}
-                <button 
+                <button
                     onClick={() => onNavigate("leaderboard")}
                     className="w-full bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-2xl shadow-sm border border-amber-100 text-left"
                 >
@@ -399,17 +426,16 @@ export function JuniorDashboardScreen({
                                             if (badge.isUnlocked) {
                                                 toast({ title: badge.name, description: badge.description });
                                             } else {
-                                                toast({ 
-                                                    title: "🔒 Noch nicht freigeschaltet", 
-                                                    description: badge.requirement 
+                                                toast({
+                                                    title: "🔒 Noch nicht freigeschaltet",
+                                                    description: badge.requirement
                                                 });
                                             }
                                         }}
-                                        className={`p-4 rounded-xl text-center transition-all ${
-                                            badge.isUnlocked 
-                                                ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 hover:scale-105' 
+                                        className={`p-4 rounded-xl text-center transition-all ${badge.isUnlocked
+                                                ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 hover:scale-105'
                                                 : 'bg-gray-100 border border-gray-200 opacity-50'
-                                        }`}
+                                            }`}
                                     >
                                         <div className={`text-3xl mb-2 ${!badge.isUnlocked && 'grayscale'}`}>
                                             {badge.isUnlocked ? badge.icon : '🔒'}
