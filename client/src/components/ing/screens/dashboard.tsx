@@ -121,6 +121,7 @@ export function DashboardScreen({
             title="Extra-Konto"
             subtitle="DE12 5001 0517 1234 5678 66"
             balance={formatCurrency(balance.extraKonto).replace('€', 'EUR')}
+            onClick={() => onSelectAccount("Extra-Konto")}
           />
         </AccountSection>
 

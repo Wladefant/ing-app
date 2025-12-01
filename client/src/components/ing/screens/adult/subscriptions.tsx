@@ -28,6 +28,7 @@ export function AdultSubscriptionsScreen({
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [cancelTarget, setCancelTarget] = useState<Subscription | null>(null);
     const [cancelStep, setCancelStep] = useState<"confirm" | "success">("confirm");
+    const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
 
     const activeSubscriptions = subscriptions.filter(s => s.status !== "cancelled");
     const monthlyTotal = activeSubscriptions.reduce((sum, s) => sum + s.amount, 0);
@@ -114,12 +115,13 @@ export function AdultSubscriptionsScreen({
                     <div className="font-bold text-[#333333] px-2">Deine Abos</div>
                     <AnimatePresence>
                         {subscriptions.map((sub, index) => (
-                            <motion.div 
+                            <motion.button 
                                 key={sub.name}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: sub.status === "cancelled" ? 0.5 : 1, x: 0 }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className={`bg-white p-4 rounded-xl shadow-sm flex items-center justify-between ${
+                                onClick={() => setSelectedSub(sub)}
+                                className={`bg-white p-4 rounded-xl shadow-sm flex items-center justify-between w-full text-left hover:bg-gray-50 transition-colors ${
                                     sub.status === "cancelled" ? "opacity-50" : ""
                                 }`}
                             >
@@ -165,7 +167,7 @@ export function AdultSubscriptionsScreen({
                                     </div>
                                     {sub.status !== "cancelled" && (
                                         <button 
-                                            onClick={() => handleCancelClick(sub)}
+                                            onClick={(e) => { e.stopPropagation(); handleCancelClick(sub); }}
                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                                             aria-label={`${sub.name} kündigen`}
                                         >
@@ -173,11 +175,103 @@ export function AdultSubscriptionsScreen({
                                         </button>
                                     )}
                                 </div>
-                            </motion.div>
+                            </motion.button>
                         ))}
                     </AnimatePresence>
                 </div>
             </div>
+
+            {/* Subscription Detail Modal */}
+            <AnimatePresence>
+                {selectedSub && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/50 z-50 flex items-end"
+                        onClick={() => setSelectedSub(null)}
+                    >
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full bg-white rounded-t-3xl p-6 pb-10"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-bold text-[#333333]">Abo Details</h2>
+                                <button
+                                    onClick={() => setSelectedSub(null)}
+                                    className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                    aria-label="Schließen"
+                                >
+                                    <X size={18} className="text-gray-500" />
+                                </button>
+                            </div>
+
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center font-bold text-2xl ${
+                                    selectedSub.status === "cancelled" 
+                                        ? "bg-gray-200 text-gray-400"
+                                        : "bg-gray-100 text-gray-600"
+                                }`}>
+                                    {selectedSub.logo}
+                                </div>
+                                <div>
+                                    <div className={`font-bold text-xl ${
+                                        selectedSub.status === "cancelled" ? "text-gray-400 line-through" : "text-[#333333]"
+                                    }`}>
+                                        {selectedSub.name}
+                                    </div>
+                                    <div className={`text-sm ${
+                                        selectedSub.status === "cancelled" ? "text-gray-400" :
+                                        selectedSub.status === "unused" ? "text-red-500" : "text-green-600"
+                                    }`}>
+                                        {selectedSub.status === "cancelled" ? "Gekündigt" :
+                                         selectedSub.status === "unused" ? "Ungenutzt seit 3 Monaten" : "Aktiv"}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                                <div className="flex justify-between py-3 border-b border-gray-100">
+                                    <span className="text-gray-500">Monatliche Kosten</span>
+                                    <span className="font-bold text-[#333333]">{selectedSub.amount.toFixed(2)} €</span>
+                                </div>
+                                <div className="flex justify-between py-3 border-b border-gray-100">
+                                    <span className="text-gray-500">Jährliche Kosten</span>
+                                    <span className="font-bold text-[#333333]">{(selectedSub.amount * 12).toFixed(2)} €</span>
+                                </div>
+                                <div className="flex justify-between py-3 border-b border-gray-100">
+                                    <span className="text-gray-500">Nächste Abbuchung</span>
+                                    <span className="font-bold text-[#333333]">{selectedSub.date}</span>
+                                </div>
+                                <div className="flex justify-between py-3 border-b border-gray-100">
+                                    <span className="text-gray-500">Abbuchung von</span>
+                                    <span className="font-bold text-[#333333]">Girokonto</span>
+                                </div>
+                            </div>
+
+                            {selectedSub.status !== "cancelled" ? (
+                                <button
+                                    onClick={() => { setSelectedSub(null); handleCancelClick(selectedSub); }}
+                                    className="w-full bg-red-500 text-white py-4 rounded-xl font-bold hover:bg-red-600 transition-colors"
+                                >
+                                    Abo kündigen
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setSelectedSub(null)}
+                                    className="w-full bg-gray-200 text-gray-700 py-4 rounded-xl font-bold"
+                                >
+                                    Schließen
+                                </button>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Cancel Confirmation Modal */}
             <AnimatePresence>

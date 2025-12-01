@@ -39,7 +39,7 @@ export function ScreenHeader({ title, onBack, rightAction }: { title?: string; o
     <div className="h-14 px-4 flex items-center justify-between bg-[#F3F3F3] shrink-0">
       <div className="flex items-center gap-4">
         {onBack && (
-          <button onClick={onBack} className="text-orange-500">
+          <button onClick={onBack} className="text-orange-500" title="Zurück">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6" />
             </svg>

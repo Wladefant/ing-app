@@ -1,9 +1,26 @@
 import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
-import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal } from "lucide-react";
-import { motion } from "framer-motion";
+import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal, X, Lock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { getJuniorProfile, getLeaderboard, getBalance, formatCurrency, JuniorProfile, LeaderboardEntry } from "@/lib/storage";
+import { useToast } from "@/hooks/use-toast";
+
+// All available badges
+const ALL_BADGES = [
+    { id: "first_quiz", name: "Quiz-Starter", emoji: "🎯", description: "Erstes Quiz abgeschlossen", unlocked: true },
+    { id: "streak_3", name: "Auf Kurs", emoji: "🔥", description: "3 Tage Streak erreicht", unlocked: true },
+    { id: "streak_7", name: "Wochenmeister", emoji: "⭐", description: "7 Tage Streak erreicht", unlocked: true },
+    { id: "first_save", name: "Sparfuchs", emoji: "🦊", description: "Erstes Sparziel erstellt", unlocked: true },
+    { id: "investor", name: "Mini-Investor", emoji: "📈", description: "Erste virtuelle Aktie gekauft", unlocked: true },
+    { id: "knowledge_1", name: "Wissensdurst", emoji: "📚", description: "5 Lektionen abgeschlossen", unlocked: true },
+    { id: "leaderboard_top10", name: "Top 10", emoji: "🏆", description: "Unter den Top 10 im Leaderboard", unlocked: true },
+    { id: "xp_1000", name: "XP-Sammler", emoji: "💎", description: "1.000 XP gesammelt", unlocked: true },
+    { id: "streak_30", name: "Monatschampion", emoji: "👑", description: "30 Tage Streak erreicht", unlocked: false },
+    { id: "knowledge_all", name: "Finanz-Guru", emoji: "🧠", description: "Alle Lektionen abgeschlossen", unlocked: false },
+    { id: "xp_5000", name: "XP-Meister", emoji: "🌟", description: "5.000 XP gesammelt", unlocked: false },
+    { id: "perfect_quiz", name: "Perfektionist", emoji: "💯", description: "Quiz mit 100% abgeschlossen", unlocked: false },
+];
 
 // Calculate level title based on level number
 const getLevelTitle = (level: number): string => {
@@ -33,6 +50,8 @@ export function JuniorDashboardScreen({
     const [userRank, setUserRank] = useState(42);
     const [pointsToNextRank, setPointsToNextRank] = useState(60);
     const [balance, setBalance] = useState(145.50);
+    const [showBadges, setShowBadges] = useState(false);
+    const { toast } = useToast();
     
     useEffect(() => {
         const loadedProfile = getJuniorProfile();
@@ -139,7 +158,7 @@ export function JuniorDashboardScreen({
                     </motion.button>
                     <motion.button 
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => onNavigate("learn")}
+                        onClick={() => setShowBadges(true)}
                         className="bg-white p-3 rounded-xl shadow-sm text-center"
                     >
                         <div className="text-2xl mb-1">📚</div>
@@ -246,10 +265,24 @@ export function JuniorDashboardScreen({
                                 <div className="font-bold text-sm text-[#333333]">ETFs erklärt</div>
                                 <div className="text-xs text-gray-500">Fortgeschritten • 7 Min</div>
                             </div>
-                            <div className="w-8 h-8 border-2 border-gray-300 rounded-full flex items-center justify-center">
-                                <div className="w-2 h-2 bg-gray-300 rounded-full" />
+                        <button 
+                            onClick={() => toast({ 
+                                title: "🔒 Noch gesperrt", 
+                                description: "Schließe erst 'Aktien verstehen' ab, um diese Lektion freizuschalten!" 
+                            })}
+                            className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 opacity-60 cursor-pointer hover:opacity-80 transition-opacity text-left"
+                        >
+                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-lg shadow-sm grayscale">
+                                🏦
                             </div>
-                        </div>
+                            <div className="flex-1">
+                                <div className="font-bold text-sm text-[#333333]">ETFs erklärt</div>
+                                <div className="text-xs text-gray-500">Fortgeschritten • 7 Min</div>
+                            </div>
+                            <div className="w-8 h-8 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                <Lock size={12} className="text-gray-400" />
+                            </div>
+                        </button>
                     </div>
                 </div>
 
@@ -277,6 +310,83 @@ export function JuniorDashboardScreen({
                     </div>
                 </button>
             </div>
+
+            {/* Badges Modal */}
+            <AnimatePresence>
+                {showBadges && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/50 z-50 flex items-end"
+                        onClick={() => setShowBadges(false)}
+                    >
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full bg-white rounded-t-3xl p-6 pb-10 max-h-[85vh] overflow-y-auto"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-2">
+                                    <Medal size={24} className="text-yellow-500" />
+                                    <h2 className="text-xl font-bold text-[#333333]">Meine Badges</h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowBadges(false)}
+                                    className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                    aria-label="Schließen"
+                                >
+                                    <X size={18} className="text-gray-500" />
+                                </button>
+                            </div>
+
+                            <div className="text-sm text-gray-500 mb-4">
+                                {ALL_BADGES.filter(b => b.unlocked).length} von {ALL_BADGES.length} Badges freigeschaltet
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-3">
+                                {ALL_BADGES.map((badge) => (
+                                    <button
+                                        key={badge.id}
+                                        onClick={() => {
+                                            if (badge.unlocked) {
+                                                toast({ title: badge.name, description: badge.description });
+                                            } else {
+                                                toast({ 
+                                                    title: "🔒 Noch nicht freigeschaltet", 
+                                                    description: badge.description 
+                                                });
+                                            }
+                                        }}
+                                        className={`p-4 rounded-xl text-center transition-all ${
+                                            badge.unlocked 
+                                                ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 hover:scale-105' 
+                                                : 'bg-gray-100 border border-gray-200 opacity-50'
+                                        }`}
+                                    >
+                                        <div className={`text-3xl mb-2 ${!badge.unlocked && 'grayscale'}`}>
+                                            {badge.unlocked ? badge.emoji : '🔒'}
+                                        </div>
+                                        <div className={`text-xs font-bold ${badge.unlocked ? 'text-[#333333]' : 'text-gray-400'}`}>
+                                            {badge.name}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => setShowBadges(false)}
+                                className="w-full mt-6 bg-[#FF6200] text-white py-3 rounded-xl font-bold"
+                            >
+                                Schließen
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <BottomNav activeTab="dashboard" onNavigate={onNavigate} onLeoClick={onLeoClick} profile="junior" />
         </div>

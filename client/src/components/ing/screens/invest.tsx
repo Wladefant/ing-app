@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { ScreenHeader, BottomNav } from "../layout";
 import { Screen } from "@/pages/ing-app";
-import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Clock, Star, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical } from "lucide-react";
+import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Clock, Star, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical, Calendar, BarChart3, Target, Repeat } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPortfolio, addToPortfolio, removeFromPortfolio, updateBalance, addTransaction, type Holding, formatCurrency } from "@/lib/storage";
+import { useToast } from "@/hooks/use-toast";
 
 const data = [
   { name: 'Jan', value: 5630 },
@@ -98,6 +99,8 @@ export function InvestScreen({
   const [selectedStock, setSelectedStock] = useState<any>(null);
   const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
   const [portfolioHoldings, setPortfolioHoldings] = useState<Holding[]>([]);
+  const [showSparplanModal, setShowSparplanModal] = useState(false);
+  const [showAnalyseModal, setShowAnalyseModal] = useState(false);
   
   // Load portfolio from storage on mount
   useEffect(() => {
@@ -154,6 +157,8 @@ export function InvestScreen({
   const removeFromWatchlist = (symbol: string) => {
     setWatchlist(watchlist.filter(w => w.symbol !== symbol));
   };
+
+  const { toast } = useToast();
 
   // Calculate total portfolio value and performance from storage data
   const totalValue = portfolioHoldings.reduce((sum, h) => sum + (h.shares * h.currentPrice), 0);
@@ -299,20 +304,34 @@ export function InvestScreen({
             </div>
 
             {/* Quick Actions */}
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => setShowSearch(true)}
-                className="flex-1 bg-[#33307E] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+                className="bg-[#33307E] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
               >
                 <Plus size={18} />
                 Kaufen
               </button>
               <button 
                 onClick={() => onNavigate("orders")}
-                className="flex-1 bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
+                className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
               >
                 <ArrowRightLeft size={18} />
                 Orders
+              </button>
+              <button 
+                onClick={() => setShowSparplanModal(true)}
+                className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
+              >
+                <Repeat size={18} />
+                Sparplan
+              </button>
+              <button 
+                onClick={() => setShowAnalyseModal(true)}
+                className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
+              >
+                <BarChart3 size={18} />
+                Analyse
               </button>
             </div>
           </div>
@@ -565,6 +584,203 @@ export function InvestScreen({
                 </div>
               )}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Sparplan Modal */}
+      <AnimatePresence>
+        {showSparplanModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/50 z-50 flex items-end"
+            onClick={() => setShowSparplanModal(false)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full bg-white rounded-t-3xl p-6 pb-10 max-h-[80vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Repeat size={24} className="text-[#FF6200]" />
+                  <h2 className="text-xl font-bold text-[#333333]">Sparplan erstellen</h2>
+                </div>
+                <button
+                  onClick={() => setShowSparplanModal(false)}
+                  className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                  aria-label="Schließen"
+                >
+                  <X size={18} className="text-gray-500" />
+                </button>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-100 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center text-white shrink-0">
+                    <Calendar size={20} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-orange-700 text-sm mb-1">Automatisch investieren</div>
+                    <p className="text-xs text-orange-600 leading-relaxed">
+                      Mit einem Sparplan investierst du regelmäßig einen festen Betrag - ganz automatisch!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <label className="text-sm text-gray-500 block mb-2">Wertpapier auswählen</label>
+                  <button 
+                    onClick={() => { setShowSparplanModal(false); setShowSearch(true); }}
+                    className="w-full p-3 bg-white rounded-lg border border-gray-200 text-left flex items-center justify-between"
+                  >
+                    <span className="text-gray-400">ETF oder Aktie suchen...</span>
+                    <Search size={18} className="text-gray-400" />
+                  </button>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <label className="text-sm text-gray-500 block mb-2">Sparbetrag</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="number" 
+                      placeholder="50" 
+                      className="flex-1 p-3 bg-white rounded-lg border border-gray-200 font-bold text-lg"
+                    />
+                    <span className="text-lg font-bold text-gray-500">€ / Monat</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-xl">
+                  <label className="text-sm text-gray-500 block mb-2">Ausführung</label>
+                  <div className="flex gap-2">
+                    {["1.", "15."].map((day) => (
+                      <button key={day} className="flex-1 p-3 bg-white rounded-lg border border-gray-200 font-bold">
+                        {day} des Monats
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  toast({ title: "Sparplan erstellt!", description: "Dein Sparplan ist nun aktiv." });
+                  setShowSparplanModal(false);
+                }}
+                className="w-full bg-[#FF6200] text-white py-4 rounded-xl font-bold"
+              >
+                Sparplan starten
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Analyse Modal */}
+      <AnimatePresence>
+        {showAnalyseModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/50 z-50 flex items-end"
+            onClick={() => setShowAnalyseModal(false)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full bg-white rounded-t-3xl p-6 pb-10 max-h-[85vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={24} className="text-[#33307E]" />
+                  <h2 className="text-xl font-bold text-[#333333]">Portfolio Analyse</h2>
+                </div>
+                <button
+                  onClick={() => setShowAnalyseModal(false)}
+                  className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                  aria-label="Schließen"
+                >
+                  <X size={18} className="text-gray-500" />
+                </button>
+              </div>
+
+              {/* Portfolio Health */}
+              <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full" />
+                  <span className="font-bold text-green-700">Gute Diversifikation</span>
+                </div>
+                <p className="text-sm text-green-600">
+                  Dein Portfolio ist gut über verschiedene Sektoren verteilt.
+                </p>
+              </div>
+
+              {/* Allocation */}
+              <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
+                <h3 className="font-bold text-[#333333] mb-3">Sektor-Aufteilung</h3>
+                <div className="space-y-3">
+                  {[
+                    { name: "Technologie", percent: 45, color: "bg-blue-500" },
+                    { name: "Finanzen", percent: 25, color: "bg-green-500" },
+                    { name: "Konsumgüter", percent: 20, color: "bg-purple-500" },
+                    { name: "Andere", percent: 10, color: "bg-gray-400" },
+                  ].map((sector) => (
+                    <div key={sector.name}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">{sector.name}</span>
+                        <span className="font-bold">{sector.percent}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${sector.color} rounded-full`} 
+                          style={{ width: `${sector.percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recommendations */}
+              <div className="bg-white p-4 rounded-xl border border-gray-200 mb-6">
+                <h3 className="font-bold text-[#333333] mb-3">Empfehlungen</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
+                    <Target size={18} className="text-amber-600 mt-0.5 shrink-0" />
+                    <div>
+                      <div className="font-bold text-sm text-amber-700">Mehr diversifizieren</div>
+                      <p className="text-xs text-amber-600">Erwäge Investments in andere Regionen wie Emerging Markets.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                    <Repeat size={18} className="text-blue-600 mt-0.5 shrink-0" />
+                    <div>
+                      <div className="font-bold text-sm text-blue-700">Sparplan nutzen</div>
+                      <p className="text-xs text-blue-600">Regelmäßiges Investieren senkt das Risiko durch Cost-Averaging.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowAnalyseModal(false)}
+                className="w-full bg-[#33307E] text-white py-4 rounded-xl font-bold"
+              >
+                Verstanden
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

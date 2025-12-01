@@ -6,6 +6,7 @@ import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, Area
 import { motion, AnimatePresence } from "framer-motion";
 import lionIcon from "@assets/generated_images/minimalist_orange_app_icon_with_white_lion.png";
 import { addToPortfolio, removeFromPortfolio, getPortfolio, updateBalance, addTransaction, getBalance, formatCurrency, type Holding } from "@/lib/storage";
+import { useToast } from "@/hooks/use-toast";
 
 // Generate mock price data
 const generatePriceData = (days: number, basePrice: number, volatility: number) => {
@@ -209,6 +210,8 @@ export function StockDetailScreen({
     const [orderType, setOrderType] = useState<"buy" | "sell">("buy");
     const [quantity, setQuantity] = useState(1);
     const [orderStep, setOrderStep] = useState<"amount" | "confirm" | "success">("amount");
+    const [selectedNews, setSelectedNews] = useState<{ title: string; time: string; sentiment: string } | null>(null);
+    const { toast } = useToast();
     
     const stock = STOCK_DATA[symbol as keyof typeof STOCK_DATA] || STOCK_DATA.ING;
     const isPositive = stock.changePercent >= 0;
@@ -292,10 +295,15 @@ export function StockDetailScreen({
                         <button 
                             onClick={() => setIsWatchlisted(!isWatchlisted)}
                             className={`p-2 rounded-full transition-colors ${isWatchlisted ? 'text-yellow-500' : 'text-gray-400'}`}
+                            title={isWatchlisted ? "Von Watchlist entfernen" : "Zur Watchlist hinzufügen"}
                         >
                             <Star size={20} fill={isWatchlisted ? "currentColor" : "none"} />
                         </button>
-                        <button className="p-2 text-gray-400 rounded-full">
+                        <button 
+                            onClick={() => toast({ title: "Teilen", description: `${stock.symbol} Link wurde kopiert!` })}
+                            className="p-2 text-gray-400 rounded-full"
+                            title="Teilen"
+                        >
                             <Share2 size={20} />
                         </button>
                     </div>
@@ -430,7 +438,7 @@ export function StockDetailScreen({
                 <div className="bg-white mt-2 p-4">
                     <h3 className="font-bold text-[#333333] mb-3 flex items-center gap-2">
                         Kennzahlen
-                        <button className="text-gray-400">
+                        <button className="text-gray-400" title="Info über Kennzahlen">
                             <Info size={16} />
                         </button>
                     </h3>
@@ -477,7 +485,11 @@ export function StockDetailScreen({
                     </h3>
                     <div className="space-y-3">
                         {stock.news.map((item, idx) => (
-                            <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                            <button 
+                                key={idx} 
+                                onClick={() => setSelectedNews(item)}
+                                className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl w-full text-left hover:bg-gray-100 transition-colors"
+                            >
                                 <div className={`w-2 h-2 rounded-full mt-1.5 ${
                                     item.sentiment === 'positive' ? 'bg-green-500' :
                                     item.sentiment === 'negative' ? 'bg-red-500' : 'bg-gray-400'
@@ -487,11 +499,79 @@ export function StockDetailScreen({
                                     <div className="text-xs text-gray-400 mt-1">{item.time}</div>
                                 </div>
                                 <ExternalLink size={16} className="text-gray-400 shrink-0" />
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </div>
             </div>
+
+            {/* News Article Modal */}
+            <AnimatePresence>
+                {selectedNews && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/50 z-50 flex items-end"
+                        onClick={() => setSelectedNews(null)}
+                    >
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full bg-white rounded-t-3xl p-6 pb-10 max-h-[80vh] overflow-y-auto"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                    selectedNews.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
+                                    selectedNews.sentiment === 'negative' ? 'bg-red-100 text-red-700' : 
+                                    'bg-gray-100 text-gray-700'
+                                }`}>
+                                    {selectedNews.sentiment === 'positive' ? '📈 Positiv' :
+                                     selectedNews.sentiment === 'negative' ? '📉 Negativ' : '📊 Neutral'}
+                                </span>
+                                <button
+                                    onClick={() => setSelectedNews(null)}
+                                    className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                                    aria-label="Schließen"
+                                >
+                                    <X size={18} className="text-gray-500" />
+                                </button>
+                            </div>
+
+                            <h2 className="text-xl font-bold text-[#333333] mb-2">{selectedNews.title}</h2>
+                            <div className="text-sm text-gray-500 mb-6">{selectedNews.time} • {stock.symbol}</div>
+
+                            {/* Mock article content */}
+                            <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+                                <p>
+                                    {selectedNews.sentiment === 'positive' 
+                                        ? `Die jüngsten Entwicklungen bei ${stock.name} sorgen für Optimismus an den Märkten. Analysten sehen weiteres Wachstumspotenzial und empfehlen die Aktie zum Kauf.`
+                                        : selectedNews.sentiment === 'negative'
+                                        ? `${stock.name} steht vor Herausforderungen. Experten raten zur Vorsicht, beobachten aber die weitere Entwicklung genau.`
+                                        : `Die neuesten Nachrichten zu ${stock.name} werden von Marktteilnehmern aufmerksam verfolgt. Die Auswirkungen auf den Aktienkurs bleiben abzuwarten.`
+                                    }
+                                </p>
+                                <p>
+                                    Die Aktie notiert aktuell bei €{stock.price.toFixed(2)}, was einem {isPositive ? 'Plus' : 'Minus'} von {Math.abs(stock.changePercent).toFixed(2)}% entspricht.
+                                </p>
+                                <p className="text-xs text-gray-400 italic">
+                                    Hinweis: Dies ist simulierter Nachrichteninhalt zu Demonstrationszwecken.
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => setSelectedNews(null)}
+                                className="w-full mt-6 bg-[#FF6200] text-white py-3 rounded-xl font-bold"
+                            >
+                                Schließen
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Order Modal */}
             <AnimatePresence>
