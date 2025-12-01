@@ -1,6 +1,66 @@
+# LEO - KI Finanzassistent für ING
+## Umfassende Projektdokumentation
+#### Zentrale Informationsquelle für DFC2025 Challenge
 
+---
+
+## 📁 Modulare Dokumentation
+
+Dieses Projekt verwendet modulare Dokumentation. Für detaillierte Spezifikationen siehe den `/docs` Ordner:
+
+| Dokument | Beschreibung |
+|----------|--------------|
+| [docs/01-AI-FIRST-PHILOSOPHY.md](./docs/01-AI-FIRST-PHILOSOPHY.md) | KI-First Prinzipien, Demo User Stories |
+| [docs/02-GAMIFICATION-SYSTEM.md](./docs/02-GAMIFICATION-SYSTEM.md) | Punkte, Badges, Ranglisten, Kahoot-Style Challenges |
+| [docs/03-NEWS-INSIGHTS-FEED.md](./docs/03-NEWS-INSIGHTS-FEED.md) | Perplexity-ähnlicher personalisierter News-Feed |
+| [docs/04-WIDGETS-SYSTEM.md](./docs/04-WIDGETS-SYSTEM.md) | Alle interaktiven Widgets mit Spezifikationen |
+| [docs/05-JUNIOR-MONEY-SYSTEM.md](./docs/05-JUNIOR-MONEY-SYSTEM.md) | Echtes vs. virtuelles Geld, Kartenregeln, Elternkontrolle |
+| [docs/06-FUTURE-VISION.md](./docs/06-FUTURE-VISION.md) | Roadmap, zukünftige Features, personalisierte UI Vision |
+| [docs/07-IMPLEMENTATION-GUIDE.md](./docs/07-IMPLEMENTATION-GUIDE.md) | Konkrete Änderungen für die ing-app Codebasis |
+
+---
+
+## Inhaltsverzeichnis
+1. [Zusammenfassung](#zusammenfassung)
+2. [KI-First Philosophie](#ki-first-philosophie)
+3. [Projektkontext & Challenge](#projektkontext--challenge)
+4. [Zielgruppenprofile](#zielgruppenprofile)
+5. [Übersicht Kernfunktionen](#übersicht-kernfunktionen)
+6. [UI Creator Spezifikationen](#ui-creator-spezifikationen)
+7. [Detaillierte Screen-Beschreibungen](#detaillierte-screen-beschreibungen)
+8. [KI-Agent "Leo" Spezifikationen](#ki-agent-leo-spezifikationen)
+9. [Design System & UI Richtlinien](#design-system--ui-richtlinien)
+10. [Rechtliche & Compliance Überlegungen](#rechtliche--compliance-überlegungen)
+11. [Technische Architektur](#technische-architektur)
+12. [Beantwortete Fragen & Entscheidungen](#beantwortete-fragen--entscheidungen)
+13. [Mockups & Visuelle Referenzen](#mockups--visuelle-referenzen)
+14. [Roadmap & Implementierungsphasen](#roadmap--implementierungsphasen)
+15. [Präsentationsstrategie](#präsentationsstrategie)
+16. [Issue-Referenzen](#issue-referenzen)
+
+---
+
+## Zusammenfassung
+
+**LEO** ist ein KI-gestützter Finanzassistent, der in die bestehende ING Deutschland Banking-App integriert werden soll. Das Projekt zielt darauf ab, Finanzwissenslücken bei jungen Nutzern (13-29 Jahre) durch personalisierte Beratung, interaktive Lernerfahrungen und intelligente Finanzeinblicke zu schließen.
+
+### Hauptwertversprechen
+- **Personalisierte Finanzbildung**: KI-generierte Quizze und Lernpfade angepasst an individuelles Wissensniveau
+- **Investment Simulator**: Virtueller Handel mit echten Marktdaten für risikofreies Lernen (ING Junior Profil)
+- **Smarte Finanzeinblicke**: Transaktionsanalyse, Abo-Optimierung und Sparempfehlungen
+- **Emotional Intelligence**: Empathetic AI that explains financial concepts in simple, non-judgmental terms
+- **Seamless Integration**: Built on top of the existing ING app, not a standalone application
+
+### Project Competition
+This is a submission for the **DFC2025 (Digital Future Challenge)** competition, focusing on creating innovative digital solutions for banking.
+
+---
+
+## AI-First Philosophy
 
 > **Core Principle**: Every interaction in the LEO ecosystem starts and ends with AI. Leo is not a feature—it is THE interface.
+
+> 📖 **Detailed Documentation**: See [docs/01-AI-FIRST-PHILOSOPHY.md](./docs/01-AI-FIRST-PHILOSOPHY.md) for complete AI-first specifications and demo user stories.
 
 ### What "AI-First" Means for LEO
 
@@ -9,7 +69,7 @@
 | User navigates menus to find features | User asks Leo, Leo navigates for them |
 | Static screens with fixed information | Dynamic screens generated based on context |
 | User must learn app structure | App learns user's habits and preferences |
-| Reactive (user initiates actions) | Proactive (AI suggests actions before usefr thinks of them) |
+| Reactive (user initiates actions) | Proactive (AI suggests actions before user thinks of them) |
 | One-size-fits-all UI | Personalized UI based on user profile and behavior |
 
 ### AI-First for ING Junior Profile (Ages 13-17)
@@ -70,7 +130,7 @@ Key insights from the [ING Q&A Transcript](https://github.com/Wladefant/leo/issu
 |-----------|-------------|
 | **Age Range** | 13-17 years old |
 | **Account Type** | Girokonto Junior (requires parental consent) |
-| **Key Features** | Investment simulator, financial quizzes, virtual money |
+| **Key Features** | Real-Life Financial Simulator, financial quizzes, virtual money |
 | **Access Model** | 1 month free trial → requires parent-approved card |
 | **UI Treatment** | Simplified interface with gamified elements |
 
@@ -99,6 +159,12 @@ Key insights from the [ING Q&A Transcript](https://github.com/Wladefant/leo/issu
 ---
 
 ## Core Features Overview
+
+> 📖 **Detailed Documentation**: 
+> - Gamification: [docs/02-GAMIFICATION-SYSTEM.md](./docs/02-GAMIFICATION-SYSTEM.md)
+> - News Feed: [docs/03-NEWS-INSIGHTS-FEED.md](./docs/03-NEWS-INSIGHTS-FEED.md)
+> - Widgets: [docs/04-WIDGETS-SYSTEM.md](./docs/04-WIDGETS-SYSTEM.md)
+> - Junior Money: [docs/05-JUNIOR-MONEY-SYSTEM.md](./docs/05-JUNIOR-MONEY-SYSTEM.md)
 
 ### 1. Leo AI Agent Chatbot
 **Issues**: [#44](https://github.com/Wladefant/leo/issues/44), [#45](https://github.com/Wladefant/leo/issues/45), [#28](https://github.com/Wladefant/leo/issues/28), [#35](https://github.com/Wladefant/leo/issues/35)
@@ -1212,6 +1278,488 @@ Read the full [Privacy Policy] to see exactly how we crunch the numbers."
 
 ---
 
+## Technical Architecture
+
+### Integration Model
+Based on Q&A transcript in [Issue #19](https://github.com/Wladefant/leo/issues/19):
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Existing ING App                    │
+├─────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │   Konten    │  │ Investieren │  │  Products   │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘ │
+│                                                      │
+│         ┌──────────────────────────────┐           │
+│         │    LEO AI Layer (New)        │           │
+│         │  • Chat Interface            │           │
+│         │  • Quiz Engine               │           │
+│         │  • Investment Simulator      │           │
+│         │  • Analytics Engine          │           │
+│         └──────────────────────────────┘           │
+│                         │                           │
+│         ┌───────────────┴───────────────┐         │
+│         │                               │          │
+│   ┌─────▼─────┐                 ┌──────▼─────┐   │
+│   │  Shared   │                 │   Closed   │    │
+│   │  Memory   │                 │   Memory   │    │
+│   │ (General  │                 │   (User    │    │
+│   │  Finance) │                 │    Data)   │    │
+│   └───────────┘                 └────────────┘    │
+└─────────────────────────────────────────────────────┘
+```
+
+### Data Architecture
+
+**Shared Memory** (Accessible to all users):
+- Financial education content
+- General market data
+- Quiz question bank
+- News articles
+
+**Closed Memory** (Per-user, sandboxed):
+- Transaction history
+- Account balances
+- User preferences
+- Quiz performance
+- Investment simulator data
+
+### API Assumptions
+From Q&A transcript:
+- Financial education API (assumed to exist or be purchased)
+- Real-time market data API
+- User transaction data API (internal ING)
+- Notification/push API
+
+### Knowledge Base
+**Issue**: [#29](https://github.com/Wladefant/leo/issues/29)
+
+- Filtered, verified content only
+- No open internet scraping
+- Suggested: Purchase API from third-party financial education provider
+- ING does not currently have in-house financial education API
+
+---
+
+## Answered Questions & Decisions
+
+> This section documents all major design decisions and answers to questions raised in issues.
+
+### Q1: Why two profiles in one app instead of separate apps?
+**Issue**: [#31](https://github.com/Wladefant/leo/issues/31)
+
+**Answer**: 
+- **Cost Efficiency**: One codebase, one maintenance team, one infrastructure
+- **Seamless Transition**: When Junior users turn 18, they upgrade within the same app
+- **Familiarity**: Leo remains their trusted assistant across life stages
+- **Technical Simplicity**: Profile-based feature toggling is simpler than app switching
+- **ING Requirement**: Must integrate into existing ING app (from Q&A session)
+
+### Q2: How do we verify age for Junior users?
+**Issue**: [#50](https://github.com/Wladefant/leo/issues/50)
+
+**Answer**:
+- **Initial**: Parental consent flow during Girokonto Junior account creation
+- **Verification**: Connected to ING's existing KYC (Know Your Customer) process
+- **Not a simple Y/N**: Requires parental email/phone verification
+- **Compliance**: Meets GDPR Article 8 requirements for minors in Germany (under 16)
+
+### Q3: What happens if Leo is asked non-financial questions?
+**Issue**: [#35](https://github.com/Wladefant/leo/issues/35)
+
+**Answer**:
+- Leo politely redirects: "I'm your financial assistant, so I focus on money topics. But I'd love to help with questions about saving, investing, or managing your finances!"
+- Leo can make the connection: "That's not quite my area, but if you're thinking about buying that car, want to see how it fits your budget?"
+- Never abruptly refuses—always offers a financial angle
+
+### Q4: How does the gamification work without physical rewards?
+**Issues**: [#15](https://github.com/Wladefant/leo/issues/15), ING Q&A
+
+**Answer**:
+- **Points**: Earned for quizzes, streaks, achievements
+- **Digital Badges**: Duolingo-style ("Quiz Master", "Saver Starter")
+- **Financial Rewards**: Interest rate bonuses on real accounts when turning 18
+- **Leaderboards**: Social competition without material prizes
+- **School Championships**: Bragging rights, school-level recognition
+- **No Merchandise**: ING policy prohibits physical gifts
+
+### Q5: How does Leo generate quizzes dynamically?
+**Issues**: [#17](https://github.com/Wladefant/leo/issues/17), [#18](https://github.com/Wladefant/leo/issues/18)
+
+**Answer**:
+- **Context Awareness**: If user just viewed Apple stock, quiz might ask about tech sector
+- **Adaptive Difficulty**: Algorithm tracks correct/wrong answers, adjusts complexity
+- **Image Generation**: Scenario-based questions can include AI-generated illustrations
+- **Knowledge Gaps**: Leo identifies weak areas and creates targeted questions
+- **Real-World Relevance**: Questions tied to user's actual virtual portfolio/transactions
+
+### Q6: What data does Leo have access to?
+**Issues**: [#19](https://github.com/Wladefant/leo/issues/19), [#50](https://github.com/Wladefant/leo/issues/50)
+
+**Answer**:
+- **Transaction History**: Full access with user consent
+- **Account Balances**: Real-time access
+- **User Preferences**: Goals, risk tolerance, learning progress
+- **Market Data**: Real-time stock prices, news
+- **NOT Available to Leo**: Location data (unless explicitly enabled), biometric data
+
+### Q7: How do we handle duplicate subscriptions detection?
+**Issues**: [#42](https://github.com/Wladefant/leo/issues/42), [#6](https://github.com/Wladefant/leo/issues/6)
+
+**Answer**:
+- **Pattern Recognition**: AI identifies similar services (Spotify + Apple Music)
+- **Usage Analysis**: Cross-reference with app usage data (if permitted)
+- **Timing Analysis**: Subscriptions not used for 30+ days flagged
+- **User Control**: All suggestions are recommendations, not automatic actions
+- **Transparency**: Leo explains why a subscription was flagged
+
+### Q8: How does the Investment Simulator prevent "gambling" behavior?
+**Issue**: [#5](https://github.com/Wladefant/leo/issues/5)
+
+**Answer**:
+- **No Reset**: Cannot reset virtual money to avoid consequence-free gambling
+- **Weekly Salary**: Controlled income stream, like real life
+- **Leo Warnings**: Alerts when behavior is risky ("You're putting all money in one stock")
+- **Educational Friction**: Before any trade, Leo offers a brief explanation
+- **Loss Limits**: If portfolio drops >50%, Leo intervenes with educational content
+
+### Q9: What is the EU AI Act classification for Leo?
+**Issue**: [#50](https://github.com/Wladefant/leo/issues/50)
+
+**Answer**:
+- **Classification**: Limited Risk (not High-Risk)
+- **Why Not High-Risk**: Does not evaluate creditworthiness, insurance pricing, or essential benefits
+- **Primary Obligation**: Transparency (users must know they're talking to AI)
+- **Implementation**: Clear "AI Assistant" label, "How Leo Works" explainer in settings
+
+### Q10: How do we ensure Leo doesn't manipulate users?
+**Issue**: [#50](https://github.com/Wladefant/leo/issues/50), ING Leo Considerations PDF
+
+**Answer**:
+- **No Pressure Tactics**: Leo never urges immediate action
+- **No Hidden Upselling**: Leo doesn't secretly promote ING products
+- **Balanced Information**: Always presents pros and cons
+- **Human Escalation**: Option to speak to human advisor available
+- **Audit Trail**: All Leo recommendations logged for review
+- **Ethical Review**: Content reviewed by ethics board before deployment
+
+### Q11: How do Smart Notifications work?
+**Issues**: [#52](https://github.com/Wladefant/leo/issues/52), [#53](https://github.com/Wladefant/leo/issues/53)
+
+**Answer**:
+- **Pattern Learning**: AI learns recurring transactions (rent, subscriptions)
+- **Proactive Suggestions**: "Rent due tomorrow. Send €800?" (pre-filled)
+- **One-Tap Actions**: Reduce friction for routine tasks
+- **Timing Intelligence**: Sends reminders at optimal times
+- **Dismissable**: Never forced; always can be snoozed/dismissed
+- **Learning**: If user always dismisses, Leo stops suggesting that action
+
+### Q12: What makes Leo different from ChatGPT or generic AI?
+**Issue**: [#26](https://github.com/Wladefant/leo/issues/26) (USP)
+
+**Answer**:
+- **Financial Focus**: Can't be distracted, always brings back to money topics
+- **Bank Integration**: Has access to actual transaction data
+- **Verified Knowledge**: No hallucinations about financial facts
+- **Compliance Built-In**: EU AI Act, GDPR, minors protection from day one
+- **Action Capability**: Can actually execute transactions (with confirmation)
+- **Personalized Learning**: Adapts to user's actual financial behavior
+
+### Q13: How do we handle accessibility and inclusion?
+**Issue**: [#23](https://github.com/Wladefant/leo/issues/23)
+
+**Answer**:
+- **Visual**: High contrast mode, adjustable font sizes
+- **Auditory**: Voice mode for all interactions
+- **Cognitive**: Simple language, no jargon, step-by-step guidance
+- **Motor**: Large tap targets, voice control option
+- **Language**: German and English support
+- **Dyslexia-Friendly**: OpenDyslexic font option
+- **Screen Readers**: Full VoiceOver/TalkBack compatibility
+
+### Q14: What is the knowledge base source?
+**Issue**: [#29](https://github.com/Wladefant/leo/issues/29)
+
+**Answer**:
+- **Recommended**: Purchase API from financial education provider
+- **Content Types**: German tax laws, investment basics, insurance explanations
+- **Quality Control**: All content human-reviewed before deployment
+- **Updates**: Regular updates when regulations change
+- **No Internet Scraping**: Closed environment prevents misinformation
+
+---
+
+## Presentation Strategy
+
+> **Issue**: [#27](https://github.com/Wladefant/leo/issues/27)
+
+### Slide Deck Structure (Max 8 Slides)
+
+**Slide 1: Title**
+- "LEO: Your AI Financial Companion"
+- Team name and members
+- DFC2025 + ING logos
+
+**Slide 2: The Problem**
+- Pain points of young users (anxiety, confusion, lack of knowledge)
+- Statistics: Only 25% of Germans feel financially literate
+- Quote from target user research
+
+**Slide 3: Our Solution - LEO**
+- AI-First approach (everything starts with Leo)
+- Two profiles: Junior (learn) + Adult (manage)
+- Key differentiator: Integrated, not another app
+
+**Slide 4: How It Works**
+- User journey visualization
+- Junior: Virtual money → Quiz → Real skills
+- Adult: Transaction insight → Smart suggestions → Action
+
+**Slide 5: Live Demo Mockup**
+- Interactive prototype link
+- 3-4 key screens showing Leo in action
+- Show AI-generated quiz example
+
+**Slide 6: Why This Matters**
+- Social relevance (financial literacy gap)
+- Future viability (AI is the future of banking)
+- Inclusion (accessible to all)
+
+**Slide 7: Feasibility**
+- Technical: Built on existing ING infrastructure
+- Legal: EU AI Act compliant (Limited Risk)
+- Timeline: Realistic 18-24 month rollout
+- ING fit: Matches risk-averse culture
+
+**Slide 8: Call to Action + Sources**
+- "Ready to meet Leo?"
+- MVP/Prototype link
+- Academic and industry sources
+- Team contact information
+
+### Key Talking Points
+
+1. **AI-First, Not AI-Added**: Leo isn't a feature—it's THE interface
+2. **Two Profiles, One App**: Grow with users from teen to adult
+3. **Safe Learning**: Virtual money with real consequences (no reset)
+4. **Smart Insights**: AI that actually knows your finances
+5. **Compliance by Design**: GDPR, EU AI Act, minors protection
+
+### Anticipated Jury Questions
+
+| Question | Prepared Answer |
+|----------|----------------|
+| "Why not a separate app for teens?" | Cost efficiency, seamless transition at 18, ING app integration requirement |
+| "How do you prevent AI manipulation?" | Transparency, no hidden upselling, human escalation, audit trails |
+| "Is this technically feasible?" | Yes, uses existing LLM technology + ING APIs; no quantum computing |
+| "How do you handle privacy for minors?" | GDPR Article 8 compliance, parental consent flow, highest privacy defaults |
+| "What's the business model?" | Builds loyalty—teens become adult customers; subscription optimization saves money |
+
+### Prototype Requirements
+
+- [ ] Working Leo chat interface (can be mock responses)
+- [ ] At least 3 complete screens (Home, Chat, Quiz)
+- [ ] One user flow end-to-end (e.g., Take a Quiz)
+- [ ] Visual consistency with ING design system
+- [ ] Leo personality demonstration
+
+---
+
+## Mockups & Visual References
+
+### Repository Mockups
+
+| Screen | File Path |
+|--------|-----------|
+| Leo Mascot | [`mockups/Leo.png`](./mockups/Leo.png) |
+| General Account View | [`mockups/general_account_view.png`](./mockups/general_account_view.png) |
+| Single Account View | [`mockups/single_account_view.png`](./mockups/single_account_view.png) |
+| Chat View | [`mockups/chat_view.png`](./mockups/chat_view.png) |
+| Statistics | [`mockups/statistics.png`](./mockups/statistics.png) |
+| Savings Planner | [`mockups/savings_planner.png.png`](./mockups/savings_planner.png.png) |
+| Products View | [`mockups/products_view.png`](./mockups/products_view.png) |
+| Stock View 1 | [`mockups/stock1.png`](./mockups/stock1.png) |
+| Stock View 2 | [`mockups/stock2.png`](./mockups/stock2.png) |
+| High Contrast View | [`mockups/high_contrast_general_account_view.png`](./mockups/high_contrast_general_account_view.png) |
+| Main View 1 | [`mockups/main1.png`](./mockups/main1.png) |
+| Main View 2 | [`mockups/main2.png`](./mockups/main2.png) |
+
+### Original ING App Screenshots
+Located in [`mockups/original-mockups-ing/`](./mockups/original-mockups-ing/):
+- ING App Setup flows
+- Transfer flows ("Überweisen mit der ING App")
+- Card limit management ("Kartenlimit ändern")
+- Depot transfer ("Depot zur ING übertragen")
+- App tutorial ("Lerne Deine ING App kennen")
+
+### Investment Flow Screens
+Located in [`mockups/Investment/`](./mockups/Investment/):
+- Detailed investment journey screens
+
+### Watchlist Screens
+Located in [`mockups/Watchlist invest/`](./mockups/Watchlist%20invest/)
+
+### ING Trading Features (Official)
+Located in [`ING Trading Features/`](./ING%20Trading%20Features/):
+
+| Feature | Folder |
+|---------|--------|
+| Markets Overview | `Börsen & Märkte/` |
+| Depot Order Flow | `Depot – Order-Flow/` |
+| Order Manager | `Depot – Ordermananger/` |
+| Savings Plan | `Depot – Sparplananlage/` |
+| Depot Overview | `Depot-Übersicht/` |
+| Investment Dashboard | `Investieren Dashboard/` |
+| Watchlist | `Watchlist/` |
+| Security Portraits | `Wertpapier-Portraits/` |
+| Stock Filter | `Wertpapier-Suche – Aktien-Filter/` |
+| ETF Filter | `Wertpapier-Suche – ETF-Filter/` |
+| Leverage Products | `Wertpapier-Suche – Hebelprodukte/` |
+| Inspirations | `Wertpapier-Suche – Inspirationen/` |
+
+### Issue-Embedded Mockups
+
+Many mockups are attached directly in GitHub issues:
+- [Issue #54](https://github.com/Wladefant/leo/issues/54) - Original ING App Screens
+- [Issue #51](https://github.com/Wladefant/leo/issues/51) - Stock View Chatbot
+- [Issue #52](https://github.com/Wladefant/leo/issues/52) - Smart Action Transfer Widget
+- [Issue #47](https://github.com/Wladefant/leo/issues/47) - Smart AI Statistics
+- [Issue #36](https://github.com/Wladefant/leo/issues/36) - Investment Stock View (17+ comments with images)
+- [Issue #44](https://github.com/Wladefant/leo/issues/44) - General Chatbot View
+- [Issue #5](https://github.com/Wladefant/leo/issues/5) - Investment Simulator
+- [Issue #6](https://github.com/Wladefant/leo/issues/6) - Savings Goal Planner
+
+---
+
+## Roadmap & Implementation Phases
+
+> 📖 **Detailed Documentation**: 
+> - Future Vision: [docs/06-FUTURE-VISION.md](./docs/06-FUTURE-VISION.md)
+> - Implementation Guide: [docs/07-IMPLEMENTATION-GUIDE.md](./docs/07-IMPLEMENTATION-GUIDE.md)
+
+### Phase Overview
+**Issue**: [#49](https://github.com/Wladefant/leo/issues/49)
+
+From ING Q&A guidance: Use **Steps** not fixed dates (compliance processes can take 1.5-2 years)
+
+```
+Step 1: MVP (Foundation)
+├── Basic Leo Chat Interface
+├── Simple Q&A functionality
+├── User data integration
+└── Transaction categorization
+
+Step 2: Learning Features
+├── Quiz system implementation
+├── Financial education content
+├── Basic gamification (points)
+└── Progress tracking
+
+Step 3: Investment Simulator (Junior)
+├── Virtual money system
+├── Real market data integration
+├── Portfolio tracking
+├── Tax simulation
+
+Step 4: Advanced Features
+├── Smart notifications
+├── Document analysis
+├── Voice interaction
+├── Leaderboards
+
+Step 5: Expansion
+├── School partnerships
+├── Advanced analytics
+├── Inter-school competitions
+└── Premium features
+```
+
+### Cost & Timeline Considerations
+**Issue**: [#49](https://github.com/Wladefant/leo/issues/49)
+
+- Realistic implementation: 1.5-2 years
+- Must account for:
+  - Regulatory compliance reviews
+  - Security audits
+  - User testing phases
+  - Legal approval processes
+
+---
+
+## Issue References
+
+### Core Features
+| Issue | Title | Labels |
+|-------|-------|--------|
+| [#44](https://github.com/Wladefant/leo/issues/44) | General chatbot view | feature, ING APP, ING Junior, Screens/View, AiChat |
+| [#45](https://github.com/Wladefant/leo/issues/45) | LeoAgentChatView: Emotional access points | ING APP, ING Junior, AiChat |
+| [#5](https://github.com/Wladefant/leo/issues/5) | Investment Simulator | feature, ING Junior |
+| [#6](https://github.com/Wladefant/leo/issues/6) | Savings goal planner | feature, ING APP |
+| [#33](https://github.com/Wladefant/leo/issues/33) | QuizzesView | feature, ING APP, ING Junior, Screens/View |
+| [#15](https://github.com/Wladefant/leo/issues/15) | Gamification | feature, ING Junior |
+| [#43](https://github.com/Wladefant/leo/issues/43) | Transaction analysis | feature, ING APP |
+| [#42](https://github.com/Wladefant/leo/issues/42) | Subscription optimization | feature, ING APP |
+
+### Screen Definitions
+| Issue | Title | Labels |
+|-------|-------|--------|
+| [#54](https://github.com/Wladefant/leo/issues/54) | ING APP original UI Screens | - |
+| [#51](https://github.com/Wladefant/leo/issues/51) | Stock View Chatbot | ING APP, ING Junior, Screens/View |
+| [#52](https://github.com/Wladefant/leo/issues/52) | Smart Action Transfer Widget | Screens/View |
+| [#47](https://github.com/Wladefant/leo/issues/47) | Konten / smart ai statistics | ING APP, Screens/View |
+| [#46](https://github.com/Wladefant/leo/issues/46) | Separate App MockUp 18-29 | ING Junior |
+| [#40](https://github.com/Wladefant/leo/issues/40) | Salary / Taxes View | ING Junior, Screens/View |
+| [#38](https://github.com/Wladefant/leo/issues/38) | Personal Questions at start | ING Junior, Screens/View |
+| [#37](https://github.com/Wladefant/leo/issues/37) | LeaderboardView | feature, ING Junior |
+| [#36](https://github.com/Wladefant/leo/issues/36) | Investment Stock View | ING APP, ING Junior, Screens/View |
+| [#34](https://github.com/Wladefant/leo/issues/34) | Virtual Money for kids | ING Junior, Screens/View |
+| [#32](https://github.com/Wladefant/leo/issues/32) | ING APP with ING Junior Overview | ING APP, ING Junior |
+| [#11](https://github.com/Wladefant/leo/issues/11) | Stock list View | ING APP, ING Junior, Screens/View |
+
+### Technical & Compliance
+| Issue | Title | Labels |
+|-------|-------|--------|
+| [#50](https://github.com/Wladefant/leo/issues/50) | Legal Risks - Regulatory Review | documentation, help wanted, Legal |
+| [#29](https://github.com/Wladefant/leo/issues/29) | Knowledge base | feature |
+| [#35](https://github.com/Wladefant/leo/issues/35) | Chatbot strictly finances | Presentation |
+| [#17](https://github.com/Wladefant/leo/issues/17) | Learning Path Deep AI integration | feature, ING APP, ING Junior |
+| [#18](https://github.com/Wladefant/leo/issues/18) | AI prompt algorithm | feature, ING APP, ING Junior |
+| [#13](https://github.com/Wladefant/leo/issues/13) | Legal part | Presentation, Legal |
+
+### Presentation & Strategy
+| Issue | Title | Labels |
+|-------|-------|--------|
+| [#27](https://github.com/Wladefant/leo/issues/27) | Work on slide deck | Presentation |
+| [#26](https://github.com/Wladefant/leo/issues/26) | Unique Selling Point (USP) | Presentation |
+| [#25](https://github.com/Wladefant/leo/issues/25) | App design colors | ING APP, ING Junior |
+| [#24](https://github.com/Wladefant/leo/issues/24) | Create project plan | - |
+| [#23](https://github.com/Wladefant/leo/issues/23) | Inclusion | Presentation |
+| [#22](https://github.com/Wladefant/leo/issues/22) | Ideas from other banks | - |
+| [#21](https://github.com/Wladefant/leo/issues/21) | Sources | - |
+| [#19](https://github.com/Wladefant/leo/issues/19) | Summary/Transcript of ING Q&A | - |
+| [#14](https://github.com/Wladefant/leo/issues/14) | Feasibility | Presentation |
+| [#49](https://github.com/Wladefant/leo/issues/49) | Project Roadmap | Presentation |
+
+### Additional Features
+| Issue | Title | Labels |
+|-------|-------|--------|
+| [#53](https://github.com/Wladefant/leo/issues/53) | Notification | feature |
+| [#48](https://github.com/Wladefant/leo/issues/48) | Widgets | feature, ING APP, ING Junior, Screens/View |
+| [#41](https://github.com/Wladefant/leo/issues/41) | Questions from ING Team | - |
+| [#39](https://github.com/Wladefant/leo/issues/39) | Investment Quiz | - |
+| [#31](https://github.com/Wladefant/leo/issues/31) | Two apps into one: why? | Presentation |
+| [#30](https://github.com/Wladefant/leo/issues/30) | Pain points | ING APP, ING Junior |
+| [#28](https://github.com/Wladefant/leo/issues/28) | Files/images/camera/voice in LEO | ING APP, additional feature |
+| [#16](https://github.com/Wladefant/leo/issues/16) | News | feature, ING APP, ING Junior |
+| [#9](https://github.com/Wladefant/leo/issues/9) | Insurance Scenarios | feature, ING APP, ING Junior |
+| [#4](https://github.com/Wladefant/leo/issues/4) | Access login with card | ING APP |
+
+---
+
+## Proposed New Issues
+
+> These are new features and improvements identified during documentation that should be created as GitHub issues.
 
 ### AI-First Features (Priority: High)
 
@@ -2398,3 +2946,52 @@ After send:
 ```
 
 ---
+
+## Unique Selling Points (USP)
+**Issue**: [#26](https://github.com/Wladefant/leo/issues/26)
+
+1. **AI-First Financial Education**: Unlike competitors, Leo provides truly personalized, adaptive learning
+2. **Risk-Free Investment Learning**: Real market data with virtual money
+3. **Seamless Banking Integration**: Not a separate app, but enhanced ING experience
+4. **Emotional Intelligence**: AI that understands financial anxiety
+5. **Regulatory Compliance by Design**: Built with EU AI Act and GDPR from ground up
+6. **Multi-Generational**: Serves both teens learning and young adults managing real money
+
+---
+
+## Competitor Analysis
+**Issue**: [#22](https://github.com/Wladefant/leo/issues/22)
+
+| Competitor | Strengths | Weaknesses | Leo Advantage |
+|------------|-----------|------------|---------------|
+| **N26 Learn** | Clean UI, good tone | Not interactive | Interactive AI conversations |
+| **Revolut Junior** | Gamified, parental control | Limited real learning | Deep financial education |
+| **Finanzfluss** | Strong content | No personalization | Personalized AI guidance |
+| **Finanzguru** | Financial assistance | Not educational | Learning + assistance combined |
+| **Planspiel Börse** | Investment simulation | Separate from banking | Integrated in real banking app |
+
+---
+
+## Presentation Resources
+**Issue**: [#27](https://github.com/Wladefant/leo/issues/27)
+
+- **Slide Deck**: [Edit on Canva](https://www.canva.com/design/DAG5tk0mDz4/mp7t4R00-hH_7H4fKeaW2w/edit?utm_content=DAG5tk0mDz4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+- Maximum 8 slides (including title and literature)
+- Additional materials (videos, URLs, MVPs) can be uploaded via portal
+
+---
+
+## Document References
+
+| Document | Description |
+|----------|-------------|
+| [ING assignment english version.pdf](./ING%20assignment%20english%20version.pdf) | Original challenge brief |
+| [ING assignment german version.pdf](./ING%20assignment%20german%20version.pdf) | German version of challenge |
+| [important criteria.pdf](./important%20criteria.pdf) | Jury evaluation criteria |
+| [ING Leo important considerations.pdf](./ING%20Leo%20important%20considerations.pdf) | AI design guidelines |
+| [DFC2025 - Submission Template_DE.pdf](./DFC2025%20-%20Submission%20Template_DE%20%20-%20%20Schreibgeschützt.pdf) | Submission template |
+
+---
+
+*Last Updated: November 2025*
+*Repository: [Wladefant/leo](https://github.com/Wladefant/leo)*
