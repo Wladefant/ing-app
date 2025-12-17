@@ -55,9 +55,9 @@ export type Screen =
 import { sendMessageToOpenAI, WidgetAction } from "@/lib/openai";
 
 export function INGApp() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
   const [selectedAccount, setSelectedAccount] = useState<string>("Girokonto");
-  const [userProfile, setUserProfile] = useState<"adult" | "junior">("adult");
+  const [userProfile, setUserProfile] = useState<"adult" | "junior">("junior");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // New state for typing indicator
   const [activeScenarioContext, setActiveScenarioContext] = useState<string | undefined>(undefined); // New state for context
