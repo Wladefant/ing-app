@@ -74,14 +74,14 @@ export function JuniorInvestmentScreen({
             />
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {/* Balance Card */}
-                <div className="bg-gradient-to-br from-[#FF6200] to-[#FF8533] p-4 rounded-2xl shadow-md">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Wallet size={18} className="text-white/80" />
-                        <span className="text-white/80 text-sm">Verfügbares Spielgeld</span>
+                {/* Play Money Badge */}
+                <div className="flex items-center justify-between bg-gradient-to-r from-indigo-500 to-violet-600 px-4 py-3 rounded-xl text-white shadow-md">
+                    <div className="flex items-center gap-2">
+                        <span className="text-lg">🎮</span>
+                        <span className="text-sm font-medium opacity-90">Spielgeld</span>
                     </div>
-                    <div className="text-3xl font-bold text-white">
-                        €{(portfolio?.cashBalance || 5000).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                    <div className="text-xl font-bold font-mono">
+                        v€{(portfolio?.cashBalance || 500).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                     </div>
                 </div>
 
@@ -114,6 +114,7 @@ export function JuniorInvestmentScreen({
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 labelStyle={{ color: '#999' }}
+                                formatter={(value: number) => [`€${value.toFixed(2)}`, 'Wert']}
                             />
                         </LineChart>
                     </ResponsiveContainer>

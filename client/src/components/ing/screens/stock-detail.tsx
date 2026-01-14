@@ -189,6 +189,67 @@ const STOCK_DATA = {
             { title: "AWS kündigt neue KI-Services an", time: "vor 2 Stunden", sentiment: "positive" },
             { title: "Prime Day bricht Verkaufsrekorde", time: "gestern", sentiment: "positive" },
         ]
+    },
+    // Junior Portfolio Stocks
+    GAME: {
+        name: "GameTech Corp",
+        symbol: "GAME",
+        price: 37.52,
+        change: 2.02,
+        changePercent: 5.7,
+        marketCap: "2.4B",
+        pe: 18.5,
+        dividend: "0%",
+        high52: 42.80,
+        low52: 28.50,
+        volume: "3.2M",
+        logo: "🎮",
+        color: "#6366F1",
+        description: "GameTech Corp entwickelt beliebte Videospiele und Gaming-Plattformen für Jugendliche.",
+        news: [
+            { title: "GameTech startet neues Mobile Game", time: "vor 4 Stunden", sentiment: "positive" },
+            { title: "Spielerzahlen steigen um 25%", time: "gestern", sentiment: "positive" },
+        ]
+    },
+    SNKR: {
+        name: "Sneaker World",
+        symbol: "SNKR",
+        price: 40.10,
+        change: 11.60,
+        changePercent: 40.7,
+        marketCap: "8.5B",
+        pe: 24.2,
+        dividend: "0.5%",
+        high52: 45.20,
+        low52: 22.30,
+        volume: "5.8M",
+        logo: "👟",
+        color: "#10B981",
+        description: "Sneaker World ist ein führender Hersteller von trendigen Sportschuhen und Streetwear.",
+        news: [
+            { title: "Neue Sneaker-Kollektion ausverkauft", time: "vor 2 Stunden", sentiment: "positive" },
+            { title: "Partnerschaft mit bekanntem Influencer", time: "vor 1 Tag", sentiment: "positive" },
+        ]
+    },
+    BRGR: {
+        name: "Burger King",
+        symbol: "BRGR",
+        price: 35.08,
+        change: 17.08,
+        changePercent: 94.9,
+        marketCap: "12.3B",
+        pe: 19.8,
+        dividend: "2.1%",
+        high52: 38.50,
+        low52: 15.20,
+        volume: "8.4M",
+        logo: "🍔",
+        color: "#DC2626",
+        description: "Burger King ist eine internationale Fast-Food-Kette bekannt für Flame-grilled Burger.",
+        news: [
+            { title: "Neuer Plant-Based Whopper sehr beliebt", time: "vor 3 Stunden", sentiment: "positive" },
+            { title: "Expansion in neue Märkte geplant", time: "vor 1 Tag", sentiment: "positive" },
+        ]
     }
 };
 

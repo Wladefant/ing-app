@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ScreenHeader, BottomNav } from "../../layout";
 import { Screen } from "@/pages/ing-app";
-import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal, X, Lock, Sparkles } from "lucide-react";
+import { Trophy, Flame, TrendingUp, ChevronRight, Target, Brain, Play, Crown, Zap, BookOpen, PiggyBank, Medal, X, Lock, Sparkles, Copy, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getJuniorProfile, getLeaderboard, getBalance, formatCurrency, JuniorProfile, LeaderboardEntry } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +54,7 @@ export function JuniorDashboardScreen({
     const [pointsToNextRank, setPointsToNextRank] = useState(60);
     const [balance, setBalance] = useState(145.50);
     const [showBadges, setShowBadges] = useState(false);
+    const [isCardFlipped, setIsCardFlipped] = useState(false);
     const [showLevelUp, setShowLevelUp] = useState(false);
     const [showXPGain, setShowXPGain] = useState(false);
     const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
@@ -161,37 +163,155 @@ export function JuniorDashboardScreen({
                     </button>
                 </div>
 
-                {/* Virtual Balance Card */}
-                <div className="bg-gradient-to-br from-[#FF6200] to-[#FF8F00] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-8 -mb-8" />
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-1">
-                            <div className="text-orange-100 text-sm font-medium">Mein Taschengeld</div>
-                            <div className="flex items-center gap-1 text-xs bg-white/20 px-2 py-1 rounded-full">
-                                <Zap size={12} fill="currentColor" />
-                                <span>{xp.toLocaleString()} XP</span>
+                {/* Flip Debit Card */}
+                <div style={{ perspective: "1000px" }}>
+                    <motion.div
+                        className="relative w-full h-48 cursor-pointer"
+                        style={{ transformStyle: "preserve-3d" }}
+                        animate={{ rotateY: isCardFlipped ? 180 : 0 }}
+                        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+                        onClick={() => setIsCardFlipped(!isCardFlipped)}
+                    >
+                        {/* Front of Card */}
+                        <div
+                            className="absolute inset-0 bg-gradient-to-br from-[#FF6200] to-[#FF8F00] rounded-2xl p-5 text-white shadow-lg overflow-hidden"
+                            style={{ backfaceVisibility: "hidden" }}
+                        >
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-8 -mb-8" />
+
+                            <div className="relative z-10 h-full flex flex-col justify-between">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-bold text-lg tracking-wider">ING</span>
+                                    <div className="flex items-center">
+                                        <div className="w-5 h-5 rounded-full bg-red-500 opacity-80" />
+                                        <div className="w-5 h-5 rounded-full bg-yellow-400 opacity-80 -ml-2" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="text-orange-100 text-[10px] uppercase tracking-wider mb-0.5">Mein Taschengeld</div>
+                                    <div className="text-3xl font-bold">{formatCurrency(balance)}</div>
+                                </div>
+
+                                <div className="flex justify-between items-end text-xs">
+                                    <div>
+                                        <div className="text-orange-200 text-[9px] uppercase tracking-wider">IBAN</div>
+                                        <div className="font-mono">DE** •••• 1234</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-orange-200 text-[9px] uppercase tracking-wider">Gültig</div>
+                                        <div className="font-mono">06/29</div>
+                                    </div>
+                                </div>
+
+                                <div className="text-[9px] text-orange-200 text-center">Tippen für Details</div>
                             </div>
                         </div>
-                        <div className="text-4xl font-bold mb-4">{formatCurrency(balance)}</div>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => onNavigate("invest")}
-                                className="flex-1 bg-white/20 backdrop-blur-sm py-2.5 rounded-xl text-sm font-bold hover:bg-white/30 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <TrendingUp size={16} />
-                                Investieren
-                            </button>
-                            <button
-                                onClick={() => onNavigate("savings")}
-                                className="flex-1 bg-white text-[#FF6200] py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <PiggyBank size={16} />
-                                Sparen
-                            </button>
+                        {/* Back of Card */}
+                        <div
+                            className="absolute inset-0 bg-gradient-to-br from-[#FF8F00] to-[#FF6200] rounded-2xl text-white shadow-lg overflow-hidden"
+                            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                        >
+                            {/* Magnetic Stripe */}
+                            <div className="w-full h-8 bg-[#222] mt-3" />
+
+                            {/* Signature Strip with CVV */}
+                            <div className="mx-3 mt-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1 bg-white h-7 rounded flex items-center px-2">
+                                        <span className="text-gray-400 italic text-[10px] flex-1">{profile?.name || "Max Junior"}</span>
+                                    </div>
+                                    <div className="bg-white px-2 py-1 rounded">
+                                        <div className="text-[7px] text-gray-500 uppercase">CVV</div>
+                                        <div className="font-mono text-gray-900 font-bold text-sm">123</div>
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigator.clipboard.writeText("123");
+                                            toast({ title: "📋 CVV kopiert!" });
+                                        }}
+                                        className="p-1 bg-white/20 rounded hover:bg-white/30"
+                                    >
+                                        <Copy size={10} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Card Details */}
+                            <div className="px-3 mt-2 space-y-1.5">
+                                {/* Card Number */}
+                                <div className="flex items-center justify-between bg-white/15 p-1.5 rounded">
+                                    <div>
+                                        <div className="text-[7px] text-orange-100 uppercase">Kartennummer</div>
+                                        <div className="font-mono text-[11px]">5274 1234 5678 9012</div>
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigator.clipboard.writeText("5274123456789012");
+                                            toast({ title: "📋 Kartennummer kopiert!" });
+                                        }}
+                                        className="p-1 bg-white/20 rounded hover:bg-white/30"
+                                    >
+                                        <Copy size={10} />
+                                    </button>
+                                </div>
+
+                                {/* IBAN */}
+                                <div className="flex items-center justify-between bg-white/15 p-1.5 rounded">
+                                    <div>
+                                        <div className="text-[7px] text-orange-100 uppercase">IBAN</div>
+                                        <div className="font-mono text-[10px]">DE89 3704 0044 0532 0130 00</div>
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigator.clipboard.writeText("DE89370400440532013000");
+                                            toast({ title: "📋 IBAN kopiert!" });
+                                        }}
+                                        className="p-1 bg-white/20 rounded hover:bg-white/30"
+                                    >
+                                        <Copy size={10} />
+                                    </button>
+                                </div>
+
+                                {/* Expiry & BIC */}
+                                <div className="flex gap-2">
+                                    <div className="flex-1 bg-white/15 p-1.5 rounded">
+                                        <div className="text-[7px] text-orange-100 uppercase">Gültig bis</div>
+                                        <div className="font-mono text-[11px]">06/29</div>
+                                    </div>
+                                    <div className="flex-1 bg-white/15 p-1.5 rounded">
+                                        <div className="text-[7px] text-orange-100 uppercase">BIC</div>
+                                        <div className="font-mono text-[11px]">INGDDEFF</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="text-[8px] text-orange-100 text-center mt-1">Tippen zum Zurückdrehen</div>
                         </div>
-                    </div>
+                    </motion.div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 mt-4">
+                    <button
+                        onClick={() => toast({ title: "📱 Apple Wallet", description: "Karte zu Wallet hinzugefügt! (Demo)" })}
+                        className="flex-1 bg-black text-white py-3 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <Smartphone size={16} />
+                        Zu Wallet
+                    </button>
+                    <button
+                        onClick={() => onNavigate("savings")}
+                        className="flex-1 bg-white text-[#FF6200] py-3 rounded-xl text-sm font-bold shadow-sm border border-orange-200 hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <Target size={16} />
+                        Sparziel
+                    </button>
                 </div>
             </div>
 
@@ -433,8 +553,8 @@ export function JuniorDashboardScreen({
                                             }
                                         }}
                                         className={`p-4 rounded-xl text-center transition-all ${badge.isUnlocked
-                                                ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 hover:scale-105'
-                                                : 'bg-gray-100 border border-gray-200 opacity-50'
+                                            ? 'bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 hover:scale-105'
+                                            : 'bg-gray-100 border border-gray-200 opacity-50'
                                             }`}
                                     >
                                         <div className={`text-3xl mb-2 ${!badge.isUnlocked && 'grayscale'}`}>

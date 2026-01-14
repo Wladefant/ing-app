@@ -551,7 +551,7 @@ interface AccountBalance {
 export function getBalance(): AccountBalance {
   return getFromStorage<AccountBalance>(STORAGE_KEYS.BALANCE, {
     girokonto: 2101.1,
-    extraKonto: 5420.0,
+    extraKonto: 54.20,
     depot: 12704.96,
   });
 }
@@ -966,7 +966,7 @@ function getDefaultJuniorPortfolio(): JuniorPortfolio {
   return {
     totalValue: 1240.50,
     totalInvested: 1100,
-    cashBalance: 5000.00, // Start with 5000 virtual euros
+    cashBalance: 500.00, // Start with 500 virtual euros
     holdings: [
       { id: "jh-1", symbol: "GAME", name: "GameTech Corp", icon: "🎮", shares: 12, buyPrice: 35.50, currentPrice: 37.52 },
       { id: "jh-2", symbol: "SNKR", name: "Sneaker World", icon: "👟", shares: 8, buyPrice: 28.50, currentPrice: 40.10 },

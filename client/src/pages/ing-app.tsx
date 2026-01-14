@@ -57,6 +57,7 @@ import { sendMessageToOpenAI, WidgetAction } from "@/lib/openai";
 export function INGApp() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
   const [selectedAccount, setSelectedAccount] = useState<string>("Girokonto");
+  const [selectedStock, setSelectedStock] = useState<string>("ING");
   const [userProfile, setUserProfile] = useState<"adult" | "junior">("junior");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // New state for typing indicator
@@ -73,7 +74,16 @@ export function INGApp() {
   ]);
   const { toast } = useToast();
 
-  const navigate = (screen: Screen) => setCurrentScreen(screen);
+  const navigate = (screen: Screen) => {
+    // When navigating to stock-detail, read the selected stock from localStorage
+    if (screen === "stock-detail") {
+      const stockFromStorage = localStorage.getItem("selectedStock");
+      if (stockFromStorage) {
+        setSelectedStock(stockFromStorage);
+      }
+    }
+    setCurrentScreen(screen);
+  };
 
   // Handle navigation from AI agent
   const handleAgentNavigate = (screen: string) => {
@@ -298,7 +308,7 @@ export function INGApp() {
 
       {currentScreen === "stock-detail" && (
         <StockDetailScreen
-          symbol={localStorage.getItem("selectedStock") || "ING"}
+          symbol={selectedStock}
           onBack={() => navigate("invest")}
           onLeoClick={() => setIsChatOpen(true)}
           isJunior={userProfile === "junior"}
