@@ -98,7 +98,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
 
   // Find the mobile container to render within phone frame
   const container = typeof document !== 'undefined' ? document.getElementById('mobile-container') : null;
-  
+
   // Render into the mobile container if available
   const dialogContent = (
     <AnimatePresence>
@@ -145,7 +145,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                     <div className="text-sm text-gray-500">{stock.symbol}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-lg text-[#333333]">€{stock.price.toFixed(2)}</div>
+                    <div className="font-bold text-lg text-[#333333]">v€{stock.price.toFixed(2)}</div>
                     <div className="text-xs text-gray-400">pro Aktie</div>
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                     </span>
                   </div>
                   <span className="font-bold text-blue-700">
-                    {mode === "buy" ? `€${portfolio.cashBalance.toFixed(2)}` : ""}
+                    {mode === "buy" ? `v€${portfolio.cashBalance.toFixed(2)}` : ""}
                   </span>
                 </div>
 
@@ -192,7 +192,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                 <div className="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100">
                   <div className="p-4 flex justify-between">
                     <span className="text-gray-500">Kurs pro Aktie</span>
-                    <span className="font-bold text-[#333333]">€{stock.price.toFixed(2)}</span>
+                    <span className="font-bold text-[#333333]">v€{stock.price.toFixed(2)}</span>
                   </div>
                   <div className="p-4 flex justify-between">
                     <span className="text-gray-500">Anzahl</span>
@@ -203,13 +203,13 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                       <span className="text-gray-500">Gewinn/Verlust</span>
                       <span className={`font-bold flex items-center gap-1 ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {profitLoss >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                        {profitLoss >= 0 ? '+' : ''}€{profitLoss.toFixed(2)} ({profitLossPercent >= 0 ? '+' : ''}{profitLossPercent.toFixed(1)}%)
+                        {profitLoss >= 0 ? '+' : ''}v€{profitLoss.toFixed(2)} ({profitLossPercent >= 0 ? '+' : ''}{profitLossPercent.toFixed(1)}%)
                       </span>
                     </div>
                   )}
                   <div className="p-4 flex justify-between bg-gray-50">
                     <span className="font-bold text-[#333333]">Gesamt</span>
-                    <span className="font-bold text-2xl text-[#333333]">€{totalCost.toFixed(2)}</span>
+                    <span className="font-bold text-2xl text-[#333333]">v€{totalCost.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -222,8 +222,8 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                     <div className="font-bold text-orange-700 text-sm mb-1">Leo erklärt:</div>
                     <p className="text-xs text-orange-600 leading-relaxed">
                       {mode === "buy"
-                        ? `Mit ${quantity} Aktie${quantity > 1 ? 'n' : ''} von ${stock.name} investierst du €${totalCost.toFixed(2)} von deinem Spielgeld. Danach hast du noch €${(portfolio.cashBalance - totalCost).toFixed(2)} übrig.`
-                        : `Wenn du ${quantity} Aktie${quantity > 1 ? 'n' : ''} verkaufst, erhältst du €${totalCost.toFixed(2)} zurück auf dein Spielgeld-Konto.`
+                        ? `Mit ${quantity} Aktie${quantity > 1 ? 'n' : ''} von ${stock.name} investierst du v€${totalCost.toFixed(2)} von deinem Spielgeld. Danach hast du noch v€${(portfolio.cashBalance - totalCost).toFixed(2)} übrig.`
+                        : `Wenn du ${quantity} Aktie${quantity > 1 ? 'n' : ''} verkaufst, erhältst du v€${totalCost.toFixed(2)} zurück auf dein Spielgeld-Konto.`
                       }
                     </p>
                   </div>
@@ -278,7 +278,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                     {quantity}× {stock.symbol}
                   </div>
                   <div className={`text-2xl font-bold ${mode === "buy" ? 'text-[#FF6200]' : 'text-red-500'}`}>
-                    für €{totalCost.toFixed(2)}
+                    für v€{totalCost.toFixed(2)}
                   </div>
                 </div>
 
@@ -286,7 +286,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                 <div className="bg-gray-50 p-4 rounded-2xl space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Kurs pro Aktie</span>
-                    <span className="font-bold">€{stock.price.toFixed(2)}</span>
+                    <span className="font-bold">v€{stock.price.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Gebühren</span>
@@ -295,7 +295,7 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
                   {mode === "buy" && (
                     <div className="flex justify-between text-sm pt-2 border-t border-gray-200">
                       <span className="text-gray-500">Neuer Kontostand</span>
-                      <span className="font-bold">€{(portfolio.cashBalance - totalCost).toFixed(2)}</span>
+                      <span className="font-bold">v€{(portfolio.cashBalance - totalCost).toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -375,6 +375,6 @@ export function BuySellDialog({ isOpen, onClose, mode, stock, onSuccess }: BuySe
   if (container) {
     return createPortal(dialogContent, container);
   }
-  
+
   return dialogContent;
 }

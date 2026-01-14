@@ -89,11 +89,11 @@ export function JuniorInvestmentScreen({
                 <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
                     <div className="text-gray-500 text-sm mb-1">Portfolio Gesamtwert</div>
                     <div className="text-4xl font-bold text-[#333333] mb-2">
-                        €{totalValue.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                        v€{totalValue.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                     </div>
                     <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${gainPercent >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                         {gainPercent >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                        <span>{gainPercent >= 0 ? '+' : ''}{gainPercent.toFixed(1)}% ({totalGain >= 0 ? '+' : ''}€{totalGain.toFixed(2)})</span>
+                        <span>{gainPercent >= 0 ? '+' : ''}{gainPercent.toFixed(1)}% ({totalGain >= 0 ? '+' : ''}v€{totalGain.toFixed(2)})</span>
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@ export function JuniorInvestmentScreen({
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 labelStyle={{ color: '#999' }}
-                                formatter={(value: number) => [`€${value.toFixed(2)}`, 'Wert']}
+                                formatter={(value: number) => [`v€${value.toFixed(2)}`, 'Wert']}
                             />
                         </LineChart>
                     </ResponsiveContainer>
@@ -155,7 +155,7 @@ export function JuniorInvestmentScreen({
                                     icon={holding.icon}
                                     name={holding.name}
                                     shares={holding.shares}
-                                    value={`€${holdingValue.toFixed(2)}`}
+                                    value={`v€${holdingValue.toFixed(2)}`}
                                     change={`${holdingGain >= 0 ? '+' : ''}${holdingGainPercent.toFixed(1)}%`}
                                     isPositive={holdingGain >= 0}
                                     onClick={() => {
