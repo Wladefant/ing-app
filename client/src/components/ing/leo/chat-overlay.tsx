@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mic, Image, Paperclip, Send, ChevronDown, Trophy, Zap, TrendingUp, ArrowRight, Check, Volume2, Target, PieChart, Loader2, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { ChatMessage } from "@/lib/demo-scenarios";
-import { WidgetAction } from "@/lib/openai";
+import { WidgetAction, generateQuizQuestions as generateQuizQuestionsAPI } from "@/lib/openai";
 import lionIcon from "@/assets/lion-logo.png";
 import ReactMarkdown from 'react-markdown';
 
@@ -26,6 +26,7 @@ interface QuizState {
     selectedAnswer: number | null;
     showExplanation: boolean;
     completed: boolean;
+    isLoading?: boolean;
 }
 
 interface LeoChatOverlayProps {
@@ -151,8 +152,22 @@ function InteractiveQuiz({
     onNext: () => void;
     onFinish: () => void;
 }) {
-    const { questions, currentQuestion, score, answered, selectedAnswer, showExplanation, completed, topic, difficulty } = quizState;
-    const question = questions[currentQuestion];
+    const { questions, currentQuestion, score, answered, selectedAnswer, showExplanation, completed, topic, difficulty, isLoading } = quizState;
+
+    // Show loading state
+    if (isLoading) {
+        return (
+            <div className="bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-8 text-white text-center flex flex-col items-center justify-center min-h-[300px]">
+                <Loader2 size={40} className="animate-spin mb-4" />
+                <div className="text-xl font-bold mb-2">Quiz wird generiert...</div>
+                <div className="text-white/80">Leo denkt sich knifflige Fragen aus! 🦁</div>
+            </div>
+        );
+    }
+
+    const question = questions?.[currentQuestion];
+
+    if (!question && !completed) return null;
 
     if (completed) {
         const totalQuestions = questions.length;
@@ -635,13 +650,14 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
     };
 
     // Start a quiz
-    const handleStartQuiz = (topic: string, difficulty: string = "mittel") => {
-        const questions = generateQuizQuestions(topic, difficulty);
+    const handleStartQuiz = async (topic: string, difficulty: string = "mittel") => {
+        // Initial state with loading
         setQuizState({
             isActive: true,
+            isLoading: true,
             topic,
             difficulty,
-            questions,
+            questions: [],
             currentQuestion: 0,
             score: 0,
             answered: false,
@@ -649,6 +665,32 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
             showExplanation: false,
             completed: false
         });
+
+        // Try to generate questions from API
+        try {
+            // Count based on difficulty
+            const count = difficulty === "einfach" ? 3 : difficulty === "schwer" ? 5 : 4;
+            const apiQuestions = await generateQuizQuestionsAPI(topic, difficulty as any, count);
+
+            if (apiQuestions && apiQuestions.length > 0) {
+                setQuizState(prev => ({
+                    ...prev,
+                    isLoading: false,
+                    questions: apiQuestions
+                }));
+                return;
+            }
+        } catch (error) {
+            console.error("Failed to generate quiz questions:", error);
+        }
+
+        // Fallback to local questions if API fails
+        const fallbackQuestions = generateQuizQuestions(topic, difficulty);
+        setQuizState(prev => ({
+            ...prev,
+            isLoading: false,
+            questions: fallbackQuestions
+        }));
     };
 
     // Handle quiz answer

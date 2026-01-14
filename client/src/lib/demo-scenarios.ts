@@ -29,7 +29,7 @@ export interface ChatMessage {
   sender: "user" | "leo";
   text: string;
   widget?: ReactNode;
-  widgetType?: "stock" | "chart" | "transfer" | "quiz" | "achievement";
+  widgetType?: "stock" | "chart" | "transfer" | "quiz" | "achievement" | "savings_goal" | "spending_chart";
   widgetData?: any;
   timestamp: number;
 }
