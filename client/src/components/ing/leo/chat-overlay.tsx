@@ -845,9 +845,9 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                 <motion.div
                                     animate={{ scale: [1, 1.1, 1] }}
                                     transition={{ repeat: Infinity, duration: 2 }}
-                                    className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center shadow-lg shadow-orange-200"
+                                    className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-orange-200"
                                 >
-                                    <img src={lionIcon} alt="Leo" className="w-6 h-6 object-contain brightness-0 invert" />
+                                    <img src={lionIcon} alt="Leo" className="w-full h-full object-cover" />
                                 </motion.div>
                                 <div>
                                     <div className="font-bold text-[#333333]">Leo</div>
@@ -915,8 +915,8 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                             <div className={`max-w-[85%] ${msg.sender === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
                                                 {msg.sender === "leo" && (
                                                     <div className="flex items-center gap-2 mb-1">
-                                                        <div className="w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center shadow-sm">
-                                                            <img src={lionIcon} alt="Leo" className="w-3 h-3 object-contain brightness-0 invert" />
+                                                        <div className="w-6 h-6 rounded-lg overflow-hidden shadow-sm">
+                                                            <img src={lionIcon} alt="Leo" className="w-full h-full object-cover" />
                                                         </div>
                                                         <span className="text-xs font-medium text-gray-500">Leo</span>
                                                     </div>
@@ -988,8 +988,8 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                         >
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <div className="w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center shadow-sm">
-                                                        <img src={lionIcon} alt="Leo" className="w-3 h-3 object-contain brightness-0 invert" />
+                                                    <div className="w-6 h-6 rounded-lg overflow-hidden shadow-sm">
+                                                        <img src={lionIcon} alt="Leo" className="w-full h-full object-cover" />
                                                     </div>
                                                     <span className="text-xs font-medium text-gray-500">Leo denkt nach...</span>
                                                 </div>
@@ -1107,8 +1107,8 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                             <motion.button
                                                 onClick={toggleVoice}
                                                 className={`p-2 transition-colors rounded-full ${isListening
-                                                        ? 'bg-[#FF6200] text-white'
-                                                        : 'text-gray-400 hover:text-[#FF6200] hover:bg-gray-100'
+                                                    ? 'bg-[#FF6200] text-white'
+                                                    : 'text-gray-400 hover:text-[#FF6200] hover:bg-gray-100'
                                                     }`}
                                                 animate={isListening ? { scale: [1, 1.1, 1] } : {}}
                                                 transition={{ repeat: isListening ? Infinity : 0, duration: 1 }}
