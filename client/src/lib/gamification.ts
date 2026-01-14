@@ -360,24 +360,37 @@ export const ALL_BADGES: Badge[] = [
 // ============ STORAGE ============
 
 const STORAGE_KEY = "leo_gamification_progress";
+const DATA_VERSION = 2; // Increment this to force reset
 
 export function getDefaultProgress(): UserProgress {
   return {
-    totalXP: 0,
-    weeklyXP: 0,
-    monthlyXP: 0,
-    level: 1,
-    streak: 0,
-    longestStreak: 0,
-    badges: [],
-    equippedBadges: [],
-    lastLoginDate: "",
-    lastActivityDate: "",
-    quizHistory: [],
-    totalQuizCorrect: 0,
-    totalQuizPlayed: 0,
-    tradesCount: 0,
-    savingsGoalsCompleted: 0,
+    totalXP: 1240,
+    weeklyXP: 340,
+    monthlyXP: 1240,
+    level: 5,
+    streak: 12,
+    longestStreak: 12,
+    badges: [
+      "quiz_newbie",
+      "quiz_regular",
+      "first_trade",
+      "week_warrior",
+      "two_week_fighter",
+      "first_goal",
+      "goal_achiever",
+      "top_100"
+    ],
+    equippedBadges: ["quiz_newbie", "first_trade", "week_warrior"],
+    lastLoginDate: new Date().toISOString().split("T")[0],
+    lastActivityDate: new Date().toISOString().split("T")[0],
+    quizHistory: [
+      { id: "demo-1", topic: "Grundlagen", difficulty: "easy", score: 5, total: 5, xpEarned: 75, timestamp: new Date().toISOString(), isPerfect: true },
+      { id: "demo-2", topic: "Aktien", difficulty: "medium", score: 4, total: 5, xpEarned: 40, timestamp: new Date().toISOString(), isPerfect: false },
+    ],
+    totalQuizCorrect: 67,
+    totalQuizPlayed: 85,
+    tradesCount: 8,
+    savingsGoalsCompleted: 2,
   };
 }
 
@@ -386,7 +399,16 @@ export function getUserProgress(): UserProgress {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      return { ...getDefaultProgress(), ...parsed };
+
+      // Version check: Reset to defaults if data version is outdated
+      if (!parsed._version || parsed._version < DATA_VERSION) {
+        const defaults = getDefaultProgress();
+        saveUserProgress(defaults);
+        return defaults;
+      }
+
+      const defaults = getDefaultProgress();
+      return { ...defaults, ...parsed };
     }
   } catch (error) {
     console.error("Error reading gamification progress:", error);
@@ -396,7 +418,9 @@ export function getUserProgress(): UserProgress {
 
 export function saveUserProgress(progress: UserProgress): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    // Include version stamp when saving
+    const dataToSave = { ...progress, _version: DATA_VERSION };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
   } catch (error) {
     console.error("Error saving gamification progress:", error);
   }
@@ -425,14 +449,14 @@ export function getWeekendMultiplier(): number {
 
 export function calculateLevel(xp: number): LevelInfo {
   let currentLevel = LEVELS[0];
-  
+
   for (let i = LEVELS.length - 1; i >= 0; i--) {
     if (xp >= LEVELS[i].xp) {
       currentLevel = LEVELS[i];
       break;
     }
   }
-  
+
   return currentLevel;
 }
 
@@ -440,16 +464,16 @@ export function getXPToNextLevel(xp: number): { current: number; required: numbe
   const currentLevel = calculateLevel(xp);
   const currentLevelIndex = LEVELS.findIndex(l => l.level === currentLevel.level);
   const nextLevel = LEVELS[currentLevelIndex + 1];
-  
+
   if (!nextLevel) {
     // Max level reached
     return { current: xp, required: xp, progress: 100 };
   }
-  
+
   const xpInCurrentLevel = xp - currentLevel.xp;
   const xpNeededForNext = nextLevel.xp - currentLevel.xp;
   const progress = Math.floor((xpInCurrentLevel / xpNeededForNext) * 100);
-  
+
   return {
     current: xpInCurrentLevel,
     required: xpNeededForNext,
@@ -474,34 +498,34 @@ export function addXP(
 ): AddXPResult {
   const progress = getUserProgress();
   const baseAmount = customAmount ?? XP_VALUES[source];
-  
+
   // Calculate multipliers
   const streakMultiplier = getStreakMultiplier(progress.streak);
   const weekendMultiplier = getWeekendMultiplier();
   const totalMultiplier = streakMultiplier * weekendMultiplier;
-  
+
   // Calculate final XP
   const streakBonus = Math.floor(baseAmount * (totalMultiplier - 1));
   const xpGained = Math.floor(baseAmount * totalMultiplier);
-  
+
   // Update XP values
   const oldLevel = progress.level;
   progress.totalXP += xpGained;
   progress.weeklyXP += xpGained;
   progress.monthlyXP += xpGained;
   progress.lastActivityDate = new Date().toISOString().split("T")[0];
-  
+
   // Calculate new level
   const newLevelInfo = calculateLevel(progress.totalXP);
   progress.level = newLevelInfo.level;
   const levelUp = newLevelInfo.level > oldLevel;
-  
+
   // Check for new badges
   const badgesUnlocked = checkAndUnlockBadges(progress);
-  
+
   // Save progress
   saveUserProgress(progress);
-  
+
   return {
     progress,
     xpGained,
@@ -524,11 +548,11 @@ export function calculateQuizXP(
     medium: 10,
     hard: 20,
   };
-  
+
   const baseXP = correctAnswers * xpPerQuestion[difficulty];
   const isPerfect = correctAnswers === totalQuestions;
   const perfectBonus = isPerfect ? XP_VALUES.quiz_perfect : 0;
-  
+
   return {
     baseXP,
     perfectBonus,
@@ -544,10 +568,10 @@ export function recordQuizResult(
 ): AddXPResult {
   const progress = getUserProgress();
   const isPerfect = score === total;
-  
+
   // Calculate XP
   const xpCalc = calculateQuizXP(score, total, difficulty);
-  
+
   // Record quiz result
   const quizResult: QuizResult = {
     id: `quiz-${Date.now()}`,
@@ -559,14 +583,14 @@ export function recordQuizResult(
     timestamp: new Date().toISOString(),
     isPerfect,
   };
-  
+
   progress.quizHistory.push(quizResult);
   progress.totalQuizCorrect += score;
   progress.totalQuizPlayed += total;
-  
+
   // Save before adding XP (so badge checks have updated quiz stats)
   saveUserProgress(progress);
-  
+
   // Add XP
   const quizType: XPSource = `quiz_${difficulty}` as XPSource;
   return addXP(quizType, xpCalc.total);
@@ -586,22 +610,22 @@ export function updateStreak(): StreakResult {
   const progress = getUserProgress();
   const today = new Date().toISOString().split("T")[0];
   const lastLogin = progress.lastLoginDate;
-  
+
   let streakIncreased = false;
   let streakBroken = false;
   let xpBonus = 0;
   let badgeUnlocked: Badge | null = null;
-  
+
   if (lastLogin !== today) {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split("T")[0];
-    
+
     if (lastLogin === yesterdayStr || lastLogin === "") {
       // Continue or start streak
       progress.streak++;
       streakIncreased = true;
-      
+
       // Check for streak milestones
       if (progress.streak === 7) {
         xpBonus = XP_VALUES.streak_bonus_7;
@@ -612,7 +636,7 @@ export function updateStreak(): StreakResult {
         progress.totalXP += xpBonus;
         progress.weeklyXP += xpBonus;
       }
-      
+
       // Update longest streak
       if (progress.streak > progress.longestStreak) {
         progress.longestStreak = progress.streak;
@@ -622,20 +646,20 @@ export function updateStreak(): StreakResult {
       progress.streak = 1;
       streakBroken = true;
     }
-    
+
     progress.lastLoginDate = today;
-    
+
     // Add daily login XP
     progress.totalXP += XP_VALUES.daily_login;
     progress.weeklyXP += XP_VALUES.daily_login;
-    
+
     saveUserProgress(progress);
-    
+
     // Check for streak badges
     const badges = checkAndUnlockBadges(progress);
     badgeUnlocked = badges.find(b => b.category === "streak") || null;
   }
-  
+
   return {
     streakIncreased,
     newStreak: progress.streak,
@@ -650,14 +674,14 @@ export function updateStreak(): StreakResult {
 export function checkAndUnlockBadges(progress: UserProgress): Badge[] {
   const newBadges: Badge[] = [];
   const now = new Date().toISOString();
-  
+
   // Quiz badges
   const quizCount = progress.quizHistory.length;
   const perfectQuizCount = progress.quizHistory.filter(q => q.isPerfect).length;
-  const avgScore = progress.totalQuizPlayed > 0 
-    ? (progress.totalQuizCorrect / progress.totalQuizPlayed) * 100 
+  const avgScore = progress.totalQuizPlayed > 0
+    ? (progress.totalQuizCorrect / progress.totalQuizPlayed) * 100
     : 0;
-  
+
   const badgeChecks: { id: string; condition: boolean }[] = [
     { id: "quiz_newbie", condition: quizCount >= 1 },
     { id: "quiz_regular", condition: quizCount >= 10 },
@@ -673,7 +697,7 @@ export function checkAndUnlockBadges(progress: UserProgress): Badge[] {
     { id: "goal_achiever", condition: progress.savingsGoalsCompleted >= 1 },
     { id: "serial_saver", condition: progress.savingsGoalsCompleted >= 5 },
   ];
-  
+
   for (const check of badgeChecks) {
     if (check.condition && !progress.badges.includes(check.id)) {
       progress.badges.push(check.id);
@@ -687,11 +711,11 @@ export function checkAndUnlockBadges(progress: UserProgress): Badge[] {
       }
     }
   }
-  
+
   if (newBadges.length > 0) {
     saveUserProgress(progress);
   }
-  
+
   return newBadges;
 }
 
@@ -719,20 +743,20 @@ export function getEquippedBadges(): Badge[] {
 
 export function equipBadge(badgeId: string): boolean {
   const progress = getUserProgress();
-  
+
   if (!progress.badges.includes(badgeId)) {
     return false; // Badge not unlocked
   }
-  
+
   if (progress.equippedBadges.includes(badgeId)) {
     return true; // Already equipped
   }
-  
+
   if (progress.equippedBadges.length >= 3) {
     // Remove oldest equipped badge
     progress.equippedBadges.shift();
   }
-  
+
   progress.equippedBadges.push(badgeId);
   saveUserProgress(progress);
   return true;
@@ -749,10 +773,10 @@ export function unequipBadge(badgeId: string): void {
 export function recordTrade(): AddXPResult {
   const progress = getUserProgress();
   const isFirstTrade = progress.tradesCount === 0;
-  
+
   progress.tradesCount++;
   saveUserProgress(progress);
-  
+
   if (isFirstTrade) {
     return addXP("first_trade");
   }
@@ -763,7 +787,7 @@ export function recordTrade(): AddXPResult {
 
 export function recordSavingsGoalCreated(): AddXPResult {
   const progress = getUserProgress();
-  
+
   // Check for first goal badge
   if (!progress.badges.includes("first_goal")) {
     progress.badges.push("first_goal");
@@ -772,7 +796,7 @@ export function recordSavingsGoalCreated(): AddXPResult {
       progress.totalXP += badge.xpBonus;
     }
   }
-  
+
   saveUserProgress(progress);
   return addXP("savings_goal_created");
 }
@@ -790,25 +814,25 @@ export function checkWeeklyReset(): boolean {
   const progress = getUserProgress();
   const now = new Date();
   const lastActivity = progress.lastActivityDate ? new Date(progress.lastActivityDate) : null;
-  
+
   if (!lastActivity) return false;
-  
+
   // Check if we're in a new week (week starts Sunday)
   const getWeekNumber = (date: Date) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
     const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
-  
+
   const currentWeek = getWeekNumber(now);
   const lastWeek = getWeekNumber(lastActivity);
-  
+
   if (currentWeek !== lastWeek || now.getFullYear() !== lastActivity.getFullYear()) {
     progress.weeklyXP = 0;
     saveUserProgress(progress);
     return true;
   }
-  
+
   return false;
 }
 
@@ -822,16 +846,16 @@ export function resetProgress(): void {
 
 export function initializeGamification(): { isNewDay: boolean; streakResult: StreakResult | null } {
   checkWeeklyReset();
-  
+
   const progress = getUserProgress();
   const today = new Date().toISOString().split("T")[0];
   const isNewDay = progress.lastLoginDate !== today;
-  
+
   let streakResult: StreakResult | null = null;
-  
+
   if (isNewDay) {
     streakResult = updateStreak();
   }
-  
+
   return { isNewDay, streakResult };
 }
