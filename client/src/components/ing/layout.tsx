@@ -10,11 +10,11 @@ interface LayoutProps {
 
 export function MobileLayout({ children, className }: LayoutProps) {
   return (
-    <div className="min-h-screen w-full bg-neutral-100 flex justify-center items-center p-4 font-sans">
+    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans">
       <div
         id="mobile-container"
         className={cn(
-          "w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500 ring-4 ring-gray-200",
+          "w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500",
           className
         )}>
         {/* Status Bar Mockup */}
