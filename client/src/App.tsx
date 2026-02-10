@@ -6,6 +6,7 @@ import { ParentDashboardDemoPage } from "@/pages/parent-dashboard-demo";
 import { FrictionDemoPage } from "@/pages/friction-demo";
 import { BirthdayTransitionDemoPage } from "@/pages/birthday-transition-demo";
 import { AIAgentDemoPage } from "@/pages/ai-agent-demo";
+import { PitchDemoVideo } from "@/pages/pitch-demo";
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/demo/friction" component={FrictionDemoPage} />
       <Route path="/demo/birthday" component={BirthdayTransitionDemoPage} />
       <Route path="/demo/ai-agent" component={AIAgentDemoPage} />
+      <Route path="/demo/pitch" component={PitchDemoVideo} />
       <Route>404 Page Not Found</Route>
     </Switch>
   );
