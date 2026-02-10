@@ -113,7 +113,7 @@ export function AccessibilityDemoPage() {
   const isAccessibleMode = currentStep === "accessible-dashboard" || currentStep === "chat-open" || currentStep === "chat-message";
 
   return (
-    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans">
+    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans bg-white">
       <div className="w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500">
         {/* Status Bar */}
         <div className={`h-8 flex justify-between items-center px-6 text-xs font-medium shrink-0 z-50 ${isAccessibleMode ? 'bg-black text-white' : 'bg-[#F3F3F3] text-gray-500'}`}>

@@ -10,7 +10,7 @@ interface LayoutProps {
 
 export function MobileLayout({ children, className }: LayoutProps) {
   return (
-    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans">
+    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans bg-white">
       <div
         id="mobile-container"
         className={cn(

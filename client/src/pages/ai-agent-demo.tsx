@@ -190,7 +190,7 @@ export function AIAgentDemoPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans">
+    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans bg-white">
       <MobileLayout>
         <JuniorDashboardScreen onNavigate={() => {}} onLeoClick={() => setIsChatOpen(true)} />
 
