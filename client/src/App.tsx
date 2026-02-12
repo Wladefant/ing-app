@@ -6,6 +6,9 @@ import { ParentDashboardDemoPage } from "@/pages/parent-dashboard-demo";
 import { FrictionDemoPage } from "@/pages/friction-demo";
 import { BirthdayTransitionDemoPage } from "@/pages/birthday-transition-demo";
 import { AIAgentDemoPage } from "@/pages/ai-agent-demo";
+import { AIAgentCashFlowDemoPage } from "@/pages/ai-agent-cashflow-demo";
+import { AIAgentSmartDemoPage } from "@/pages/ai-agent-smart-demo";
+import { AIAgentStockDemoPage } from "@/pages/ai-agent-stock-demo";
 import { PitchDemoVideo } from "@/pages/pitch-demo";
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -22,6 +25,9 @@ function Router() {
       <Route path="/demo/friction" component={FrictionDemoPage} />
       <Route path="/demo/birthday" component={BirthdayTransitionDemoPage} />
       <Route path="/demo/ai-agent" component={AIAgentDemoPage} />
+      <Route path="/demo/ai-agent-cashflow" component={AIAgentCashFlowDemoPage} />
+      <Route path="/demo/ai-agent-smart" component={AIAgentSmartDemoPage} />
+      <Route path="/demo/ai-agent-stock" component={AIAgentStockDemoPage} />
       <Route path="/demo/pitch" component={PitchDemoVideo} />
       <Route>404 Page Not Found</Route>
     </Switch>
