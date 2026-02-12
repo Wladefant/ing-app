@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MobileLayout } from "@/components/ing/layout";
 import { WelcomeScreen } from "@/components/ing/screens/welcome";
 import { LoginScreen } from "@/components/ing/screens/login";
@@ -27,8 +27,13 @@ import { JuniorSavingsScreen } from "@/components/ing/screens/junior/savings";
 import { KahootChallengeScreen } from "@/components/ing/screens/junior/kahoot-challenge";
 
 // Adult Screens
+import { AdultDashboardScreen } from "@/components/ing/screens/adult/dashboard";
 import { AdultStatisticsScreen } from "@/components/ing/screens/adult/statistics";
 import { AdultSubscriptionsScreen } from "@/components/ing/screens/adult/subscriptions";
+
+// Profile Switcher & Birthday Transition
+import { ProfileSwitcherBar } from "@/components/ing/profile-switcher";
+import { BirthdayTransitionOverlay } from "@/components/ing/birthday-transition";
 
 // Stock Detail Screen
 import { StockDetailScreen } from "@/components/ing/screens/stock-detail";
@@ -63,6 +68,24 @@ export function INGApp() {
   const [isTyping, setIsTyping] = useState(false); // New state for typing indicator
   const [activeScenarioContext, setActiveScenarioContext] = useState<string | undefined>(undefined); // New state for context
   const [pendingWidgets, setPendingWidgets] = useState<WidgetAction[]>([]); // Widgets from AI agent
+  const [showBirthdayTransition, setShowBirthdayTransition] = useState(false);
+
+  // Profile switch handler - triggers birthday animation when switching junior → adult
+  const handleProfileSwitch = useCallback((newProfile: "junior" | "adult") => {
+    if (newProfile === "adult" && userProfile === "junior") {
+      // Trigger birthday transition animation
+      setShowBirthdayTransition(true);
+    } else {
+      setUserProfile(newProfile);
+      setCurrentScreen("dashboard");
+    }
+  }, [userProfile]);
+
+  const handleBirthdayComplete = useCallback(() => {
+    setShowBirthdayTransition(false);
+    setUserProfile("adult");
+    setCurrentScreen("dashboard");
+  }, []);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -216,7 +239,7 @@ export function INGApp() {
       <DemoSidebar
         onTriggerScenario={handleTriggerScenario}
         currentProfile={userProfile}
-        onToggleProfile={setUserProfile}
+        onToggleProfile={(p) => handleProfileSwitch(p as "junior" | "adult")}
       />
 
       {currentScreen === "setup" && <SetupFlow onComplete={() => navigate("login")} onCancel={() => navigate("welcome")} />}
@@ -227,7 +250,7 @@ export function INGApp() {
 
       {currentScreen === "dashboard" && (
         userProfile === "adult" ? (
-          <DashboardScreen
+          <AdultDashboardScreen
             onNavigate={navigate}
             onSelectAccount={(acc: string) => {
               setSelectedAccount(acc);
@@ -349,6 +372,20 @@ export function INGApp() {
         onNavigate={handleAgentNavigate}
         onStartQuiz={handleStartQuiz}
         pendingWidgets={pendingWidgets}
+      />
+
+      {/* Profile Switcher Bar */}
+      {currentScreen !== "welcome" && currentScreen !== "login" && currentScreen !== "setup" && (
+        <ProfileSwitcherBar
+          currentProfile={userProfile}
+          onSwitch={handleProfileSwitch}
+        />
+      )}
+
+      {/* Birthday Transition Overlay */}
+      <BirthdayTransitionOverlay
+        isActive={showBirthdayTransition}
+        onComplete={handleBirthdayComplete}
       />
     </MobileLayout>
   );
