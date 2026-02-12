@@ -125,7 +125,7 @@ export function JuniorSavingsScreen({
                             <PiggyBank size={16} />
                             <span>Gesamt gespart</span>
                         </div>
-                        <div className="text-3xl font-bold mb-3">{totalSaved.toFixed(2)} v€</div>
+                        <div className="text-3xl font-bold mb-3">{totalSaved.toFixed(2)} €</div>
                         <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden mb-2">
                             <motion.div
                                 initial={{ width: 0 }}
@@ -134,7 +134,7 @@ export function JuniorSavingsScreen({
                             />
                         </div>
                         <div className="text-sm text-orange-100">
-                            {Math.round((totalSaved / totalTarget) * 100)}% von {totalTarget.toFixed(2)} v€
+                            {Math.round((totalSaved / totalTarget) * 100)}% von {totalTarget.toFixed(2)} €
                         </div>
                     </div>
                 </div>
@@ -186,7 +186,7 @@ export function JuniorSavingsScreen({
                                 <div className="flex justify-between text-sm mb-2">
                                     <span className="text-gray-500">Fortschritt</span>
                                     <span className="font-bold text-[#333333]">
-                                        {goal.currentAmount.toFixed(2)} v€ / {goal.targetAmount.toFixed(2)} v€
+                                        {goal.currentAmount.toFixed(2)} € / {goal.targetAmount.toFixed(2)} €
                                     </span>
                                 </div>
                                 <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden mb-4">
@@ -203,19 +203,19 @@ export function JuniorSavingsScreen({
                                             onClick={() => handleAddToGoal(goal.id, 5)}
                                             className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm font-bold hover:bg-gray-200 transition-colors"
                                         >
-                                            + 5 v€
+                                            + 5 €
                                         </button>
                                         <button
                                             onClick={() => handleAddToGoal(goal.id, 10)}
                                             className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm font-bold hover:bg-gray-200 transition-colors"
                                         >
-                                            + 10 v€
+                                            + 10 €
                                         </button>
                                         <button
                                             onClick={() => handleAddToGoal(goal.id, weeklyContribution)}
                                             className="flex-1 bg-[#FF6200] text-white py-2 rounded-xl text-sm font-bold hover:bg-[#e55800] transition-colors"
                                         >
-                                            + {weeklyContribution} v€
+                                            + {weeklyContribution} €
                                         </button>
                                     </div>
                                 )}
@@ -333,7 +333,7 @@ export function JuniorSavingsScreen({
                                 <div className="space-y-4">
                                     <div>
                                         <label className="text-sm font-bold text-gray-600 block mb-2">
-                                            Wie viel kostet es? (v€)
+                                            Wie viel kostet es? (€)
                                         </label>
                                         <input
                                             type="number"
@@ -358,7 +358,7 @@ export function JuniorSavingsScreen({
                                                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                                         }`}
                                                 >
-                                                    {amount} v€
+                                                    {amount} €
                                                 </button>
                                             ))}
                                         </div>
@@ -393,13 +393,13 @@ export function JuniorSavingsScreen({
                                     <div className={`bg-gradient-to-br ${selectedCategory.color} rounded-2xl p-6 text-white text-center`}>
                                         <span className="text-5xl mb-3 block">{selectedCategory.emoji}</span>
                                         <div className="text-2xl font-bold mb-1">{newGoalName}</div>
-                                        <div className="text-white/80">Ziel: {parseFloat(newGoalAmount).toFixed(2)} v€</div>
+                                        <div className="text-white/80">Ziel: {parseFloat(newGoalAmount).toFixed(2)} €</div>
                                     </div>
 
                                     <div className="space-y-2">
                                         <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
                                             <span className="text-gray-500">Wöchentlich sparen</span>
-                                            <span className="font-bold">{newGoalWeekly} v€</span>
+                                            <span className="font-bold">{newGoalWeekly} €</span>
                                         </div>
                                         <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
                                             <span className="text-gray-500">Geschätzte Dauer</span>

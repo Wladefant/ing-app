@@ -93,9 +93,70 @@ export function INGApp() {
       sender: "leo",
       text: "Hallo! Ich bin Leo, dein Finanzassistent. Wie kann ich dir helfen?",
       timestamp: Date.now(),
+    },
+    {
+      id: "spending-coaching",
+      sender: "leo",
+      text: "💡 **Ausgaben-Coaching:** Ich habe deine letzten Transaktionen analysiert — du hast diese Woche 3x bei Lieferando bestellt (47,50€). Letzten Monat hast du 15% weniger für Shopping ausgegeben als den Monat davor — weiter so! Soll ich dir helfen, dein Budget zu optimieren?",
+      timestamp: Date.now() + 1,
+    },
+    {
+      id: "abo-watcher",
+      sender: "leo",
+      text: "🔔 **Abo-Wächter:** Dein Fitness Studio Abo (29,90€/Monat) wurde seit 3 Monaten nicht genutzt. Das sind 89,70€ verschwendet! Soll ich die Kündigung vorbereiten? Außerdem: Netflix hat eine Preiserhöhung auf 13,99€ angekündigt — ich behalte das im Auge.",
+      timestamp: Date.now() + 2,
     }
   ]);
   const { toast } = useToast();
+
+  // Open Leo with context and auto-send a message to trigger an AI response
+  const openLeoWithAutoMessage = useCallback(async (context: string, autoMessage: string) => {
+    setActiveScenarioContext(context);
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: autoMessage,
+      timestamp: Date.now(),
+    };
+    setChatMessages(prev => [...prev, userMsg]);
+    setIsChatOpen(true);
+    setIsTyping(true);
+    setPendingWidgets([]);
+
+    const agentResponse = await sendMessageToOpenAI(
+      [...chatMessages, userMsg],
+      context,
+      userProfile
+    );
+
+    setIsTyping(false);
+    const response: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+      sender: "leo",
+      text: agentResponse.response,
+      timestamp: Date.now(),
+    };
+
+    if (agentResponse.widgets && agentResponse.widgets.length > 0) {
+      const firstWidget = agentResponse.widgets[0];
+      const widgetTypeMap: Record<string, string> = {
+        show_stock_widget: "stock",
+        show_transfer_widget: "transfer",
+        start_quiz: "quiz",
+        show_achievement: "achievement",
+        show_savings_goal: "savings_goal",
+        show_spending_chart: "spending_chart",
+      };
+      if (widgetTypeMap[firstWidget.action]) {
+        response.widgetType = widgetTypeMap[firstWidget.action] as any;
+        response.widgetData = firstWidget.data;
+      }
+      if (agentResponse.widgets.length > 1) {
+        setPendingWidgets(agentResponse.widgets.slice(1));
+      }
+    }
+    setChatMessages(prev => [...prev, response]);
+  }, [chatMessages, userProfile]);
 
   const navigate = (screen: Screen) => {
     // When navigating to stock-detail, read the selected stock from localStorage
@@ -256,12 +317,21 @@ export function INGApp() {
               setSelectedAccount(acc);
               navigate("transactions");
             }}
-            onLeoClick={() => setIsChatOpen(true)}
+            onLeoClick={() => {
+              setActiveScenarioContext("Der Nutzer ist auf seinem Dashboard und möchte allgemeine Hilfe zu seinem Konto. Zeige proaktiv hilfreiche Informationen.");
+              setIsChatOpen(true);
+            }}
+            onAskLeoAbout={(context: string) => {
+              openLeoWithAutoMessage(context, "Analysiere meine Ausgaben detailliert und gib mir konkrete Spartipps.");
+            }}
           />
         ) : (
           <JuniorDashboardScreen
             onNavigate={navigate}
-            onLeoClick={() => setIsChatOpen(true)}
+            onLeoClick={() => {
+              setActiveScenarioContext("Der Junior-Nutzer ist auf seinem Dashboard. Hilf ihm spielerisch mit seinen Finanzen, Sparzielen oder schlage ein Quiz vor.");
+              setIsChatOpen(true);
+            }}
           />
         )
       )}
@@ -272,8 +342,7 @@ export function INGApp() {
           onBack={() => navigate("dashboard")}
           onLeoClick={() => setIsChatOpen(true)}
           onAskLeoAbout={(context: string) => {
-            setActiveScenarioContext(context);
-            setIsChatOpen(true);
+            openLeoWithAutoMessage(context, "Erkläre mir diese Transaktion genauer.");
           }}
         />
       )}
@@ -287,13 +356,19 @@ export function INGApp() {
           <InvestScreen
             onBack={() => navigate("dashboard")}
             onNavigate={navigate}
-            onLeoClick={() => setIsChatOpen(true)}
+            onLeoClick={() => {
+              setActiveScenarioContext("Der Nutzer ist auf der Investmentseite und schaut sich sein Portfolio an. Biete eine Portfolio-Analyse an, erkläre Aktien oder hilf bei Investmententscheidungen.");
+              setIsChatOpen(true);
+            }}
           />
         ) : (
           <JuniorInvestmentScreen
             onBack={() => navigate("dashboard")}
             onNavigate={navigate}
-            onLeoClick={() => setIsChatOpen(true)}
+            onLeoClick={() => {
+              setActiveScenarioContext("Der Junior-Nutzer ist auf der Investmentseite. Erkläre spielerisch Aktien, ETFs und Investieren für Anfänger.");
+              setIsChatOpen(true);
+            }}
           />
         )
       )}
@@ -310,7 +385,10 @@ export function INGApp() {
         <JuniorQuizScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
-          onLeoClick={() => setIsChatOpen(true)}
+          onLeoClick={() => {
+            setActiveScenarioContext("Der Junior-Nutzer ist im Lernbereich und möchte sein Finanzwissen testen. Schlage passende Quizthemen vor oder erkläre Finanzkonzepte.");
+            setIsChatOpen(true);
+          }}
         />
       )}
 
@@ -324,7 +402,11 @@ export function INGApp() {
         <AdultSubscriptionsScreen
           onBack={() => navigate("dashboard")}
           onLeoClick={() => {
+            setActiveScenarioContext("Der Nutzer ist im Abo-Manager und schaut sich seine Abonnements an. Hilf ihm beim Analysieren, Kündigen oder Optimieren seiner Abos. Aktive Abos: Netflix (17,99€), Spotify (9,99€), Fitness Studio (29,90€ - wird kaum genutzt!), Disney+ (8,99€), Xbox Game Pass (14,99€), Amazon Prime (8,99€).");
             setIsChatOpen(true);
+          }}
+          onAskLeoAbout={(context: string) => {
+            openLeoWithAutoMessage(context, "Analysiere meine Abonnements und zeig mir wo ich sparen kann.");
           }}
         />
       )}
@@ -341,7 +423,10 @@ export function INGApp() {
         <StockDetailScreen
           symbol={selectedStock}
           onBack={() => navigate("invest")}
-          onLeoClick={() => setIsChatOpen(true)}
+          onLeoClick={() => {
+            setActiveScenarioContext(`Der Nutzer schaut sich die Aktie ${selectedStock} an. Gib eine detaillierte Analyse dieser Aktie, erkläre Kennzahlen und gib eine Einschätzung.`);
+            setIsChatOpen(true);
+          }}
           isJunior={userProfile === "junior"}
         />
       )}
@@ -350,7 +435,10 @@ export function INGApp() {
         <JuniorLeaderboardScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
-          onLeoClick={() => setIsChatOpen(true)}
+          onLeoClick={() => {
+            setActiveScenarioContext("Der Junior-Nutzer ist auf der Bestenliste. Motiviere ihn, mehr Quizze zu spielen und XP zu sammeln.");
+            setIsChatOpen(true);
+          }}
         />
       )}
 
@@ -358,7 +446,10 @@ export function INGApp() {
         <JuniorSavingsScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
-          onLeoClick={() => setIsChatOpen(true)}
+          onLeoClick={() => {
+            setActiveScenarioContext("Der Junior-Nutzer ist bei seinen Sparzielen. Hilf ihm beim Erstellen neuer Sparziele, gib Spartipps und motiviere ihn beim Sparen.");
+            setIsChatOpen(true);
+          }}
         />
       )}
 
@@ -366,7 +457,10 @@ export function INGApp() {
         <KahootChallengeScreen
           onBack={() => navigate("dashboard")}
           onNavigate={navigate}
-          onLeoClick={() => setIsChatOpen(true)}
+          onLeoClick={() => {
+            setActiveScenarioContext("Der Junior-Nutzer ist bei der Quiz Challenge. Erkläre Quizthemen, gib Lerntipps oder schlage neue Themen vor.");
+            setIsChatOpen(true);
+          }}
         />
       )}
 

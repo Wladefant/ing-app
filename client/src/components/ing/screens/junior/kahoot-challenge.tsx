@@ -103,6 +103,7 @@ export function KahootChallengeScreen({
   const [isAutoDemo, setIsAutoDemo] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<typeof QUIZ_TOPICS[0] | null>(null);
+  const [hostAnswer, setHostAnswer] = useState<number | null>(null);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
@@ -176,10 +177,10 @@ export function KahootChallengeScreen({
         if (autoDemo && loadedQuestions.length > 0) {
           setTimeout(() => {
             startHostGameWithQuestions(loadedQuestions);
-          }, 1500);
+          }, 800);
         }
       }
-    }, autoDemo ? 400 : 1500);
+    }, autoDemo ? 200 : 1500);
   }, [loadAIQuestions]);
 
   const startHostGameWithQuestions = (qs: Question[]) => {
@@ -201,6 +202,7 @@ export function KahootChallengeScreen({
 
     setPhase("host-question");
     setTimeLeft(qs[index].timeLimit);
+    setHostAnswer(null);
     setPlayers(prev => prev.map(p => ({ ...p, hasAnswered: false, lastAnswerCorrect: undefined })));
 
     const timer = setInterval(() => {
@@ -264,7 +266,7 @@ export function KahootChallengeScreen({
           setPhase("host-podium");
           fireConfetti();
         }
-      }, 2500);
+      }, 1500);
     }
   };
 
@@ -305,7 +307,7 @@ export function KahootChallengeScreen({
       setPhase("player-question");
       setTimeLeft(15);
       startPlayerTimer();
-    }, 3000);
+    }, 1500);
   };
 
   const startPlayerTimer = () => {
@@ -339,6 +341,7 @@ export function KahootChallengeScreen({
       setPlayerStreak(0);
     }
 
+    const nextDelay = 1000 + Math.floor(Math.random() * 2000);
     setTimeout(() => {
       if (currentQuestionIndex < currentQs.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
@@ -354,7 +357,7 @@ export function KahootChallengeScreen({
         }
         setPhase("player-result");
       }
-    }, 2500);
+    }, nextDelay);
   };
 
   // --- Utilities ---
@@ -588,7 +591,12 @@ export function KahootChallengeScreen({
     return (
       <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
         <div className="bg-white px-4 py-3 flex items-center justify-between">
-          <span className="text-sm font-bold text-gray-500">Frage {currentQuestionIndex + 1}/{currentQuestions.length}</span>
+          <div className="flex items-center gap-2">
+            <button onClick={() => { if (hostTimer) clearInterval(hostTimer); if (autoTimerRef.current) clearTimeout(autoTimerRef.current); setPhase("selection"); setIsAutoDemo(false); setQuestions([]); setSelectedTopic(null); }} className="text-gray-400 hover:text-gray-600" title="Verlassen">
+              <X size={18} />
+            </button>
+            <span className="text-sm font-bold text-gray-500">Frage {currentQuestionIndex + 1}/{currentQuestions.length}</span>
+          </div>
           <div className="flex items-center gap-3">
             {isAutoDemo && <span className="bg-[#33307E] text-white text-[8px] font-black px-2 py-0.5 rounded-full">AUTO</span>}
             <div className="flex items-center gap-1">
@@ -614,22 +622,51 @@ export function KahootChallengeScreen({
             <h2 className="text-lg font-bold text-[#333] text-center leading-relaxed">{question.text}</h2>
           </div>
 
-          {/* Answer Options */}
-          <div className="grid grid-cols-2 gap-2 flex-1">
-            {question.options.map((option, idx) => (
-              <div key={idx} className={`p-3 rounded-xl flex items-center gap-2 text-white font-bold shadow-md ${ANSWER_COLORS[idx % 4].bgClass}`}>
-                <span className="w-7 h-7 bg-black/20 rounded-full flex items-center justify-center text-xs shrink-0">
-                  {ANSWER_COLORS[idx % 4].icon}
-                </span>
-                <span className="text-xs leading-tight">{option}</span>
-              </div>
-            ))}
+          {/* Answer Options - Clickable */}
+          <div className="space-y-2 flex-1">
+            {question.options.map((option, idx) => {
+              const isSelected = hostAnswer === idx;
+              const showResult = hostAnswer !== null;
+              const isCorrect = idx === question.correctIndex;
+              return (
+                <motion.button
+                  key={idx}
+                  whileTap={hostAnswer === null ? { scale: 0.97 } : {}}
+                  onClick={() => {
+                    if (hostAnswer === null) {
+                      setHostAnswer(idx);
+                      if (idx === question.correctIndex) fireConfetti();
+                    }
+                  }}
+                  disabled={hostAnswer !== null}
+                  className={`w-full p-3 rounded-xl flex items-center gap-3 text-white font-bold shadow-md transition-all ${
+                    showResult
+                      ? isCorrect
+                        ? "bg-green-500 ring-2 ring-green-300"
+                        : isSelected
+                          ? "bg-red-400 opacity-80"
+                          : `${ANSWER_COLORS[idx % 4].bgClass} opacity-50`
+                      : `${ANSWER_COLORS[idx % 4].bgClass}`
+                  }`}
+                >
+                  <span className="w-7 h-7 bg-black/20 rounded-full flex items-center justify-center text-xs shrink-0">
+                    {showResult && isCorrect ? "✓" : showResult && isSelected && !isCorrect ? "✗" : ANSWER_COLORS[idx % 4].icon}
+                  </span>
+                  <span className="text-sm leading-tight flex-1 text-left">{option}</span>
+                </motion.button>
+              );
+            })}
           </div>
 
           {!isAutoDemo && (
-            <button onClick={() => endQuestion(currentQuestionIndex, currentQuestions)} className="mt-3 text-gray-500 text-sm hover:text-gray-700">
-              Überspringen →
-            </button>
+            <div className="mt-3 flex items-center justify-between">
+              <button onClick={() => { if (hostTimer) clearInterval(hostTimer); setPhase("selection"); setIsAutoDemo(false); setQuestions([]); setSelectedTopic(null); }} className="text-gray-500 text-sm hover:text-gray-700 flex items-center gap-1">
+                <X size={14} /> Verlassen
+              </button>
+              <button onClick={() => endQuestion(currentQuestionIndex, currentQuestions)} className="text-gray-500 text-sm hover:text-gray-700">
+                Überspringen →
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -839,7 +876,12 @@ export function KahootChallengeScreen({
     return (
       <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
         <div className="bg-white px-4 py-3 flex items-center justify-between shadow-sm">
-          <span className="text-sm font-bold text-gray-500">Frage {currentQuestionIndex + 1}/{currentQuestions.length}</span>
+          <div className="flex items-center gap-2">
+            <button onClick={() => { if (hostTimer) clearInterval(hostTimer); setPhase("selection"); setQuestions([]); setSelectedTopic(null); }} className="text-gray-400 hover:text-gray-600" title="Verlassen">
+              <X size={18} />
+            </button>
+            <span className="text-sm font-bold text-gray-500">Frage {currentQuestionIndex + 1}/{currentQuestions.length}</span>
+          </div>
           <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
             timeLeft <= 5 ? 'bg-red-100 text-red-600' : 'bg-[#FF6200]/10 text-[#FF6200]'
           }`}>{timeLeft}</div>
@@ -854,7 +896,7 @@ export function KahootChallengeScreen({
               <span className="w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-sm shrink-0">
                 {ANSWER_COLORS[idx % 4].icon}
               </span>
-              <span className="text-base leading-snug">{option}</span>
+              <span className="text-base leading-snug flex-1">{option}</span>
             </motion.button>
           ))}
         </div>

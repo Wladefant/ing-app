@@ -362,7 +362,7 @@ export async function registerRoutes(
       console.log("[Leo Agent] Calling OpenAI with", apiMessages.length, "messages and", AGENT_FUNCTIONS.length, "tools");
       
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5.2",
         messages: apiMessages,
         tools: AGENT_FUNCTIONS,
         tool_choice: "auto",
@@ -401,7 +401,7 @@ export async function registerRoutes(
 
         // Second API call with tool results
         const secondCompletion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5.2",
           messages: [
             ...apiMessages,
             responseMessage,
@@ -517,7 +517,7 @@ Regeln:
 `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini",
         messages: [
           { role: "system", content: quizPrompt },
           { role: "user", content: `Erstelle ${count} Quiz-Fragen zum Thema: ${topic || 'Finanzgrundlagen'}` }

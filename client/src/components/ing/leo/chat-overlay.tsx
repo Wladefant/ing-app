@@ -145,12 +145,14 @@ function InteractiveQuiz({
     quizState,
     onAnswer,
     onNext,
-    onFinish
+    onFinish,
+    onExit
 }: {
     quizState: QuizState;
     onAnswer: (answerIndex: number) => void;
     onNext: () => void;
     onFinish: () => void;
+    onExit: () => void;
 }) {
     const { questions, currentQuestion, score, answered, selectedAnswer, showExplanation, completed, topic, difficulty, isLoading } = quizState;
 
@@ -238,8 +240,13 @@ function InteractiveQuiz({
                     <Zap size={18} fill="currentColor" />
                     <span className="font-bold text-sm">{topic}</span>
                 </div>
-                <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">
-                    Frage {currentQuestion + 1}/{questions.length}
+                <div className="flex items-center gap-2">
+                    <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">
+                        Frage {currentQuestion + 1}/{questions.length}
+                    </div>
+                    <button onClick={onExit} className="bg-white/20 hover:bg-white/30 p-1.5 rounded-full transition-colors" title="Quiz beenden">
+                        <X size={14} />
+                    </button>
                 </div>
             </div>
 
@@ -735,6 +742,14 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
         onSendMessage(`Ich habe das ${quizState.topic} Quiz mit ${quizState.score}/${quizState.questions.length} Punkten abgeschlossen!`);
     };
 
+    // Exit quiz early
+    const handleExitQuiz = () => {
+        setQuizState(prev => ({
+            ...prev,
+            isActive: false
+        }));
+    };
+
     // Check for speech recognition support
     useEffect(() => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -857,9 +872,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
     };
 
     // Quick suggestion chips
-    const suggestions = mode === "general"
-        ? ["Wie viel habe ich ausgegeben?", "Zeig mir mein Portfolio", "Erkläre ETFs"]
-        : ["Quiz starten", "Aktien-Grundlagen", "Steuern lernen"];
+    const suggestions = ["Wie viel habe ich ausgegeben?", "Zeig mir mein Portfolio", "Erkläre ETFs"];
 
     return (
         <AnimatePresence>
@@ -905,21 +918,6 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <div className="flex bg-gray-100 rounded-full p-1">
-                                    <button
-                                        onClick={() => setMode("general")}
-                                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${mode === "general" ? "bg-white text-[#333333] shadow-sm" : "text-gray-500"}`}
-                                    >
-                                        💬 Chat
-                                    </button>
-                                    <button
-                                        onClick={() => setMode("quiz")}
-                                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${mode === "quiz" ? "bg-white text-[#333333] shadow-sm" : "text-gray-500"}`}
-                                    >
-                                        🧠 Quiz
-                                    </button>
-                                </div>
-
                                 <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full text-gray-500" title="Schließen">
                                     <ChevronDown size={24} />
                                 </button>
@@ -935,6 +933,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                     onAnswer={handleQuizAnswer}
                                     onNext={handleNextQuestion}
                                     onFinish={handleFinishQuiz}
+                                    onExit={handleExitQuiz}
                                 />
                             )}
 

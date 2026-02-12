@@ -33,9 +33,11 @@ const INITIAL_SUBSCRIPTIONS: Subscription[] = [
 export function AdultSubscriptionsScreen({
   onBack,
   onLeoClick,
+  onAskLeoAbout,
 }: {
   onBack: () => void;
   onLeoClick?: () => void;
+  onAskLeoAbout?: (context: string) => void;
 }) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(INITIAL_SUBSCRIPTIONS);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -204,7 +206,15 @@ export function AdultSubscriptionsScreen({
           </p>
           <div className="flex gap-2 relative z-10">
             <button
-              onClick={onLeoClick}
+              onClick={() => {
+                const subList = subscriptions.filter(s => s.status !== 'cancelled').map(s => `${s.logo} ${s.name}: ${s.amount.toFixed(2)}€/Monat (Status: ${s.status === 'unused' ? 'UNGENUTZT!' : 'aktiv'}, Kündigungsfrist: ${s.cancellationPeriod})`).join('\n');
+                const richContext = `ABO-ÜBERSICHT\n\nAktive Abos (${activeSubscriptions.length}):\n${subList}\n\nMonatliche Gesamtkosten: ${monthlyTotal.toFixed(2)}€/Monat (${(monthlyTotal * 12).toFixed(2)}€/Jahr)\n\n${subscriptions.find(s => s.status === 'unused') ? '⚠️ WARNUNG: Es gibt ungenutzte Abos die gekündigt werden sollten!' : 'Alle Abos scheinen genutzt zu werden.'}\n\nDer Nutzer möchte eine Abo-Analyse mit konkreten Sparempfehlungen und ggf. Kündigungshilfe.`;
+                if (onAskLeoAbout) {
+                  onAskLeoAbout(richContext);
+                } else if (onLeoClick) {
+                  onLeoClick();
+                }
+              }}
               className="bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-white/30 transition-colors"
             >
               <MessageCircle size={12} />

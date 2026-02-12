@@ -31,10 +31,12 @@ export function AdultDashboardScreen({
   onNavigate,
   onSelectAccount,
   onLeoClick,
+  onAskLeoAbout,
 }: {
   onNavigate: (screen: Screen) => void;
   onSelectAccount: (acc: string) => void;
   onLeoClick?: () => void;
+  onAskLeoAbout?: (context: string) => void;
 }) {
   const [balance, setBalance] = useState({ girokonto: 0, extraKonto: 0, depot: 0 });
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -341,6 +343,7 @@ export function AdultDashboardScreen({
             onSelectCategory={setSelectedCategory}
             onClose={() => { setShowAnalysis(false); setSelectedCategory(null); }}
             onLeoClick={onLeoClick}
+            onAskLeoAbout={onAskLeoAbout}
           />
         )}
       </AnimatePresence>
@@ -359,11 +362,12 @@ interface AnalysisOverlayProps {
   onSelectCategory: (cat: string | null) => void;
   onClose: () => void;
   onLeoClick?: () => void;
+  onAskLeoAbout?: (context: string) => void;
 }
 
 function TransactionAnalysisOverlay({
   transactions, spendingData, totalSpending, anomalies,
-  selectedCategory, onSelectCategory, onClose, onLeoClick,
+  selectedCategory, onSelectCategory, onClose, onLeoClick, onAskLeoAbout,
 }: AnalysisOverlayProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "categories" | "insights">("overview");
 
@@ -745,7 +749,16 @@ function TransactionAnalysisOverlay({
                 {/* Ask Leo button */}
                 <motion.button
                   whileTap={{ scale: 0.97 }}
-                  onClick={onLeoClick}
+                  onClick={() => {
+                    const spendingBreakdown = spendingData.map(s => `${s.icon} ${s.name}: ${s.value.toFixed(2)}€ (${s.percentage}%${s.trend ? `, Trend: ${s.trend > 0 ? '+' : ''}${s.trend}%` : ''})`).join('\n');
+                    const anomalyList = anomalies.map(a => `⚠️ ${a.message}`).join('\n');
+                    const richContext = `DETAILANALYSE DER AUSGABEN\n\nGesamtausgaben: ${totalSpending.toFixed(2)}€\n\nAusgaben nach Kategorie:\n${spendingBreakdown}\n\n${anomalies.length > 0 ? `Auffälligkeiten:\n${anomalyList}` : 'Keine Auffälligkeiten erkannt.'}\n\nDer Nutzer hat auf "Leo um Detailanalyse bitten" geklickt und erwartet eine sofortige, detaillierte Analyse seiner Ausgaben mit konkreten Spartipps.`;
+                    if (onAskLeoAbout) {
+                      onAskLeoAbout(richContext);
+                    } else if (onLeoClick) {
+                      onLeoClick();
+                    }
+                  }}
                   className="w-full bg-[#FF6200] text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 shadow-lg shadow-orange-200"
                 >
                   <img src={lionIcon} alt="Leo" className="w-6 h-6 object-contain" />
