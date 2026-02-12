@@ -270,6 +270,11 @@ export function INGApp() {
         <TransactionDetailScreen
           accountType={selectedAccount}
           onBack={() => navigate("dashboard")}
+          onLeoClick={() => setIsChatOpen(true)}
+          onAskLeoAbout={(context: string) => {
+            setActiveScenarioContext(context);
+            setIsChatOpen(true);
+          }}
         />
       )}
 
@@ -318,6 +323,9 @@ export function INGApp() {
       {currentScreen === "subscriptions" && (
         <AdultSubscriptionsScreen
           onBack={() => navigate("dashboard")}
+          onLeoClick={() => {
+            setIsChatOpen(true);
+          }}
         />
       )}
 

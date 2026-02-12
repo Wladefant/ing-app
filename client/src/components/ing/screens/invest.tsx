@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ScreenHeader, BottomNav } from "../layout";
 import { Screen } from "@/pages/ing-app";
-import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical, Calendar, BarChart3, Target, Repeat } from "lucide-react";
+import { PieChart, ArrowRightLeft, Search, Info, User, TrendingUp, Lightbulb, X, Plus, Eye, Minus, ShoppingCart, Newspaper, Briefcase, Bookmark, MoreVertical, Calendar, BarChart3, Target, Repeat, MessageCircle, Loader2, Sparkles, Send } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
@@ -10,6 +10,8 @@ import { getPortfolio, addToPortfolio, removeFromPortfolio, updateBalance, addTr
 import { useToast } from "@/hooks/use-toast";
 import { StockSearchModal } from "@/components/ui/stock-search-modal";
 import { STOCK_DATABASE } from "@/lib/stock-data";
+import { sendMessageToOpenAI } from "@/lib/openai";
+import lionIcon from "@/assets/lion-logo.png";
 
 const data = [
   { name: 'Jan', value: 5630 },
@@ -79,6 +81,12 @@ export function InvestScreen({
   const [portfolioHoldings, setPortfolioHoldings] = useState<Holding[]>([]);
   const [showSparplanModal, setShowSparplanModal] = useState(false);
   const [showAnalyseModal, setShowAnalyseModal] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [aiMessages, setAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
+  const [aiInput, setAiInput] = useState("");
+  const [aiTyping, setAiTyping] = useState(false);
 
   // Load portfolio from storage on mount
   useEffect(() => {
@@ -125,6 +133,51 @@ export function InvestScreen({
   const totalCost = portfolioHoldings.reduce((sum, h) => sum + (h.shares * h.avgPrice), 0);
   const totalGain = totalValue - totalCost;
   const totalGainPercent = totalCost > 0 ? ((totalGain / totalCost) * 100).toFixed(2) : "0.00";
+
+  // AI Portfolio Analysis
+  const generateAIAnalysis = useCallback(async () => {
+    setAiAnalysisLoading(true);
+    setAiAnalysis("");
+    try {
+      const holdingsSummary = portfolioHoldings.map(h =>
+        `${h.symbol}: ${h.shares} Stk., EK ${h.avgPrice.toFixed(2)}€, Aktuell ${h.currentPrice.toFixed(2)}€, ${((h.currentPrice - h.avgPrice) / h.avgPrice * 100).toFixed(1)}%`
+      ).join("\n");
+
+      const response = await sendMessageToOpenAI(
+        [{ id: "analysis", sender: "user", text: `Analysiere mein Portfolio:\n${holdingsSummary}\n\nGesamtwert: ${totalValue.toFixed(2)}€, Gewinn/Verlust: ${totalGain.toFixed(2)}€ (${totalGainPercent}%)\n\nGib eine kurze professionelle Einschätzung auf Deutsch: Diversifikation, Risiken, Chancen und 2-3 konkrete Empfehlungen. Nutze Emojis sparsam.`, timestamp: Date.now() }],
+        "Du bist ein erfahrener Finanzberater bei ING. Analysiere das Portfolio professionell aber verständlich. Antworte auf Deutsch, kurz und prägnant.",
+        "adult"
+      );
+      setAiAnalysis(response.response);
+    } catch {
+      setAiAnalysis("Die KI-Analyse ist momentan nicht verfügbar. Bitte versuche es später erneut.");
+    } finally {
+      setAiAnalysisLoading(false);
+    }
+  }, [portfolioHoldings, totalValue, totalGain, totalGainPercent]);
+
+  // AI Chat for invest questions
+  const handleSendInvestAI = async () => {
+    if (!aiInput.trim()) return;
+    const userMsg = aiInput.trim();
+    setAiInput("");
+    setAiMessages(prev => [...prev, { role: "user", text: userMsg }]);
+    setAiTyping(true);
+    try {
+      const holdingsSummary = portfolioHoldings.map(h => `${h.symbol}: ${h.shares} Stk., ${h.currentPrice.toFixed(2)}€`).join(", ");
+      const context = `Der Nutzer hat ein Depot mit Gesamtwert ${totalValue.toFixed(2)}€ (${totalGainPercent}% P/L). Holdings: ${holdingsSummary || "keine"}. Beantworte Investment-Fragen auf Deutsch, kurz und hilfreich.`;
+      const response = await sendMessageToOpenAI(
+        [{ id: "q", sender: "user", text: userMsg, timestamp: Date.now() }],
+        context,
+        "adult"
+      );
+      setAiMessages(prev => [...prev, { role: "ai", text: response.response }]);
+    } catch {
+      setAiMessages(prev => [...prev, { role: "ai", text: "Entschuldigung, da ist etwas schiefgelaufen. Bitte versuche es erneut." }]);
+    } finally {
+      setAiTyping(false);
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
@@ -288,12 +341,53 @@ export function InvestScreen({
                 Sparplan
               </button>
               <button
-                onClick={() => setShowAnalyseModal(true)}
+                onClick={() => { setShowAnalyseModal(true); if (!aiAnalysis && !aiAnalysisLoading) generateAIAnalysis(); }}
                 className="bg-white text-[#333333] py-3 rounded-xl font-bold border border-gray-200 flex items-center justify-center gap-2"
               >
                 <BarChart3 size={18} />
-                Analyse
+                KI-Analyse
               </button>
+            </div>
+
+            {/* Leo Smart Agent Card */}
+            <div className="bg-gradient-to-br from-[#33307E] to-[#4A47A3] p-4 rounded-2xl shadow-lg text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10" />
+              <div className="flex items-center gap-2 mb-3 relative z-10">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                  <img src={lionIcon} alt="Leo" className="w-6 h-6 object-contain" />
+                </div>
+                <span className="font-bold text-sm">Leo Investment-Berater</span>
+                <span className="bg-white/20 text-[10px] font-black px-2 py-0.5 rounded-full ml-auto">KI</span>
+              </div>
+              <p className="text-sm text-white/90 leading-relaxed mb-3 relative z-10">
+                {portfolioHoldings.length > 0
+                  ? `Dein Portfolio hat ${portfolioHoldings.length} Positionen mit ${totalGain >= 0 ? 'einem Gewinn' : 'einem Verlust'} von ${totalGain.toFixed(2)}€. Soll ich analysieren?`
+                  : "Du hast noch keine Positionen. Soll ich dir beim Einstieg helfen?"}
+              </p>
+              <div className="flex gap-2 relative z-10">
+                <button
+                  onClick={() => {
+                    setShowAIChat(true);
+                    if (aiMessages.length === 0) {
+                      setAiMessages([{ role: "ai", text: portfolioHoldings.length > 0
+                        ? `Ich habe dein Portfolio analysiert: ${portfolioHoldings.length} Positionen, Gesamtwert ${totalValue.toFixed(2)}€. Was möchtest du wissen? Ich kann dir bei Diversifikation, Risikobewertung oder neuen Investment-Ideen helfen.`
+                        : "Willkommen beim Investment-Bereich! Ich bin Leo, dein KI-Berater. Hast du Fragen zu Aktien, ETFs oder zum Einstieg in den Aktienmarkt?"
+                      }]);
+                    }
+                  }}
+                  className="bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-white/30 transition-colors"
+                >
+                  <MessageCircle size={12} />
+                  Leo fragen
+                </button>
+                <button
+                  onClick={() => { setShowAnalyseModal(true); if (!aiAnalysis && !aiAnalysisLoading) generateAIAnalysis(); }}
+                  className="bg-[#FF6200] text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Sparkles size={12} />
+                  KI-Analyse
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -536,7 +630,7 @@ export function InvestScreen({
         )}
       </AnimatePresence>
 
-      {/* Analyse Modal */}
+      {/* Analyse Modal - AI Powered */}
       <AnimatePresence>
         {showAnalyseModal && (
           <motion.div
@@ -554,84 +648,171 @@ export function InvestScreen({
               onClick={(e) => e.stopPropagation()}
               className="w-full bg-white rounded-t-3xl p-6 pb-10 max-h-[85vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
                   <BarChart3 size={24} className="text-[#33307E]" />
-                  <h2 className="text-xl font-bold text-[#333333]">Portfolio Analyse</h2>
+                  <h2 className="text-xl font-bold text-[#333]">KI Portfolio-Analyse</h2>
+                  <span className="bg-[#33307E] text-white text-[9px] font-black px-2 py-0.5 rounded-full">KI</span>
                 </div>
-                <button
-                  onClick={() => setShowAnalyseModal(false)}
-                  className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
-                  aria-label="Schließen"
-                >
+                <button onClick={() => setShowAnalyseModal(false)}
+                  className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                   <X size={18} className="text-gray-500" />
                 </button>
               </div>
 
-              {/* Portfolio Health */}
-              <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-4">
+              {/* Portfolio Summary */}
+              <div className={`p-4 rounded-xl border mb-4 ${totalGain >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full" />
-                  <span className="font-bold text-green-700">Gute Diversifikation</span>
+                  <div className={`w-3 h-3 rounded-full ${totalGain >= 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className={`font-bold ${totalGain >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    {totalGain >= 0 ? 'Portfolio im Plus' : 'Portfolio im Minus'}
+                  </span>
                 </div>
-                <p className="text-sm text-green-600">
-                  Dein Portfolio ist gut über verschiedene Sektoren verteilt.
-                </p>
-              </div>
-
-              {/* Allocation */}
-              <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
-                <h3 className="font-bold text-[#333333] mb-3">Sektor-Aufteilung</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Technologie", percent: 45, color: "bg-blue-500" },
-                    { name: "Finanzen", percent: 25, color: "bg-green-500" },
-                    { name: "Konsumgüter", percent: 20, color: "bg-purple-500" },
-                    { name: "Andere", percent: 10, color: "bg-gray-400" },
-                  ].map((sector) => (
-                    <div key={sector.name}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">{sector.name}</span>
-                        <span className="font-bold">{sector.percent}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${sector.color} rounded-full`}
-                          style={{ width: `${sector.percent}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Gesamtwert</span>
+                  <span className="font-bold">{totalValue.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                </div>
+                <div className="flex justify-between text-sm mt-1">
+                  <span className="text-gray-600">Gewinn/Verlust</span>
+                  <span className={`font-bold ${totalGain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {totalGain >= 0 ? '+' : ''}{totalGain.toFixed(2)} € ({totalGainPercent}%)
+                  </span>
                 </div>
               </div>
 
-              {/* Recommendations */}
-              <div className="bg-white p-4 rounded-xl border border-gray-200 mb-6">
-                <h3 className="font-bold text-[#333333] mb-3">Empfehlungen</h3>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
-                    <Target size={18} className="text-amber-600 mt-0.5 shrink-0" />
-                    <div>
-                      <div className="font-bold text-sm text-amber-700">Mehr diversifizieren</div>
-                      <p className="text-xs text-amber-600">Erwäge Investments in andere Regionen wie Emerging Markets.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                    <Repeat size={18} className="text-blue-600 mt-0.5 shrink-0" />
-                    <div>
-                      <div className="font-bold text-sm text-blue-700">Sparplan nutzen</div>
-                      <p className="text-xs text-blue-600">Regelmäßiges Investieren senkt das Risiko durch Cost-Averaging.</p>
-                    </div>
+              {/* Allocation from actual holdings */}
+              {portfolioHoldings.length > 0 && (
+                <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
+                  <h3 className="font-bold text-[#333] mb-3">Deine Positionen</h3>
+                  <div className="space-y-2">
+                    {portfolioHoldings.map((h) => {
+                      const holdingValue = h.shares * h.currentPrice;
+                      const holdingPercent = totalValue > 0 ? ((holdingValue / totalValue) * 100).toFixed(1) : "0";
+                      const holdingGain = ((h.currentPrice - h.avgPrice) / h.avgPrice * 100).toFixed(1);
+                      return (
+                        <div key={h.symbol} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-xs font-bold text-[#33307E]">
+                              {h.symbol.substring(0, 2)}
+                            </div>
+                            <div>
+                              <span className="font-bold text-sm text-[#333]">{h.symbol}</span>
+                              <span className="text-xs text-gray-400 ml-2">{holdingPercent}%</span>
+                            </div>
+                          </div>
+                          <span className={`text-xs font-bold ${Number(holdingGain) >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                            {Number(holdingGain) >= 0 ? '+' : ''}{holdingGain}%
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
+              )}
+
+              {/* AI Analysis */}
+              <div className="bg-gradient-to-br from-[#33307E]/5 to-[#4A47A3]/10 p-4 rounded-xl border border-[#33307E]/20 mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
+                    <img src={lionIcon} alt="Leo" className="w-6 h-6 object-contain" />
+                  </div>
+                  <span className="font-bold text-sm text-[#333]">Leo's KI-Einschätzung</span>
+                </div>
+                {aiAnalysisLoading ? (
+                  <div className="flex items-center gap-3 py-4">
+                    <Loader2 size={20} className="animate-spin text-[#FF6200]" />
+                    <span className="text-sm text-gray-500">Leo analysiert dein Portfolio...</span>
+                  </div>
+                ) : aiAnalysis ? (
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{aiAnalysis}</p>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500 mb-3">Lass Leo dein Portfolio mit KI analysieren</p>
+                    <button onClick={generateAIAnalysis}
+                      className="bg-[#FF6200] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 mx-auto">
+                      <Sparkles size={14} /> Analyse starten
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <button
-                onClick={() => setShowAnalyseModal(false)}
-                className="w-full bg-[#33307E] text-white py-4 rounded-xl font-bold"
-              >
-                Verstanden
-              </button>
+              <div className="flex gap-3">
+                <button onClick={() => { setAiAnalysis(""); generateAIAnalysis(); }}
+                  disabled={aiAnalysisLoading}
+                  className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                  <Repeat size={16} /> Neu analysieren
+                </button>
+                <button onClick={() => setShowAnalyseModal(false)}
+                  className="flex-1 bg-[#33307E] text-white py-3.5 rounded-xl font-bold">
+                  Schließen
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* AI Investment Chat */}
+      <AnimatePresence>
+        {showAIChat && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/50 z-50 flex items-end">
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25 }}
+              className="w-full bg-white rounded-t-3xl flex flex-col max-h-[90vh]">
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
+                    <img src={lionIcon} alt="Leo" className="w-8 h-8 object-contain" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-[#333]">Leo Investment-Berater</div>
+                    <div className="text-[10px] text-gray-400">KI-gestützte Anlageberatung</div>
+                  </div>
+                </div>
+                <button onClick={() => setShowAIChat(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                  <X size={18} className="text-gray-500" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {aiMessages.map((msg, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                      msg.role === "user" ? "bg-[#FF6200] text-white rounded-br-md" : "bg-gray-100 text-[#333] rounded-bl-md"
+                    }`}>{msg.text}</div>
+                  </motion.div>
+                ))}
+                {aiTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-bl-md flex gap-1">
+                      {[0, 1, 2].map(i => (
+                        <motion.div key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity, type: "tween" }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="px-4 pb-2 flex gap-2 overflow-x-auto shrink-0">
+                {["ETF-Empfehlung?", "Risiko senken?", "Mehr diversifizieren?", "Sparplan sinnvoll?"].map(q => (
+                  <button key={q} onClick={() => setAiInput(q)}
+                    className="bg-gray-100 text-xs text-gray-600 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-gray-200 transition-colors">
+                    {q}
+                  </button>
+                ))}
+              </div>
+              <div className="p-4 border-t border-gray-100 flex gap-2 shrink-0">
+                <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSendInvestAI(); }}
+                  placeholder="Frage zum Investieren..."
+                  className="flex-1 bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#FF6200]/20" />
+                <button onClick={handleSendInvestAI} disabled={!aiInput.trim()}
+                  className="w-10 h-10 bg-[#FF6200] rounded-xl flex items-center justify-center disabled:opacity-40 transition-opacity">
+                  <Send size={18} className="text-white" />
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

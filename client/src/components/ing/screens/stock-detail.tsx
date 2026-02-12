@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ScreenHeader } from "../layout";
 import { Screen } from "@/pages/ing-app";
-import { TrendingUp, TrendingDown, Info, Star, Bell, Share2, MessageCircle, ChevronRight, ExternalLink, X, Plus, Minus, Check, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, Info, Star, Bell, Share2, MessageCircle, ChevronRight, ExternalLink, X, Plus, Minus, Check, AlertTriangle, Loader2, Send, Sparkles } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, Area, AreaChart } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import lionIcon from "@/assets/lion-logo.png";
 import { addToPortfolio, removeFromPortfolio, getPortfolio, updateBalance, addTransaction, getBalance, formatCurrency, type Holding } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
 import { BuySellDialog } from "./junior/buy-sell-dialog";
+import { sendMessageToOpenAI } from "@/lib/openai";
 
 // Generate mock price data
 const generatePriceData = (days: number, basePrice: number, volatility: number) => {
@@ -273,6 +274,12 @@ export function StockDetailScreen({
     const [quantity, setQuantity] = useState(1);
     const [orderStep, setOrderStep] = useState<"amount" | "confirm" | "success">("amount");
     const [selectedNews, setSelectedNews] = useState<{ title: string; time: string; sentiment: string } | null>(null);
+    const [aiAnalysis, setAiAnalysis] = useState("");
+    const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
+    const [showAIChat, setShowAIChat] = useState(false);
+    const [aiMessages, setAiMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
+    const [aiInput, setAiInput] = useState("");
+    const [aiTyping, setAiTyping] = useState(false);
     const { toast } = useToast();
 
     const stock = STOCK_DATA[symbol as keyof typeof STOCK_DATA] || STOCK_DATA.ING;
@@ -281,6 +288,58 @@ export function StockDetailScreen({
     // Generate chart data based on time range
     const chartDays = { "1D": 1, "1W": 7, "1M": 30, "3M": 90, "1Y": 365, "ALL": 730 };
     const priceData = generatePriceData(chartDays[timeRange], stock.price, stock.price * 0.02);
+
+    // AI Stock Analysis
+    const generateStockAnalysis = useCallback(async () => {
+        setAiAnalysisLoading(true);
+        try {
+            const response = await sendMessageToOpenAI(
+                [{ id: "analysis", sender: "user", text: `Analysiere die Aktie ${stock.name} (${stock.symbol}):
+                    - Aktueller Kurs: €${stock.price.toFixed(2)}
+                    - Tagesveränderung: ${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent}%
+                    - KGV: ${stock.pe}
+                    - Dividendenrendite: ${stock.dividend}
+                    - Marktkapitalisierung: ${stock.marketCap}
+                    - 52W Hoch: €${stock.high52}, 52W Tief: €${stock.low52}
+                    
+                    Gib eine kurze Einschätzung (max 3 Sätze) zur aktuellen Bewertung, Chancen und Risiken. Auf Deutsch.`, timestamp: Date.now() }],
+                "Du bist ein Aktienanalyst bei ING. Gib kurze, professionelle Einschätzungen auf Deutsch. Sei neutral und weise auf Risiken hin.",
+                "adult"
+            );
+            setAiAnalysis(response.response);
+        } catch {
+            setAiAnalysis(`${stock.symbol} notiert bei €${stock.price.toFixed(2)} mit einem KGV von ${stock.pe}. Die Aktie bewegt sich ${isPositive ? 'im Plus' : 'im Minus'} und liegt ${stock.price > (stock.high52 + stock.low52) / 2 ? 'über' : 'unter'} dem Mittelwert der 52-Wochen-Spanne.`);
+        } finally {
+            setAiAnalysisLoading(false);
+        }
+    }, [stock, isPositive]);
+
+    // Load analysis on mount
+    useEffect(() => {
+        generateStockAnalysis();
+    }, [stock.symbol]);
+
+    // AI Chat per stock
+    const handleSendStockAI = async () => {
+        if (!aiInput.trim()) return;
+        const userMsg = aiInput.trim();
+        setAiInput("");
+        setAiMessages(prev => [...prev, { role: "user", text: userMsg }]);
+        setAiTyping(true);
+        try {
+            const context = `Der Nutzer fragt über die Aktie ${stock.name} (${stock.symbol}). Kurs: €${stock.price.toFixed(2)}, KGV: ${stock.pe}, Dividende: ${stock.dividend}, Marktkapitalisierung: ${stock.marketCap}. Tagesveränderung: ${stock.changePercent}%. Antworte als Finanzberater auf Deutsch, kurz und sachlich.`;
+            const response = await sendMessageToOpenAI(
+                [{ id: "q", sender: "user", text: userMsg, timestamp: Date.now() }],
+                context,
+                "adult"
+            );
+            setAiMessages(prev => [...prev, { role: "ai", text: response.response }]);
+        } catch {
+            setAiMessages(prev => [...prev, { role: "ai", text: "Entschuldigung, da ist etwas schiefgelaufen." }]);
+        } finally {
+            setAiTyping(false);
+        }
+    };
 
     const handleOpenOrder = (type: "buy" | "sell") => {
         setOrderType(type);
@@ -512,28 +571,52 @@ export function StockDetailScreen({
                     </div>
                 </div>
 
-                {/* Leo AI Card */}
-                <div className="bg-gradient-to-br from-orange-50 to-amber-50 mx-4 mt-4 p-4 rounded-2xl border border-orange-100">
-                    <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center shrink-0">
-                            <img src={lionIcon} alt="Leo" className="w-8 h-8 object-contain" />
+                {/* Leo AI Analysis Card - AI Powered */}
+                <div className="bg-gradient-to-br from-[#33307E] to-[#4A47A3] mx-4 mt-4 p-4 rounded-2xl shadow-lg text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -mr-8 -mt-8" />
+                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                            <img src={lionIcon} alt="Leo" className="w-6 h-6 object-contain" />
                         </div>
-                        <div className="flex-1">
-                            <div className="font-bold text-orange-700 text-sm mb-1">Leo's Einschätzung</div>
-                            <p className="text-xs text-orange-600 leading-relaxed mb-3">
-                                {stock.symbol} ist {isPositive ? 'heute im Plus' : 'heute im Minus'}.
-                                {isJunior
-                                    ? " Möchtest du ein Quiz über diese Aktie machen? 🧠"
-                                    : " Soll ich dir erklären, wie diese Aktie in dein Portfolio passt?"}
-                            </p>
-                            <button
-                                onClick={onLeoClick}
-                                className="flex items-center gap-2 text-xs font-bold text-[#FF6200] hover:underline"
-                            >
-                                <MessageCircle size={14} />
-                                {isJunior ? "Quiz starten" : "Mit Leo sprechen"}
-                            </button>
-                        </div>
+                        <span className="font-bold text-sm">Leo's KI-Analyse</span>
+                        <span className="bg-white/20 text-[9px] font-black px-2 py-0.5 rounded-full ml-auto">KI</span>
+                    </div>
+                    <div className="relative z-10 mb-3">
+                        {aiAnalysisLoading ? (
+                            <div className="flex items-center gap-2 py-2">
+                                <Loader2 size={16} className="animate-spin text-white/80" />
+                                <span className="text-xs text-white/70">Leo analysiert {stock.symbol}...</span>
+                            </div>
+                        ) : aiAnalysis ? (
+                            <p className="text-xs text-white/90 leading-relaxed">{aiAnalysis}</p>
+                        ) : (
+                            <p className="text-xs text-white/70">Analyse wird geladen...</p>
+                        )}
+                    </div>
+                    <div className="flex gap-2 relative z-10">
+                        <button
+                            onClick={() => {
+                                setShowAIChat(true);
+                                if (aiMessages.length === 0) {
+                                    setAiMessages([{
+                                        role: "ai",
+                                        text: `Ich habe ${stock.name} (${stock.symbol}) für dich analysiert. Kurs: €${stock.price.toFixed(2)}, KGV: ${stock.pe}, Dividende: ${stock.dividend}. Was möchtest du wissen? Ich kann dir bei Bewertung, Risiken oder Vergleichen helfen.`
+                                    }]);
+                                }
+                            }}
+                            className="bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-white/30 transition-colors"
+                        >
+                            <MessageCircle size={12} />
+                            Leo fragen
+                        </button>
+                        <button
+                            onClick={() => { setAiAnalysis(""); generateStockAnalysis(); }}
+                            disabled={aiAnalysisLoading}
+                            className="bg-[#FF6200] text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                            <Sparkles size={12} />
+                            Neu analysieren
+                        </button>
                     </div>
                 </div>
 
@@ -626,6 +709,72 @@ export function StockDetailScreen({
                             >
                                 Schließen
                             </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* AI Stock Chat */}
+            <AnimatePresence>
+                {showAIChat && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/50 z-50 flex items-end">
+                        <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 25 }}
+                            className="w-full bg-white rounded-t-3xl flex flex-col max-h-[90vh]">
+                            <div className="p-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
+                                        <img src={lionIcon} alt="Leo" className="w-8 h-8 object-contain" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-sm text-[#333]">Leo × {stock.symbol}</div>
+                                        <div className="text-[10px] text-gray-400">KI-Aktienanalyse</div>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowAIChat(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center" title="Schließen">
+                                    <X size={18} className="text-gray-500" />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                {aiMessages.map((msg, i) => (
+                                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                                        className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                                        <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                                            msg.role === "user" ? "bg-[#FF6200] text-white rounded-br-md" : "bg-gray-100 text-[#333] rounded-bl-md"
+                                        }`}>{msg.text}</div>
+                                    </motion.div>
+                                ))}
+                                {aiTyping && (
+                                    <div className="flex justify-start">
+                                        <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-bl-md flex gap-1">
+                                            {[0, 1, 2].map(i => (
+                                                <motion.div key={i} className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+                                                    animate={{ opacity: [0.3, 1, 0.3] }}
+                                                    transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity, type: "tween" }} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="px-4 pb-2 flex gap-2 overflow-x-auto shrink-0">
+                                {["Ist die Aktie fair bewertet?", "Risiken?", "Vergleich mit Konkurrenz?"].map(q => (
+                                    <button key={q} onClick={() => setAiInput(q)}
+                                        className="bg-gray-100 text-xs text-gray-600 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-gray-200 transition-colors">
+                                        {q}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="p-4 border-t border-gray-100 flex gap-2 shrink-0">
+                                <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === "Enter") handleSendStockAI(); }}
+                                    placeholder={`Frage zu ${stock.symbol}...`}
+                                    className="flex-1 bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#FF6200]/20" />
+                                <button onClick={handleSendStockAI} disabled={!aiInput.trim()} title="Senden"
+                                    className="w-10 h-10 bg-[#FF6200] rounded-xl flex items-center justify-center disabled:opacity-40 transition-opacity">
+                                    <Send size={18} className="text-white" />
+                                </button>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}

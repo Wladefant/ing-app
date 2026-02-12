@@ -148,7 +148,7 @@ export function AdultDashboardScreen({
         </motion.div>
 
         {/* Quick Actions */}
-        <div className="bg-white px-4 pb-6 mb-3 grid grid-cols-4 gap-2">
+        <div className="bg-white px-4 pt-4 pb-6 mb-3 grid grid-cols-4 gap-2">
           <QuickAction
             icon={<ArrowUp size={20} className="text-white rotate-45" strokeWidth={3} />}
             label="Überweisen"
@@ -258,7 +258,7 @@ export function AdultDashboardScreen({
                 Details <ChevronRight size={14} />
               </button>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
               {spendingData.slice(0, 4).map((cat, i) => (
                 <motion.div
                   key={cat.name}
@@ -286,7 +286,7 @@ export function AdultDashboardScreen({
             className="mx-4 mt-3 bg-white rounded-2xl shadow-sm overflow-hidden"
           >
             <div className="flex items-center justify-between p-4 pb-2">
-              <h3 className="font-bold text-sm text-[#333]">Letzte Umsätze</h3>
+              <h3 className="font-bold text-sm text-[#333]">Letzte Transaktionen</h3>
               <button
                 onClick={() => onSelectAccount("Girokonto")}
                 className="text-xs text-[#FF6200] font-bold flex items-center gap-1"
@@ -542,6 +542,7 @@ function TransactionAnalysisOverlay({
                           <Tooltip
                             cursor={{ fill: "#f3f3f3" }}
                             contentStyle={{ borderRadius: "8px", border: "none", fontSize: 12 }}
+                            formatter={(value: number) => [`${value.toLocaleString("de-DE")} €`, undefined]}
                           />
                           <Bar dataKey="income" fill="#4CAF50" radius={[4, 4, 0, 0]} name="Einnahmen" />
                           <Bar dataKey="expense" fill="#FF6200" radius={[4, 4, 0, 0]} name="Ausgaben" />
