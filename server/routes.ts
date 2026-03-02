@@ -367,7 +367,7 @@ export async function registerRoutes(
         tools: AGENT_FUNCTIONS,
         tool_choice: "auto",
         temperature: 0.7,
-        max_tokens: 800,
+        max_completion_tokens: 800,
       });
 
       const responseMessage = completion.choices[0]?.message;
@@ -408,7 +408,7 @@ export async function registerRoutes(
             ...toolResults
           ],
           temperature: 0.7,
-          max_tokens: 500,
+          max_completion_tokens: 500,
         });
 
         const finalResponse = secondCompletion.choices[0]?.message?.content || 
@@ -523,7 +523,7 @@ Regeln:
           { role: "user", content: `Erstelle ${count} Quiz-Fragen zum Thema: ${topic || 'Finanzgrundlagen'}` }
         ],
         temperature: 0.8,
-        max_tokens: 1500,
+        max_completion_tokens: 1500,
       });
 
       const responseText = completion.choices[0]?.message?.content || "[]";
