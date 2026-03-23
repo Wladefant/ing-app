@@ -487,33 +487,43 @@ export async function registerRoutes(
       }
 
       const openai = getOpenAIClient();
-      const { topic, difficulty, count = 3, context } = req.body;
+      const { topic, difficulty, count = 7, context } = req.body;
+
+      const difficultyInstructions: Record<string, string> = {
+        einfach: "Fragen sollten grundlegende Konzepte abfragen. Einfache Definitionen und Ja/Nein-Wissen.",
+        mittel: "Fragen sollten Zusammenhänge erfordern. 'Was passiert wenn...', 'Welche Strategie ist besser wenn...'",
+        schwer: "Fragen sollten kritisches Denken erfordern. Szenarien mit Berechnungen, Vergleiche zwischen Strategien, Fallstricke erkennen.",
+      };
 
       const quizPrompt = `
-Du bist ein Finanz-Quiz-Generator für Jugendliche (13-17 Jahre).
+Du bist ein Quiz-Master für ein Live-Kahoot-Spiel über Finanzen. Die Teilnehmer sind junge Erwachsene (16-29 Jahre).
 
 Erstelle ${count} Multiple-Choice-Fragen zum Thema "${topic || 'Finanzen allgemein'}".
-Schwierigkeit: ${difficulty || 'mittel'}
 ${context ? `Kontext: ${context}` : ''}
 
-WICHTIG: Antworte NUR mit einem JSON-Array in diesem exakten Format:
+SCHWIERIGKEIT: ${difficulty || 'mittel'}
+${difficultyInstructions[difficulty || 'mittel'] || difficultyInstructions.mittel}
+
+WICHTIG — Qualitätsregeln:
+1. PROGRESSIVE SCHWIERIGKEIT: Die ersten 2 Fragen einfacher, dann steigend
+2. SZENARIO-BASIERT: Mindestens 3 Fragen mit konkreten Szenarien ("Lisa hat 500€ und möchte...")
+3. PLAUSIBLE FALSCHANTWORTEN: Falsche Antworten müssen auf den ersten Blick richtig klingen
+4. ABWECHSLUNG: Mix aus Definitionen, Szenarien, "Was stimmt NICHT?", Berechnungen
+5. KEINE trivialen Fragen wie "Was ist Geld?" — jede Frage soll zum Nachdenken anregen
+6. PRAXISBEZUG: Fragen zu echten Situationen die Jugendliche erleben (erster Job, Taschengeld investieren, Handyvertrag)
+
+Antworte NUR mit einem JSON-Array:
 [
   {
     "id": 1,
-    "question": "Die Frage hier",
+    "question": "Die Frage",
     "options": ["Option A", "Option B", "Option C", "Option D"],
     "correctAnswer": 0,
-    "explanation": "Kurze Erklärung warum diese Antwort richtig ist",
-    "imagePrompt": "Optional: Beschreibung für ein Bild das die Frage illustriert (oder null)"
+    "explanation": "Kurze Erklärung (1-2 Sätze)"
   }
 ]
 
-Regeln:
-- Fragen müssen für Teenager verständlich sein
-- Keine komplexen Fachbegriffe ohne Erklärung
-- correctAnswer ist der Index (0-3) der richtigen Option
-- imagePrompt nur wenn ein Bild wirklich hilfreich wäre
-- Mache die falschen Antworten plausibel aber eindeutig falsch
+correctAnswer = Index (0-3) der richtigen Option.
 `;
 
       const completion = await openai.chat.completions.create({
@@ -523,7 +533,7 @@ Regeln:
           { role: "user", content: `Erstelle ${count} Quiz-Fragen zum Thema: ${topic || 'Finanzgrundlagen'}` }
         ],
         temperature: 0.8,
-        max_completion_tokens: 1500,
+        max_completion_tokens: 3000,
       });
 
       const responseText = completion.choices[0]?.message?.content || "[]";
