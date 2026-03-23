@@ -6,11 +6,12 @@
 
 ## 📋 PROJECT IDENTITY
 
-**App**: LEO - AI-Powered Banking Assistant for ING  
-**Status**: 50% complete - half of screens/features working  
-**Target**: German teenagers (13-29) learning financial literacy  
-**Tech Stack**: React 18 + Vite + TypeScript + Tailwind CSS + shadcn/ui  
-**Mode**: DEMO PROJECT - should feel cool, look polished, work smoothly  
+**App**: LEO - AI-Powered Banking Assistant for ING
+**Type**: Web application (NOT a native app — runs in the browser, accessible to anyone with the URL)
+**Status**: 50% complete - half of screens/features working
+**Target**: German teenagers (13-29) learning financial literacy
+**Tech Stack**: React 18 + Vite + TypeScript + Tailwind CSS + shadcn/ui
+**Mode**: DEMO PROJECT - should feel cool, look polished, work smoothly
 
 ---
 
