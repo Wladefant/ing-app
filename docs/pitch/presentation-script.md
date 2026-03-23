@@ -12,7 +12,7 @@
 | 3. Leo Pro Demo | 9 min | Sofia | Adult app — live demo with AI agents |
 | 4. Parent Dashboard | 1.5 min | Sofia or Berkay | What parents see and control |
 | 5. Legal & Trust | 1.5 min | Mateo, Berkay | GDPR, AI Act, user control |
-| 6. Technical Deep Dive | 7 min | Vladimir | Implementation, vibe coding, tools |
+| 6. Technical Deep Dive | 8 min | Vladimir | Vibe coding, agents, MCP, enterprise safety |
 | 7. Closing | 1 min | Berkay | Summary + invite Q&A |
 | **Total** | **~31 min** | | |
 
@@ -349,7 +349,7 @@
 
 ---
 
-# PART 6: TECHNICAL DEEP DIVE (7 min)
+# PART 6: TECHNICAL DEEP DIVE (8 min)
 
 ## Vladimir
 
@@ -365,43 +365,107 @@
 >
 > Everything you saw today is not a design. It is a **running application**. Every button works. Every AI response is live.
 >
-> The tools: **Claude Code** for AI-assisted development. **React 19** for the interface. **Node.js** on the backend. Standard technology — nothing exotic.
-
-### How Leo's AI Works (2.5 min)
-
-> Leo is not a chatbot. It is an **AI agent**.
+> The main tool: **Claude Code** — an AI coding agent. You give it a task in natural language. It writes the code, runs the tests, fixes problems, and iterates until it works. We used it to build this entire application.
 >
-> A chatbot gives text answers. An agent can **do things** inside the app.
+> The rest of the stack: **React 19** for the interface, **Node.js** on the backend, **PostgreSQL** for data. Standard technology — your engineers already know it.
 
-**[SHOW or describe the flow]**
+### Chatbot vs Agent — The Key Difference (1 min)
 
-> When a user sends a message:
-> 1. The message goes to our backend
-> 2. We send it to the AI model with **function calling** enabled
-> 3. The AI decides: do I just answer, or do I need to take an action?
-> 4. If it needs data — it calls a function: `get_account_balance`, `get_recent_transactions`
-> 5. If it should show something — it uses a widget tool: `show_spending_chart`, `show_stock_widget`
-> 6. The frontend renders the response with the interactive elements
+> Before I explain the architecture, one important distinction.
 >
-> Leo has **10 tools** it can use. The AI picks which ones — on its own — based on what the user asked. No hard-coded rules. No "if user says X, do Y."
+> Leo is **not a chatbot**. It is an **AI agent**.
 >
-> That is what makes the smart transfer work. That is what makes proactive coaching work. That is what powers the spending anomaly detection.
+> A chatbot gives text answers. You ask, it answers. That is all.
 >
-> Same AI engine for Junior and Adult — different system prompt changes the personality and language level.
+> An agent can **think, decide, and act**. It has tools. It picks which tool to use based on what you need. It chains multiple tools together to solve complex problems.
+>
+> A chatbot is a search engine. An agent is an employee who can actually do things inside the app.
+>
+> Everything you saw — the smart transfers, the spending analysis, the stock recommendations, the proactive coaching — that is agent behavior. The AI decided what to do, not just what to say.
 
-### How This Could Work at ING (2 min)
+### The Architecture — Function Calling and MCP (2.5 min)
+
+> So how does the agent work?
+
+**[SHOW architecture diagram]**
+
+```
+User message
+    → Backend
+    → AI model + function calling
+    → AI decides: what tools do I need?
+    → Calls: get_transactions, show_spending_chart...
+    → Returns: text + interactive widget
+    → Frontend renders it
+```
+
+> Two key concepts:
+>
+> **Function calling** — this is how the AI uses tools. We define 10 tools — what each does, what inputs it needs, what it returns. The AI model decides when to call which tool. It can chain multiple tools in one response.
+>
+> For example, when Sofia asked Leo *"How are my investments doing?"* — the AI called `get_portfolio_data`, then cross-referenced market news, then called `show_stock_widget` to display the result. Three tools, chained automatically. We did not program that sequence. The AI figured it out.
+>
+> Leo's 10 tools:
+> - `get_account_balance` — fetch account data
+> - `get_recent_transactions` — read transaction history
+> - `get_portfolio_data` — investment holdings
+> - `show_stock_widget` — stock chart with analysis
+> - `show_transfer_widget` — initiate a transfer
+> - `show_spending_chart` — spending breakdown
+> - `show_achievement` — badge animations
+> - `show_savings_goal` — savings progress
+> - `start_quiz` — launch a quiz
+> - `navigate_to_screen` — move to a screen
+>
+> Same AI engine for Junior and Adult — different **system prompt** changes the personality. Junior gets simple language and gamification. Adult gets professional analysis. No code changes needed.
+>
+> Now — **MCP, the Model Context Protocol**.
+>
+> MCP is an open standard for connecting AI agents to external systems. Think of it as a **universal plug**. Instead of building a custom integration for every data source, you use MCP to give the agent standardized access.
+>
+> Why this matters for ING: you have internal systems — monitoring, ticket tracking, customer data, compliance tools. With MCP, you connect them to an AI agent without rebuilding anything. Same plug, any system.
+>
+> In Leo, the function calling tools follow this exact pattern. Each tool is a standardized connection to a data source or action. Add a new tool — the agent uses it immediately. Connect a new system — no changes to the chat logic.
+
+### How This Works at ING (2 min)
 
 > For ING, the architecture is simple:
 >
 > **Leo is a layer on top. It does not replace anything.**
+
+```
+Existing ING App
+    └── Existing APIs (accounts, transactions, portfolio)
+            └── NEW: AI Layer (model + function calling / MCP)
+                    └── NEW: Chat UI (floating overlay)
+```
+
+> To add Leo:
+> 1. Chat overlay — one floating button on the existing app
+> 2. AI layer connects to your existing APIs — read access only
+> 3. All user actions still go through your existing confirmation flows
 >
-> It connects to your existing APIs — accounts, transactions, portfolio. Read access only. All user actions still go through your existing confirmation flows.
+> The AI model: we used OpenAI for speed. For production, swap it with a self-hosted model inside ING infrastructure. Architecture is model-agnostic — change the endpoint, everything else stays. **No customer data leaves ING servers.**
 >
-> The AI model: we used OpenAI for speed. For production, swap it with a self-hosted model inside ING infrastructure. The architecture is model-agnostic — change the endpoint, everything else stays the same. **No customer data leaves ING servers.**
+> The junior app is even simpler — no banking connection needed. Virtual data plus public market APIs. Standalone product.
 >
-> The junior app is even simpler — no connection to real banking needed. Virtual data plus public market APIs. Could launch as a standalone product.
+> **The bigger picture:** the pattern we showed — agents with function calling, MCP connections, system prompts — is not just for Leo. This is how modern AI integrates with enterprise systems. Connect your ticket tracker, monitoring, compliance tools — same pattern. Same architecture.
 >
-> One more thing: this entire application was built in a short development cycle using AI-assisted development. Working prototype — not a concept. The same approach works for any new ING feature.
+> And the development approach — vibe coding with Claude Code — works for any new feature. We built this entire application in a fraction of the time traditional development takes.
+
+### Enterprise Safety — Skills, Hooks, and Guardrails (1 min)
+
+> One more thing for the technical managers.
+>
+> In an enterprise setup, you need control over what the AI can and cannot do.
+>
+> **Skills** — reusable procedures that tell the agent *how* to do specific tasks. For example: "when a user asks about taxes, follow this procedure." Skills are stored as files in the repository. You can standardize how the agent behaves across the whole organization.
+>
+> **Hooks** — policy enforcement. Before the agent uses a tool, a hook can approve or deny it. After it acts, a hook can log what happened. This gives you an audit trail and compliance control.
+>
+> For banking: hooks can ensure the agent never accesses data it should not see. Skills can ensure it always adds disclaimers to financial advice. And everything is logged.
+>
+> These are not hypothetical — they are part of the open standard we used to build Leo.
 
 ---
 
@@ -444,6 +508,15 @@
 **Q: Why OpenAI and not a self-hosted model?**
 > Prototyping speed. For production: any model works — Llama, Mistral, ING-hosted. Function calling interface is model-agnostic.
 
+**Q: What is MCP? Why does it matter?**
+> Model Context Protocol — an open standard for connecting AI agents to external systems. Like a universal plug. Instead of custom integrations for every data source, MCP gives the agent standardized access. If ING has an internal system, you can connect it to an AI agent through MCP without rebuilding anything.
+
+**Q: What is the difference between an agent and a chatbot?**
+> A chatbot gives text answers — you ask, it responds. An agent can think, decide, and act. It has tools, picks which one to use, and chains them together. Leo does not just answer questions — it fetches data, runs analysis, shows interactive widgets, and initiates actions. All autonomously.
+
+**Q: What are skills and hooks?**
+> Skills are reusable procedures — they tell the agent *how* to do specific tasks in a standardized way. Hooks are policy enforcers — they can approve or deny agent actions and log everything for audit. Together they give enterprise control: the agent works within defined boundaries, and every action is traceable.
+
 **Q: How does the proactive coaching work technically?**
 > The system prompt instructs Leo to analyze transaction patterns when the user opens the app or starts a chat. It compares current spending against historical averages and flags anomalies. For time-based alerts (rent due dates), it uses transaction recurrence data.
 
@@ -452,6 +525,9 @@
 
 **Q: How does voice input work?**
 > Browser speech-to-text API transcribes voice to text. The text goes to Leo as a normal message. No additional AI cost for voice — it is a frontend feature.
+
+**Q: Can this agent approach work beyond Leo?**
+> Yes. The pattern — agents, function calling, MCP, skills, hooks — is general-purpose. Connect any internal system: ticket tracker, monitoring, compliance tools. Same architecture. Same approach.
 
 ### Feature Questions
 

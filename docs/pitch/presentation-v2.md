@@ -1,5 +1,5 @@
-# ING Leo — Presentation v2
-*Tech-first structure. Show how, then show what.*
+# ING Leo — Presentation v2 (Updated)
+*Tech-first structure. Show how, then show what. With missing features + enterprise AI concepts.*
 
 ---
 
@@ -8,15 +8,16 @@
 | Block | Time | Who | What |
 |-------|------|-----|------|
 | 1. The Problem | 2 min | Berkay, Mateo, Sofia | Why we built this |
-| 2. How We Built It | 5 min | Vladimir | Vibe coding, stack, AI architecture |
-| 3. Junior — Live Demo + Tech | 8 min | Vova + Vladimir | Show features, explain the tech behind each |
+| 2. How We Built It | 6 min | Vladimir | Vibe coding, agents, MCP, architecture |
+| 3. Junior — Live Demo + Tech | 8 min | Vova + Vladimir | Features + tech behind each |
 | 4. Transition + Adult — Live Demo + Tech | 10 min | Sofia + Vladimir | Real ING app + AI agents, tech layer by layer |
-| 5. Trust & Compliance | 2 min | Mateo, Berkay | GDPR, AI Act — short and direct |
-| 6. What This Means for ING | 2 min | Vladimir | Implementation path |
-| 7. Close | 1 min | Berkay | |
-| **Total** | **~30 min** | | |
+| 5. Parent Dashboard | 1 min | Sofia or Berkay | What parents see and control |
+| 6. Trust & Compliance | 1.5 min | Mateo, Berkay | GDPR, AI Act |
+| 7. What This Means for ING | 2 min | Vladimir | Implementation path |
+| 8. Close | 30 sec | Berkay | |
+| **Total** | **~31 min** | | |
 
-**The idea:** Vladimir is the technical co-pilot throughout. After each feature demo, he jumps in for 30-60 seconds to explain what just happened under the hood. This keeps the technical managers engaged and connects every feature to something concrete.
+**The idea:** Vladimir is the technical co-pilot throughout. After each feature demo, he jumps in for 30-60 seconds to explain what happened under the hood. Technical managers stay engaged. Every feature connects to something concrete.
 
 ---
 
@@ -45,7 +46,7 @@
 
 ---
 
-# PART 2: HOW WE BUILT IT (5 min)
+# PART 2: HOW WE BUILT IT (6 min)
 
 ## Vladimir
 
@@ -60,52 +61,69 @@
 > Traditional flow: design → review → code → review → test. Weeks.
 > Our flow: describe → build → test. Hours.
 >
-> The tools: **Claude Code** for AI-assisted development, **React 19** for the interface, **Node.js** on the backend. All standard, nothing exotic.
+> The tool: **Claude Code** — an AI coding agent. You give it a task in natural language, it writes the code, runs the tests, and iterates until it works. We used it to build this entire application.
+>
+> The rest of the stack: **React 19** for the interface, **Node.js** on the backend, **PostgreSQL** for data. All standard. Your engineers already know it.
 
-### The AI Architecture (2 min)
+### What is an AI Agent? (1.5 min)
 
+> Before we show the app, let me explain the core concept.
+>
 > Leo is not a chatbot. It is an **AI agent**.
 >
-> The difference: a chatbot gives text answers. An agent can **do things** inside the app.
+> A chatbot gives you text. You ask, it answers. That is it.
 >
-> Here is how it works:
+> An agent can **think, decide, and act**. It has tools. It picks which tool to use based on what you need. It chains tools together to solve complex problems.
+>
+> Think of it like this: a chatbot is a search engine. An agent is an employee who can actually do things.
+>
+> In Leo's case, the agent has **10 tools**:
+> - Fetch your account balance
+> - Read your transaction history
+> - Show a stock chart with analysis
+> - Start a money transfer
+> - Launch a quiz
+> - Display a spending breakdown
+> - And more
+>
+> The AI reads your message, understands what you need, and picks the right tools — on its own. We do not program "if user says X, do Y." The AI figures it out.
+
+### How It Connects — MCP and Function Calling (1.5 min)
+
+> Now — how does the agent actually connect to data and services?
+>
+> Two key concepts:
+>
+> **Function calling** — this is how the AI uses tools. We define what each tool does, what inputs it needs, what it returns. The AI model decides when to call which tool. It can chain multiple tools in one response.
 
 **[SHOW architecture diagram]**
 
 ```
 User message
     → Backend
-    → AI model (OpenAI GPT with function calling)
-    → AI decides: do I need data? do I need to show something?
-    → Calls tools: get_balance, get_transactions, show_chart...
-    → Returns response + interactive widgets
+    → AI model + function calling
+    → AI decides: what tools do I need?
+    → Calls: get_transactions, show_spending_chart
+    → Returns: text + interactive widget
     → Frontend renders it
 ```
 
-> The key concept is **function calling**. We gave the AI 10 tools — things like "show a stock widget", "fetch transactions", "start a quiz", "initiate a transfer".
+> **MCP — Model Context Protocol** — this is the open standard for connecting AI agents to external systems. Think of it as a universal plug for AI. Instead of building custom integrations for every data source, you use MCP to give the agent standardized access to tools and data.
 >
-> The AI reads the user's message, understands the intent, and picks which tools to use. We do not program "if user says X, do Y." The AI figures it out.
+> Why this matters for ING: if you already have internal systems — a ticket tracker, a monitoring dashboard, a customer data platform — you can connect them to an AI agent through MCP without rebuilding anything. It is a plug-and-play standard.
 >
-> You will see this in action during the demo.
+> In our case, Leo connects to banking data, market data, and user profiles through this pattern. The same approach scales to any enterprise system.
 
-### Two Modes, One Engine (1 min)
+### Two Modes, One Engine (30 sec)
 
-> Junior and Adult use the **same AI engine**. The difference is a system prompt.
+> One more thing. Junior and Adult use the **same AI engine**. The difference is a **system prompt** — a set of instructions that change Leo's personality.
 >
-> For juniors: simple language, virtual money, gamification.
-> For adults: professional tone, real data, banking actions.
+> Junior: simple language, virtual money, gamification.
+> Adult: professional tone, real data, banking actions.
 >
-> Same code. Same tools. Different personality. Configurable without code changes.
-
-### Tech Stack — Quick Overview (30 sec)
-
-> Frontend: **React 19, TypeScript, TailwindCSS, Framer Motion** for animations, **Recharts** for financial charts.
+> Same code. Same tools. Configurable without code changes.
 >
-> Backend: **Express.js, PostgreSQL, OpenAI API**.
->
-> All standard. Your engineers already know this stack.
->
-> Now let us see it in action.
+> Now let us see it work.
 
 ---
 
@@ -117,7 +135,17 @@ User message
 
 **[SHOW junior dashboard]**
 
-> No bank interface. A financial simulator. XP bar, level, badges, leaderboard. She is currently Level 4 — "Sparfuchs".
+> No bank interface. A financial simulator. XP bar, level, badges, streak counter. She is Level 4 — "Sparfuchs".
+
+### Real Card, Virtual Money
+
+> But first — an important detail.
+>
+> Lili has a **real ING debit card**. She can pay in shops, use ATMs — a real card.
+>
+> But inside the app, she also has **virtual money** — a separate balance for learning. She can invest it, save it, experiment with it.
+>
+> Real money is safe. Virtual money is for learning. Two systems, side by side.
 
 ---
 
@@ -125,17 +153,17 @@ User message
 
 **[SHOW salary screen]**
 
-> Lili gets a virtual salary. Taxes are immediately deducted. She sees the breakdown — income tax, social contributions.
+> Lili gets a virtual salary. Taxes are immediately deducted. She sees the breakdown.
 >
 > She asks Leo: *"Why did I lose money?"*
 >
-> Leo explains it in one paragraph. No jargon.
+> Leo explains it. Income tax, social contributions. Simple language. No jargon.
 
 **[DEMO: ask Leo about taxes]**
 
 ## Vladimir — Tech Note (30 sec)
 
-> What just happened: Lili's message went to GPT. The AI recognized a tax question, pulled her salary data using `get_account_balance`, and generated an explanation calibrated to a 15-year-old's vocabulary. The system prompt controls the language level.
+> Lili's message went to the AI model. The agent recognized a tax question, called `get_account_balance` to pull her salary data, and generated an explanation calibrated to a 15-year-old's vocabulary. The system prompt controls the language level — same tool, different output depending on user age.
 
 ---
 
@@ -147,7 +175,7 @@ User message
 
 **[DEMO: buy a stock]**
 
-> She buys Apple. The price is real. If it drops tomorrow, she sees it. And Leo explains why.
+> She buys Apple. The price is real. If it drops, Leo explains why.
 >
 > *"Apple dropped 2% — new tariff news from the US is affecting tech stocks."*
 
@@ -155,43 +183,53 @@ User message
 
 ## Vladimir — Tech Note (30 sec)
 
-> Here Leo used `show_stock_widget` — it fetched live market data and the AI scanned recent news articles to connect the price movement to a cause. The AI did not just report the number. It explained the reason. That is the agent behavior — it connects data sources the user would never check on their own.
+> Here the agent used `show_stock_widget` — fetched live market data, then scanned recent news to connect the price to a cause. This is the agent behavior: it does not just report a number, it connects data sources. Market price API plus news analysis plus user context — chained automatically.
 
 ---
 
-### Quizzes & Gamification
+### Quizzes, Achievements & Leaderboard
 
 ## Vova
 
-> To keep it engaging — quizzes. AI-generated. New questions every time.
-
 **[DEMO: start a quiz, answer 2-3 questions]**
 
-> Three difficulty levels. Topics: stocks, ETFs, taxes, savings. XP for every correct answer. Badges for milestones. A leaderboard to compete with friends.
+> Quizzes — AI-generated. Topics: stocks, ETFs, taxes, savings. Three difficulty levels. Every session is unique — you cannot memorize answers.
+>
+> XP for every correct answer. 13 different badges — "Quiz-Starter", "Mini-Investor", "Finanz-Guru". Streak bonuses if you come back daily.
 
-**[SHOW leaderboard + badges]**
+**[SHOW badges briefly]**
 
-> And — we built live quiz battles. Like Kahoot. Let us try one.
+> The leaderboard — weekly, all-time, and **school-based** rankings. Kids compete with classmates.
+>
+> The weekly winner gets **25 euros added to their real ING account when they turn 18**.
+
+**[SHOW leaderboard — weekly + school tab]**
+
+> And — live quiz battles. Like Kahoot.
 
 **[→ OPTIONAL: Run live quiz with audience — 2 min]**
 
 ## Vladimir — Tech Note (30 sec)
 
-> The quiz questions are generated by GPT on the fly — we send the topic and difficulty, it returns questions with correct answers and explanations. No question database. Every session is unique. The gamification layer — XP, levels, badges — is a separate system that listens to events from across the app. Any action can trigger XP.
+> Quiz questions are generated by the AI on the fly — we send topic and difficulty, it returns questions with answers and explanations. No question database. Every session unique. The gamification layer is a separate event system — any action in the app can trigger XP. The AI generates content, the gamification system rewards engagement. Two independent systems working together.
 
 ---
 
-### Savings Goals
+### Savings Goals + Voice
 
 ## Vova
 
-> Lili sets a goal — new laptop, 800 euros. The app tracks progress. Leo sends encouragement at milestones.
+> Lili sets a savings goal — new laptop, 800 euros. Weekly contributions. Leo tracks progress and sends encouragement.
 
 **[SHOW savings goal screen]**
 
-> Kids learn by doing. Real data. Real decisions. No risk.
+> And she does not have to type. She can **talk to Leo**.
+
+**[SHOW mic button — quick voice demo]**
+
+> Tap, speak, Leo understands. Works in both Junior and Adult.
 >
-> Now — what happens when Lili turns 18?
+> Real card, virtual money, AI that teaches. Now — what happens when Lili turns 18?
 
 ---
 
@@ -201,36 +239,61 @@ User message
 
 ## Sofia
 
-**[TRIGGER birthday transition animation]**
+**[TRIGGER birthday transition animation — age counter → cake → candle blow → confetti → screen crack → dashboard transform]**
 
-> Game mode becomes real mode. The interface changes. The accounts are real.
+**[DO NOT TALK — let the animation play fully]**
 
-**[PAUSE — let animation finish]**
+> Game mode becomes real mode. The accounts are real. The money is real.
+>
+> And now — this looks familiar. This is the ING app. Your app. We added Leo on top.
 
-> And now — this looks familiar. Because this is the ING app. Your app. We just added Leo on top.
+**[PAUSE — let them recognize the ING interface]**
 
 ## Vladimir — Tech Note (30 sec)
 
-> Technically, the transition is a Framer Motion animation sequence. But the real change is in the system prompt — Leo switches from junior mode to adult mode. Same AI, same tools, different behavior. The user's learning history carries over — Leo knows what Lili already understands about investing, taxes, budgeting.
+> The transition is a Framer Motion animation. But the real change is in the system prompt — Leo switches from junior to adult mode. Same AI, same tools, different behavior. The user's learning history carries over — Leo knows what Lili already understands.
 
 ---
 
-### Dashboard & Transaction Analysis
+### Dashboard & Spending Anomaly Detection
 
 ## Sofia
 
 **[SHOW adult dashboard — Girokonto, Extra Konto, Depot]**
 
-> Standard ING view. But Leo adds transaction analysis. Every transaction is auto-categorized — food, transport, subscriptions, entertainment.
+> Standard ING view. Leo adds transaction analysis. Every transaction auto-categorized — food, transport, subscriptions, entertainment.
 
 **[SHOW spending categories / pie chart]**
 
-> Leo finds patterns: *"3x Lieferando this week — 47 euros."*
-> It does not judge. It shows you what you might not notice yourself.
+> But the important part: **anomaly detection**.
+>
+> Leo does not just categorize — it finds problems. Duplicate subscriptions. Charges that are three times higher than normal. Sudden spending spikes.
+>
+> It flags them automatically. You do not go looking for problems — Leo finds them.
 
 ## Vladimir — Tech Note (30 sec)
 
-> The categorization uses the AI model. We send transaction descriptions, the AI classifies them. For ING, you could also use your existing categorization — Leo just needs the labeled data. The spending chart is rendered by `show_spending_chart`, one of the 10 function-calling tools.
+> The agent calls `get_recent_transactions`, then analyzes the data against the user's own spending history. It compares patterns — weekly averages, recurring amounts, category trends. When something deviates, it flags it. The categorization itself uses the AI model — we send raw transaction descriptions, it classifies them. For ING, you could feed your existing categorization — Leo just needs the labeled data.
+
+---
+
+### Proactive AI Coaching
+
+## Sofia
+
+> Leo does not wait for you to ask. This is **proactive coaching**.
+>
+> *"Your rent is due in 3 days, but your balance is lower than usual."*
+>
+> *"You ordered delivery 4 times this week — 62 euros. Last week it was 15."*
+>
+> *"You hit your savings goal early. Want to set a higher target?"*
+>
+> Leo monitors and reaches out. That is the difference between a search engine and a financial advisor.
+
+## Vladimir — Tech Note (20 sec)
+
+> The system prompt instructs Leo to analyze transaction patterns at session start. It compares current spending against historical averages and surfaces anomalies proactively. For time-based alerts — like rent due dates — it reads recurring transaction patterns. No separate notification system needed — the agent intelligence handles it.
 
 ---
 
@@ -249,7 +312,7 @@ User message
 
 ## Vladimir — Tech Note (20 sec)
 
-> The cancellation email is generated by GPT with the subscription details injected as context. It knows the provider, the plan, the user's name. The email is a draft — the user always reviews and sends it themselves.
+> Cancellation email is generated by the AI with subscription details as context — provider, plan, user name. The email is always a draft. User reviews and sends. Leo suggests, never acts alone.
 
 ---
 
@@ -257,45 +320,47 @@ User message
 
 ## Sofia
 
-> The most interesting part. The chat is not just text. It can show interactive elements inside the conversation.
+> The chat is where everything comes together. Not just text — **interactive widgets** inside the conversation.
 
 **[OPEN Leo chat]**
 
-**Widget 1 — Transfer:**
+**Smart Transfer:**
 
 > *"Send 50 euros to Ben."*
 
-**[DEMO: transfer widget appears in chat]**
+**[DEMO: transfer widget appears]**
 
-> No menus. No forms. One message. One confirmation tap.
+> Leo looks up the contact. Confirms the name, IBAN, amount. You tap confirm. No menus. No forms. A conversation.
 
-**Widget 2 — Spending:**
+**Spending Analysis:**
 
 > *"How did I spend my money this month?"*
 
-**[DEMO: spending chart appears in chat]**
+**[DEMO: spending chart widget]**
 
-**Widget 3 — Portfolio:**
+**Portfolio Analysis:**
 
 > *"How are my investments doing?"*
 
 **[DEMO: portfolio analysis widget]**
 
-> Leo reads the portfolio, checks the market, gives recommendations — all inside the chat.
+> Leo reads the portfolio, checks the market, gives recommendations. All inside the chat.
+>
+> And you can just **speak** — tap the mic, ask your question.
 
 ## Vladimir — Tech Note (1 min)
 
-> This is where function calling really shows its power.
+> This is where you see the agent architecture in action.
 >
-> For the transfer: the AI called `show_transfer_widget` with the amount and recipient. The widget is a React component rendered inline. The user confirms, and only then does the transaction go through.
+> For the transfer: the AI called `show_transfer_widget` with amount and recipient. The widget is a React component rendered inline in the chat. Confirmation goes through the standard flow.
 >
-> For spending: `get_recent_transactions` → AI analyzes → `show_spending_chart` renders the result.
+> For spending: `get_recent_transactions` → AI analyzes → `show_spending_chart` renders.
 >
-> For investments: `get_portfolio_data` → AI cross-references with market news → `show_stock_widget` with recommendations.
+> For investments: `get_portfolio_data` → AI cross-references market news → `show_stock_widget` with recommendations.
 >
-> The AI chains these tools together on its own. We did not hard-code any of these flows. The model decides the sequence based on what the user asked.
+> The AI chains these tools on its own. No hard-coded flows. The model decides the sequence.
 >
-> That is the difference between a chatbot and an agent. A chatbot responds. An agent acts.
+> And this is exactly the pattern that scales in an enterprise. Each tool is an **MCP-style connection** to a data source or action. Add a new tool — the agent can use it immediately. Connect a new system — the agent integrates it without code changes to the chat logic.
 
 ---
 
@@ -307,71 +372,97 @@ User message
 
 > Leo scans real-time market news. Sector analysis. Risk assessment.
 >
-> *"Your portfolio is 60% tech. There is regulatory uncertainty in the sector. Consider diversifying."*
+> *"Your portfolio is 60% tech. Regulatory uncertainty in the sector. Consider diversifying."*
 >
 > Data-driven. Not emotional.
 
 ## Vladimir — Tech Note (20 sec)
 
-> The AI processes news data and correlates it with the user's holdings. For ING, this could connect to your existing market data feeds. The recommendation engine is the same function-calling pattern — just with richer input data.
+> The AI processes news data and correlates with user holdings. For ING, this connects to your existing market data feeds. Same function-calling pattern, richer input data.
 
 ---
 
-# PART 5: TRUST & COMPLIANCE (2 min)
+# PART 5: PARENT DASHBOARD (1 min)
+
+## Sofia or Berkay
+
+> The parents.
+
+**[SHOW parent dashboard]**
+
+> Parents get their own view:
+> - Child's **learning progress** — topics completed, quiz scores, achievements
+> - **Savings goals** and progress
+>
+> And they **set the rules**:
+> - **Daily spending limits** on the real debit card
+> - **Category restrictions** — no online gambling
+> - **Maximum per purchase**
+> - **Risk profile** for the investment simulator
+
+**[SHOW rules/limits tabs]**
+
+> Parent controls the boundaries. Child learns within them. Parents see progress — not private conversations. Trust both ways.
+
+---
+
+# PART 6: TRUST & COMPLIANCE (1.5 min)
 
 ## Mateo
 
 > Three rules.
 >
-> **One.** Leo uses only your data. No third-party sharing. No internet training.
+> **One.** Leo uses only your data. No third-party sharing. No open internet training.
 >
-> **Two.** Leo suggests. You decide. It never acts without your confirmation.
+> **Two.** Leo suggests. You decide. It never acts without confirmation.
 >
-> **Three.** Fully aligned with GDPR and the EU AI Act. Every recommendation is explainable.
+> **Three.** GDPR and EU AI Act compliant. Every recommendation is explainable.
 
 ## Berkay
 
 > For minors: parental consent required. Age verification. Simplified language.
 >
-> Parents see learning progress. Not private conversations.
+> Parents control limits, spending rules, and risk levels — as we showed.
 
 ---
 
-# PART 6: WHAT THIS MEANS FOR ING (2 min)
+# PART 7: WHAT THIS MEANS FOR ING (2 min)
 
 ## Vladimir
 
-> The architecture is modular. Leo is a layer on top — it does not replace anything.
-
-**[SHOW or describe]**
+> The architecture is modular. Leo is a layer on top.
 
 ```
 Existing ING App
     └── Existing APIs (accounts, transactions, portfolio)
-            └── NEW: AI Layer (model + function calling)
+            └── NEW: AI Layer (model + function calling + MCP)
                     └── NEW: Chat UI (floating overlay)
 ```
 
 > **To add Leo to ING:**
-> 1. Add a chat component as an overlay — one floating button
-> 2. Connect the AI layer to your existing APIs — read access only
-> 3. All user actions still go through your existing confirmation flows
+> 1. Chat overlay — one floating button on the existing app
+> 2. AI layer connects to your existing APIs — read access only
+> 3. All actions go through your existing confirmation flows
 >
-> The junior app is even simpler — no connection to real banking. Virtual data plus public market APIs. Could launch as a standalone product.
+> The junior app needs no banking connection at all. Virtual data plus public market APIs. Standalone product.
 >
-> **About the AI model:** We used OpenAI for speed. For production, swap it with a self-hosted model inside ING infrastructure. The architecture is model-agnostic — change the endpoint, everything else stays the same. No customer data leaves ING servers.
+> **The AI model:** We used OpenAI for prototyping speed. For production, swap it with a self-hosted model inside ING infrastructure. The architecture is model-agnostic. Change the endpoint — everything else stays. **No customer data leaves ING servers.**
 >
-> **About development speed:** This entire application was built using vibe coding. Working prototype — not a concept. The same approach works for any new ING feature.
+> **The bigger picture:** The agent pattern we showed — function calling, MCP connections, system prompts — is not just for Leo. This is how modern AI integrates with enterprise systems.
+>
+> Connect your ticket tracker. Your monitoring. Your compliance tools. Same pattern. Same architecture. The agent connects to them through standardized tool interfaces.
+>
+> And the development approach — vibe coding with AI agents like Claude Code — works for any new feature. We built this entire application in a fraction of the time traditional development takes.
 
 ---
 
-# PART 7: CLOSE (1 min)
+# PART 8: CLOSE (30 sec)
 
 ## Berkay
 
 > One in five young people in Germany is in debt.
 >
-> We built something that can change that — and it fits inside the app you already have.
+> We built something that fits inside the app you already have.
 >
 > Thank you. We are ready for your questions.
 
@@ -379,22 +470,32 @@ Existing ING App
 
 # Q&A CHEAT SHEET
 
-**Cost?** → Modular. Start with just the chat layer. Junior app is standalone. AI API costs: ~1-3 cents per conversation at current scale. Enterprise pricing or self-hosted model at ING scale.
+**Cost?** → Modular. Start with just the chat. Junior is standalone. AI: ~1-3 cents per conversation. Enterprise pricing or self-hosted at scale.
 
-**Hallucinations?** → Leo works with the user's own data, not imagination. Actions require confirmation. Junior mode is virtual — mistakes are the point.
+**Hallucinations?** → Leo works with user's own data. Actions require confirmation. Junior mode is virtual — mistakes are the point.
 
-**Works with ING backend?** → Yes. API layer. Read access to accounts/transactions. No changes to core banking.
+**Works with ING backend?** → Yes. API layer. Read access. No core banking changes.
 
-**Why OpenAI?** → Prototyping speed. For production: any model works. Llama, Mistral, ING-hosted. Function calling interface is model-agnostic.
+**Why OpenAI?** → Prototyping speed. Production: any model. Llama, Mistral, ING-hosted. Function calling is model-agnostic.
 
-**Data security?** → Prototype uses OpenAI API. Production recommendation: self-hosted model within ING. No customer data leaves the building.
+**Data security?** → Prototype: OpenAI API. Production: self-hosted within ING. No data leaves the building.
 
-**When AI is wrong?** → Leo shows reasoning. User can ask "why." No auto-execution. Junior mode: mistakes are learning.
+**What is MCP?** → Model Context Protocol. Open standard for connecting AI agents to external tools and data. Like a universal plug — connect any system without custom integration code.
 
-**Parental controls?** → Consent required. Parents see progress, not private chats.
+**What are AI agents vs chatbots?** → Chatbot: text in, text out. Agent: understands intent, picks tools, takes actions, chains multiple steps. Leo decides what to do, not just what to say.
 
-**Languages?** → Leo responds in whatever language you write in. Tested with Ukrainian demo for international users.
+**Proactive coaching — how?** → System prompt instructs Leo to analyze patterns at session start. Compares current spending vs history. Flags anomalies. Reads recurring transaction patterns for date-based alerts.
 
-**Voice?** → Supported. Speak → transcribe → Leo responds.
+**Anomaly detection?** → Compares each transaction against user's history. Duplicate subscriptions, above-average charges, category spikes, unexpected recurring amount changes.
 
-**Scaling?** → Dedicated model deployment (Azure OpenAI or self-hosted). Current architecture handles concurrent users through standard API patterns.
+**Voice?** → Browser speech-to-text → text message to Leo. No extra AI cost.
+
+**Parental controls?** → Parents see progress, not private chats. Set limits, rules, risk profile.
+
+**Leaderboard cheating?** → XP from verifiable actions. AI generates unique questions. School rankings need verification.
+
+**Languages?** → Leo responds in whatever language you write. Built into the AI. Zero extra development.
+
+**Scaling?** → Dedicated model deployment. Azure OpenAI or self-hosted. Standard API patterns for concurrency.
+
+**Can this approach work for other ING features?** → Yes. The agent + MCP + function calling pattern is general-purpose. Connect any internal system. The vibe coding approach speeds up development of any new feature.
