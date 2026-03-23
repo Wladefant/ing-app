@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 import lionIcon from "@/assets/lion-logo.png";
-import { QRCodeSVG } from "qrcode.react";
 import { useKahootSocket } from "@/lib/kahoot-client";
 
 // --- Types ---
@@ -252,7 +251,6 @@ export function KahootChallengeScreen({
   };
 
   const isLastQuestion = totalQuestions > 0 && questionIndex >= totalQuestions - 1;
-  const joinUrl = `${window.location.origin}/kahoot/join/${roomCode}`;
 
   // ===================== SELECTION SCREEN =====================
 
@@ -339,29 +337,21 @@ export function KahootChallengeScreen({
       <div className="flex-1 flex flex-col bg-[#F3F3F3] overflow-hidden">
         <ScreenHeader title="Quiz Lobby" onBack={resetGame} />
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {/* QR + Code Card */}
-          <div className="bg-white p-4 rounded-2xl shadow-sm text-center">
-            <div className="text-gray-400 text-[10px] mb-1">Spieler scannen diesen Code</div>
-            <div className="flex items-center justify-center gap-4 mb-3">
-              <div className="bg-white p-2 rounded-xl border border-gray-100">
-                <QRCodeSVG value={joinUrl} size={80} level="M" />
-              </div>
-              <div>
-                <div className="text-gray-400 text-[9px] mb-0.5">Game Code</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-black tracking-[0.15em] text-[#FF6200]">{roomCode}</span>
-                  <button onClick={copyCode} className="p-1.5 bg-gray-100 rounded-lg" title="Kopieren">
-                    <Copy size={14} className="text-gray-500" />
-                  </button>
-                </div>
-                {selectedTopic && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-xs">{selectedTopic.icon}</span>
-                    <span className="text-[10px] font-medium text-gray-500">{selectedTopic.label}</span>
-                  </div>
-                )}
-              </div>
+          {/* Room Code Card */}
+          <div className="bg-white p-5 rounded-2xl shadow-sm text-center">
+            <div className="text-gray-400 text-[10px] mb-2">Teile diesen Code mit den Spielern</div>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-3xl font-black tracking-[0.2em] text-[#FF6200]">{roomCode}</span>
+              <button onClick={copyCode} className="p-1.5 bg-gray-100 rounded-lg" title="Kopieren">
+                <Copy size={16} className="text-gray-500" />
+              </button>
             </div>
+            {selectedTopic && (
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-xs">{selectedTopic.icon}</span>
+                <span className="text-[10px] font-medium text-gray-500">{selectedTopic.label}</span>
+              </div>
+            )}
 
             {!questionsReady ? (
               <div className="flex items-center justify-center gap-2 text-gray-400 text-[10px]">
