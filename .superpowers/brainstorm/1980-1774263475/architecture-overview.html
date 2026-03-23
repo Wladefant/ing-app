@@ -1,0 +1,198 @@
+<h2>Live Quiz Architecture</h2>
+<p class="subtitle">How the host screen, player phones, and server connect</p>
+
+<div class="section">
+  <h3>System Overview</h3>
+  <div style="background: #1a1a2e; border-radius: 16px; padding: 32px; color: #fff; font-family: monospace; font-size: 13px; line-height: 2.2;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <span style="background: #ff6200; padding: 8px 20px; border-radius: 8px; font-weight: bold; font-size: 15px;">
+        Express Server + WebSocket (ws)
+      </span>
+    </div>
+    <div style="display: flex; justify-content: space-around; align-items: flex-start; gap: 20px;">
+      <!-- Host -->
+      <div style="flex: 1; text-align: center;">
+        <div style="background: #33307E; padding: 16px; border-radius: 12px; margin-bottom: 12px;">
+          <div style="font-size: 28px; margin-bottom: 8px;">🖥️</div>
+          <div style="font-weight: bold; font-size: 14px;">HOST SCREEN</div>
+          <div style="color: #aaa; font-size: 11px; margin-top: 4px;">/kahoot/host</div>
+          <div style="color: #aaa; font-size: 11px;">Fullscreen • Projector</div>
+        </div>
+        <div style="color: #ff6200;">▲ WebSocket</div>
+        <div style="font-size: 10px; color: #888; margin-top: 4px;">
+          receives: player_joined, answer_submitted<br>
+          sends: start_game, next_question, show_leaderboard
+        </div>
+      </div>
+      <!-- Server -->
+      <div style="flex: 0.8; text-align: center; padding-top: 20px;">
+        <div style="border: 2px dashed #ff6200; padding: 16px; border-radius: 12px;">
+          <div style="font-size: 20px; margin-bottom: 8px;">⚡</div>
+          <div style="font-weight: bold; color: #ff6200;">Room Manager</div>
+          <div style="font-size: 10px; color: #888; margin-top: 8px;">
+            • Create/destroy rooms<br>
+            • Track players<br>
+            • Broadcast questions<br>
+            • Score answers<br>
+            • Generate leaderboard
+          </div>
+        </div>
+      </div>
+      <!-- Players -->
+      <div style="flex: 1; text-align: center;">
+        <div style="background: #0d4f4f; padding: 16px; border-radius: 12px; margin-bottom: 12px;">
+          <div style="font-size: 28px; margin-bottom: 8px;">📱📱📱</div>
+          <div style="font-weight: bold; font-size: 14px;">PLAYERS (up to 50+)</div>
+          <div style="color: #aaa; font-size: 11px; margin-top: 4px;">In-app /kahoot screen</div>
+          <div style="color: #aaa; font-size: 11px;">or QR code → join page</div>
+        </div>
+        <div style="color: #00c4cc;">▲ WebSocket each</div>
+        <div style="font-size: 10px; color: #888; margin-top: 4px;">
+          receives: question, timer_tick, result<br>
+          sends: join_room, submit_answer
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; border-top: 1px solid #333; padding-top: 16px; text-align: center;">
+      <div style="font-weight: bold; color: #ff6200; margin-bottom: 8px;">Game Flow</div>
+      <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 11px;">
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">Host creates room</span>
+        <span style="color: #555;">→</span>
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">QR code shown</span>
+        <span style="color: #555;">→</span>
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">Players scan & join</span>
+        <span style="color: #555;">→</span>
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">Host starts quiz</span>
+        <span style="color: #555;">→</span>
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">Questions broadcast</span>
+        <span style="color: #555;">→</span>
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">Live leaderboard</span>
+        <span style="color: #555;">→</span>
+        <span style="background: #333; padding: 4px 12px; border-radius: 20px;">Podium + confetti</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Host Screen (Projector) — Wide Kahoot Style</h3>
+  <div class="mockup">
+    <div class="mockup-header">🖥️ /kahoot/host — Fullscreen on projector</div>
+    <div class="mockup-body" style="background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 0; min-height: 300px;">
+      <!-- Top bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #ff6200; font-weight: bold; font-size: 18px;">LEO Quiz</span>
+          <span style="background: #ff6200; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">📈 Aktien & Börse</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; color: #aaa; font-size: 13px;">
+          <span>Frage 3/7</span>
+          <span style="background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 8px;">👥 47 Spieler</span>
+        </div>
+      </div>
+
+      <!-- Timer + Question -->
+      <div style="text-align: center; padding: 24px;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; border: 4px solid #ff6200; display: inline-flex; align-items: center; justify-content: center; color: #ff6200; font-size: 28px; font-weight: 900; margin-bottom: 16px;">12</div>
+        <div style="background: rgba(255,255,255,0.1); padding: 24px 40px; border-radius: 16px; display: inline-block; max-width: 700px;">
+          <div style="color: white; font-size: 22px; font-weight: bold;">Was ist der Unterschied zwischen einer Stammaktie und einer Vorzugsaktie?</div>
+        </div>
+      </div>
+
+      <!-- 4 Answer blocks -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 24px 24px;">
+        <div style="background: #ff6200; padding: 16px 20px; border-radius: 12px; color: white; font-weight: bold; display: flex; align-items: center; gap: 12px;">
+          <span style="background: rgba(0,0,0,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">▲</span>
+          Stammaktien haben Stimmrecht, Vorzugsaktien nicht
+        </div>
+        <div style="background: #00a4cc; padding: 16px 20px; border-radius: 12px; color: white; font-weight: bold; display: flex; align-items: center; gap: 12px;">
+          <span style="background: rgba(0,0,0,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">◆</span>
+          Vorzugsaktien sind immer teurer
+        </div>
+        <div style="background: #8b5cf6; padding: 16px 20px; border-radius: 12px; color: white; font-weight: bold; display: flex; align-items: center; gap: 12px;">
+          <span style="background: rgba(0,0,0,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">●</span>
+          Es gibt keinen Unterschied
+        </div>
+        <div style="background: #10b981; padding: 16px 20px; border-radius: 12px; color: white; font-weight: bold; display: flex; align-items: center; gap: 12px;">
+          <span style="background: rgba(0,0,0,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">■</span>
+          Stammaktien zahlen keine Dividende
+        </div>
+      </div>
+
+      <!-- Answer counter -->
+      <div style="text-align: center; padding-bottom: 16px;">
+        <span style="color: #888; font-size: 13px;">34 von 47 haben geantwortet</span>
+        <div style="width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 8px auto 0;">
+          <div style="width: 72%; height: 100%; background: #ff6200; border-radius: 3px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Player Phone View (in-app)</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">📱 Join Screen</div>
+      <div class="mockup-body" style="background: #f3f3f3; text-align: center; padding: 32px 16px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">⚡</div>
+        <div style="font-weight: bold; font-size: 18px; margin-bottom: 4px;">Quiz Battle</div>
+        <div style="color: #888; font-size: 12px; margin-bottom: 20px;">Scan QR or enter code</div>
+        <div style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 24px; font-weight: 900; letter-spacing: 4px; color: #ff6200;">ABCD-EFGH</div>
+        </div>
+        <div style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+          <span style="color: #999;">Dein Name...</span>
+        </div>
+        <div style="background: #ff6200; color: white; padding: 14px; border-radius: 12px; font-weight: bold;">Beitreten</div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">📱 Answer Screen</div>
+      <div class="mockup-body" style="background: #f3f3f3; padding: 12px;">
+        <div style="text-align: center; margin-bottom: 12px;">
+          <span style="font-size: 11px; color: #888;">Frage 3/7</span>
+          <span style="float: right; background: #ff6200; color: white; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold;">12</span>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 12px;">
+          Was ist der Unterschied zwischen Stamm- und Vorzugsaktie?
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: #ff6200; color: white; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px;">▲ Stammaktien haben Stimmrecht</div>
+          <div style="background: #00a4cc; color: white; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px;">◆ Vorzugsaktien sind teurer</div>
+          <div style="background: #8b5cf6; color: white; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px;">● Kein Unterschied</div>
+          <div style="background: #10b981; color: white; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px;">■ Keine Dividende bei Stamm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Key Design Decisions</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px;">
+      <h4 style="color: #166534; margin: 0 0 8px;">✅ What works</h4>
+      <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: #333; line-height: 1.8;">
+        <li>50 WebSocket connections = trivial for Node.js</li>
+        <li>ws package already installed</li>
+        <li>httpServer already created (ws attaches to it)</li>
+        <li>AI question generation already works</li>
+        <li>All UI components exist, just need real data</li>
+      </ul>
+    </div>
+    <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 16px;">
+      <h4 style="color: #9a3412; margin: 0 0 8px;">🔨 What needs building</h4>
+      <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: #333; line-height: 1.8;">
+        <li>WebSocket server with room management</li>
+        <li>Separate /kahoot/host route (fullscreen)</li>
+        <li>QR code generation on host lobby</li>
+        <li>Real player sync (join → answer → score)</li>
+        <li>Better AI prompts (harder, varied questions)</li>
+        <li>Server-side scoring (prevent cheating)</li>
+      </ul>
+    </div>
+  </div>
+</div>
