@@ -5,7 +5,7 @@ import OpenAI from "openai";
 
 // Initialize OpenAI client with server-side API key
 // Note: VITE_ prefix is used because the key was originally for client-side
-const getOpenAIClient = () => {
+export const getOpenAIClient = () => {
   const apiKey = process.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OpenAI API key not configured");
