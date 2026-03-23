@@ -1003,17 +1003,24 @@ export function getSpendingByCategory(): SpendingCategory[] {
     return t.amount < 0 && date.getMonth() === thisMonth && date.getFullYear() === thisYear;
   });
 
-  // Category mappings
+  // Category mappings — must cover all categories from getDefaultTransactions
   const categoryConfig: Record<string, { icon: string; color: string }> = {
-    "Transport": { icon: "🚗", color: "#FF6B6B" },
+    "Miete": { icon: "🏠", color: "#FF6200" },
+    "Wohnen": { icon: "🏠", color: "#FF6200" },
+    "Lebensmittel": { icon: "🛒", color: "#4ECDC4" },
     "Einkaufen": { icon: "🛒", color: "#4ECDC4" },
-    "Restaurant": { icon: "🍽️", color: "#FFE66D" },
-    "Entertainment": { icon: "🎬", color: "#95E1D3" },
-    "Haushalt": { icon: "🏠", color: "#DDA0DD" },
-    "Sparen": { icon: "💰", color: "#98D8C8" },
-    "Gesundheit": { icon: "💊", color: "#F7DC6F" },
-    "Gehalt": { icon: "💵", color: "#82E0AA" },
-    "Sonstiges": { icon: "📦", color: "#AED6F1" },
+    "Restaurant": { icon: "🍽️", color: "#FFB347" },
+    "Entertainment": { icon: "🎬", color: "#8B5CF6" },
+    "Haushalt": { icon: "🔌", color: "#DDA0DD" },
+    "Transport": { icon: "🚗", color: "#FF6B6B" },
+    "Mobilität": { icon: "🚌", color: "#FF6B6B" },
+    "Shopping": { icon: "🛍️", color: "#F472B6" },
+    "Kleidung": { icon: "👕", color: "#F472B6" },
+    "Versicherung": { icon: "🛡️", color: "#60A5FA" },
+    "Gesundheit": { icon: "💊", color: "#34D399" },
+    "Sparen": { icon: "💰", color: "#10B981" },
+    "Gehalt": { icon: "💵", color: "#22C55E" },
+    "Sonstiges": { icon: "📦", color: "#9CA3AF" },
   };
 
   // Group by category
