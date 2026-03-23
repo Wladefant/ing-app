@@ -182,30 +182,28 @@ User message → Backend → AI model → decides tools → calls them → respo
 
 ---
 
-### Block C — Enterprise AI: How a Large Company Can Use This (3 min)
+### Block C — How ING Can Develop Software This Fast (3 min)
 
-**This block zooms out. No more app demo. No more Leo. Talk about the pattern for any large organization.**
+**This block is NOT about the app or Leo. It is about how ING's own development teams can use AI coding agents to build faster.**
 
-**Step 17 — Implementation Pattern**
-1. Show the generic layered diagram:
-```
-Existing App → Existing APIs → NEW: AI Layer → NEW: Interface
-```
-2. Three steps: add interface, connect AI to existing APIs (read only), actions go through existing security
-3. Model is swappable — self-hosted in production, no data leaves your servers
-4. Key line: *"You do not rebuild. You add a layer on top."*
+**Step 17 — The Agentic Development Cycle**
+1. Explain the flow: Issue → AI coding agent picks it up → writes code → runs tests → opens PR → human reviews → agent iterates → merge
+2. Mention GitHub Copilot coding agents — built into GitHub today
+3. Multiple AI engines: Copilot, Claude, Codex — can run in parallel on the same task
+4. Key line: *"From issue to reviewed PR — without a developer writing a single line manually. The developer reviews and guides. The agent writes and iterates."*
 
-**Step 18 — MCP: Universal Plug**
-1. Explain MCP: *"Model Context Protocol. Open standard. A universal plug for connecting AI to any system."*
-2. Monitoring, tickets, customer data, compliance, HR — all through the same standard interface
-3. Key line: *"One agent architecture. Plug in as many data sources as you need."*
+**Step 18 — Enterprise Controls: Instructions, Skills, MCP, Hooks**
+1. **Custom Instructions** — coding standards, test requirements, security policies per repo. Agent reads and follows them.
+2. **Skills** — reusable step-by-step procedures. "When a test fails: reproduce, diagnose, fix, add regression test." Stored as files. Organization-wide standards.
+3. **MCP** — universal plug connecting the agent to internal tools. Monitoring, error trackers, deployment pipelines. Same standard interface for any system.
+4. **Hooks** — policy enforcement. Approve/deny actions. Full audit trail. Every agent action is controllable and traceable.
 
-**Step 19 — Enterprise Safety: Skills + Hooks**
-1. Skills: reusable procedures stored as files. Standardize agent behavior across the organization.
-2. Hooks: policy enforcement — approve/deny actions, log everything, full audit trail.
-3. Key line: *"In a regulated environment, every agent action is logged and controllable."*
+**Step 19 — Concrete Examples for ING**
+1. Example 1: *"Developer creates an issue — 'add a spending category.' Agent writes code, runs tests, opens a PR. Senior dev reviews in 10 minutes."*
+2. Example 2: *"Test fails at 2 AM. Workflow assigns it to the agent. By morning, a fix is ready for review."*
+3. Key line: *"We built this app using exactly this approach. The tools exist today. The question is how fast ING wants to start."*
 
-**This block is only about enterprise patterns. Do not reference the app, Leo, or the demo. Keep it general and organizational.**
+**Do NOT reference Leo, the demo, or the app in this block. This is about ING's development process.**
 
 ---
 

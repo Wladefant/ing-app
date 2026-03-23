@@ -12,7 +12,7 @@
 | 3. Leo Pro Demo | 9 min | Sofia | Adult app — live demo with AI agents |
 | 4. Parent Dashboard | 1.5 min | Sofia or Berkay | What parents see and control |
 | 5. Legal & Trust | 1.5 min | Mateo, Berkay | GDPR, AI Act, user control |
-| 6. Technical Deep Dive | 8 min | Vladimir | A: How we built it, B: How Leo works, C: Enterprise implementation |
+| 6. Technical Deep Dive | 8 min | Vladimir | A: Vibe coding, B: How Leo's AI works, C: How ING can develop this fast |
 | 7. Closing | 1 min | Berkay | Summary + invite Q&A |
 | **Total** | **~31 min** | | |
 
@@ -436,55 +436,59 @@ User sends a message
 
 ---
 
-### Block C — Enterprise AI: How a Large Company Can Use This (3 min)
+### Block C — How ING Can Develop Software This Fast (3 min)
 
-> Now I want to zoom out — away from the app — and talk about what this means for a large organization.
+> Now I want to talk about something different — not the app, but **how we built it**. And how ING can develop software the same way.
 >
-> The architecture you just saw — an AI agent with tools, connected to data sources — that is a pattern. And it works far beyond a banking assistant.
+> We showed you what vibe coding looks like from our side. But this is not just a trick for students. This is becoming **the standard way large companies build software**.
 
 **[PAUSE]**
 
-> **Implementation in an existing system.**
+> **The Agentic Development Cycle.**
 >
-> You do not rebuild your app. You add a layer on top.
+> Today, GitHub — the platform most developers use — has built AI coding agents directly into the development workflow.
+>
+> Here is how it works:
 
 ```
-Existing App
-    └── Existing APIs (any internal system)
-            └── NEW: AI Layer (model + function calling)
-                    └── NEW: Interface (chat, dashboard, or automation)
+1. Someone creates an Issue — "Build feature X" or "Fix bug Y"
+2. The issue gets assigned to an AI coding agent
+3. The agent reads the codebase, writes the code, runs the tests
+4. It opens a Pull Request — a code change ready for review
+5. A human reviews the PR, leaves comments
+6. The agent reads the comments, makes changes, updates the PR
+7. Automated tests run — if they pass, it gets merged
 ```
 
-> Three steps:
-> 1. Add an interface — could be a chat overlay, a dashboard, or even a background automation
-> 2. Connect the AI layer to existing APIs — read access only
-> 3. All actions go through existing confirmation and security flows
+> The whole cycle — from issue to working code to reviewed PR — can happen without a developer writing a single line manually. The developer **reviews and guides**, the agent **writes and iterates**.
 >
-> The AI model is swappable. We used OpenAI for prototyping. In production, you use a self-hosted model inside your own infrastructure. Change the endpoint — everything else stays. **No data leaves your servers.**
+> And it is not just one agent. GitHub supports **multiple AI engines** — Copilot, Claude, Codex — working on the same codebase. You can even run them in parallel on the same task and compare which solution is better.
 
 **[PAUSE — new topic]**
 
-> **MCP — Model Context Protocol.**
+> **How do you control this in a large company?**
 >
-> This is an open standard for connecting AI agents to external systems. Think of it as a **universal plug**.
+> Four building blocks:
 >
-> You have internal systems — monitoring, ticket tracking, customer data, compliance tools. With MCP, you connect any of them to an AI agent. Same standard interface, any system. No custom integration code for each one.
+> **Custom Instructions** — you write rules for your repository. Coding standards, testing requirements, security policies. The agent reads them and follows them. Every repo can have its own rules. You can even scope rules to specific file types — "for frontend code, follow these patterns. For backend code, follow these."
 >
-> That means you can build one agent architecture — and plug in as many data sources as you need. Monitoring data, HR systems, financial data, operational dashboards — all through the same plug.
+> **Skills** — reusable procedures. Step-by-step instructions for how the agent should handle specific tasks. "When a test fails, reproduce it, diagnose the root cause, fix it, add a regression test." Skills are stored as files in the repository. You standardize agent behavior across the entire organization.
+>
+> **MCP — Model Context Protocol** — this is how the agent connects to your internal tools. Your monitoring system, your error tracker, your deployment pipeline. MCP is a universal plug — same standard interface for any system. The agent can read data from Sentry, check deployment status, pull ticket information — all through MCP.
+>
+> **Hooks** — policy enforcement. Before the agent uses a tool, a hook can approve or deny it. After it acts, a hook logs what happened. Full audit trail. In a regulated environment like banking, this means: every action the agent takes is controllable and traceable.
 
 **[PAUSE — new topic]**
 
-> **Skills and Hooks — enterprise safety.**
+> **What this means for ING.**
 >
-> In a regulated environment, you need control over what the AI can and cannot do.
+> Imagine this: a developer creates an issue — "Add a new spending category to the dashboard." The coding agent picks it up, reads your custom instructions, writes the code following your standards, runs the tests, opens a PR. A senior developer reviews it in 10 minutes. Done.
 >
-> **Skills** are reusable procedures. They tell the agent *how* to handle specific tasks — step by step. "When giving financial advice, always add a disclaimer." "When accessing customer data, follow this process." Skills are stored as files in your repository. You standardize behavior across the whole organization.
+> Or: an automated test fails at 2 AM. A workflow creates an issue, assigns it to the agent. The agent reads the error, diagnoses the problem, writes a fix, opens a PR. By morning, the fix is ready for review.
 >
-> **Hooks** are policy enforcement. Before the agent uses a tool, a hook can approve or deny it. After it acts, a hook logs what happened. Full audit trail. Full compliance control.
+> This is not science fiction. This is what GitHub Copilot coding agents do today. The tools exist. The standards are open. And it works with any tech stack — including what ING already uses.
 >
-> In banking: hooks ensure the agent never accesses data it should not see. Skills ensure it follows regulatory rules. And every action is logged and traceable.
->
-> These are not ideas for the future — they are part of the open standard today.
+> We built this app using exactly this approach. The question for ING is not whether this works — you can see that it does. The question is how fast you want to start.
 
 ---
 
@@ -545,8 +549,11 @@ Existing App
 **Q: How does voice input work?**
 > Browser speech-to-text API transcribes voice to text. The text goes to Leo as a normal message. No additional AI cost for voice — it is a frontend feature.
 
-**Q: Can this agent approach work beyond Leo?**
-> Yes. The pattern — agents, function calling, MCP, skills, hooks — is general-purpose. Connect any internal system: ticket tracker, monitoring, compliance tools. Same architecture. Same approach.
+**Q: Can ING use this development approach today?**
+> Yes. GitHub Copilot coding agents are available now. You set up custom instructions for your repo, define skills for common tasks, connect your internal tools via MCP, and add hooks for compliance. Start with one repo as a pilot, validate the results, then scale.
+
+**Q: Does this replace developers?**
+> No. It changes what they spend time on. Instead of writing boilerplate code, they review agent-generated PRs and focus on architecture, design, and complex decisions. The agent handles the routine work. The developer stays in control.
 
 ### Feature Questions
 
