@@ -436,51 +436,55 @@ User sends a message
 
 ---
 
-### Block C — How ING Could Implement This (3 min)
+### Block C — Enterprise AI: How a Large Company Can Use This (3 min)
 
-> Now — how does this become real inside ING?
+> Now I want to zoom out — away from the app — and talk about what this means for a large organization.
 >
-> The architecture is simple. **Leo is a layer on top. It does not replace anything.**
+> The architecture you just saw — an AI agent with tools, connected to data sources — that is a pattern. And it works far beyond a banking assistant.
+
+**[PAUSE]**
+
+> **Implementation in an existing system.**
+>
+> You do not rebuild your app. You add a layer on top.
 
 ```
-Existing ING App
-    └── Existing APIs (accounts, transactions, portfolio)
+Existing App
+    └── Existing APIs (any internal system)
             └── NEW: AI Layer (model + function calling)
-                    └── NEW: Chat UI (floating overlay)
+                    └── NEW: Interface (chat, dashboard, or automation)
 ```
 
 > Three steps:
-> 1. Add a chat component — one floating button on the existing app
-> 2. Connect the AI layer to your existing APIs — read access only
-> 3. All user actions still go through your existing confirmation flows
+> 1. Add an interface — could be a chat overlay, a dashboard, or even a background automation
+> 2. Connect the AI layer to existing APIs — read access only
+> 3. All actions go through existing confirmation and security flows
 >
-> The AI model: we used OpenAI for prototyping speed. For production, you swap it with a self-hosted model inside ING infrastructure. The architecture is model-agnostic — change the endpoint, everything else stays the same. **No customer data leaves ING servers.**
->
-> The junior app is even simpler — no banking connection needed. Virtual data plus public market APIs. Could launch as a standalone product.
+> The AI model is swappable. We used OpenAI for prototyping. In production, you use a self-hosted model inside your own infrastructure. Change the endpoint — everything else stays. **No data leaves your servers.**
 
-**[PAUSE — separate topic]**
+**[PAUSE — new topic]**
 
-> Now — two concepts that matter for enterprise deployment.
+> **MCP — Model Context Protocol.**
 >
-> **MCP — Model Context Protocol.** This is an open standard for connecting AI agents to external systems. Think of it as a **universal plug**.
+> This is an open standard for connecting AI agents to external systems. Think of it as a **universal plug**.
 >
-> Right now, Leo connects to banking data and market data. But with MCP, you can connect the same agent to any system — your monitoring tools, your ticket tracker, your compliance platform. Same plug, any system. No custom integration code.
+> You have internal systems — monitoring, ticket tracking, customer data, compliance tools. With MCP, you connect any of them to an AI agent. Same standard interface, any system. No custom integration code for each one.
 >
-> This means the agent pattern is not just for Leo. It works for any ING product.
+> That means you can build one agent architecture — and plug in as many data sources as you need. Monitoring data, HR systems, financial data, operational dashboards — all through the same plug.
 
-**[PAUSE — separate topic]**
+**[PAUSE — new topic]**
 
 > **Skills and Hooks — enterprise safety.**
 >
-> In banking, you need control over what the AI can and cannot do.
+> In a regulated environment, you need control over what the AI can and cannot do.
 >
-> **Skills** are reusable procedures — they tell the agent how to handle specific tasks. For example: "when giving financial advice, always add a disclaimer." Skills are stored as files. You can standardize agent behavior across the whole organization.
+> **Skills** are reusable procedures. They tell the agent *how* to handle specific tasks — step by step. "When giving financial advice, always add a disclaimer." "When accessing customer data, follow this process." Skills are stored as files in your repository. You standardize behavior across the whole organization.
 >
-> **Hooks** are policy enforcement — before the agent uses a tool, a hook can approve or deny it. After it acts, a hook logs what happened. Full audit trail.
+> **Hooks** are policy enforcement. Before the agent uses a tool, a hook can approve or deny it. After it acts, a hook logs what happened. Full audit trail. Full compliance control.
 >
-> For banking: hooks ensure the agent never accesses data it should not see. Skills ensure it follows compliance rules. And everything is logged and traceable.
+> In banking: hooks ensure the agent never accesses data it should not see. Skills ensure it follows regulatory rules. And every action is logged and traceable.
 >
-> These are not ideas for the future — they are part of the open standard we already used to build Leo.
+> These are not ideas for the future — they are part of the open standard today.
 
 ---
 

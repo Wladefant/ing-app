@@ -182,31 +182,30 @@ User message → Backend → AI model → decides tools → calls them → respo
 
 ---
 
-### Block C — Enterprise Implementation (3 min)
+### Block C — Enterprise AI: How a Large Company Can Use This (3 min)
 
-**Step 17 — How ING Would Add This**
-1. Show the layered diagram:
-```
-Existing ING App
-    └── Existing APIs
-            └── NEW: AI Layer
-                    └── NEW: Chat UI overlay
-```
-2. Three steps: chat overlay (one button), connect APIs (read only), existing confirmation flows
-3. Model-agnostic: swap OpenAI for self-hosted inside ING. No customer data leaves.
-4. Junior app = standalone, no banking connection
+**This block zooms out. No more app demo. No more Leo. Talk about the pattern for any large organization.**
 
-**Step 18 — MCP: Connecting to Any System**
-1. Explain MCP: *"Model Context Protocol. An open standard. Think of it as a universal plug."*
-2. Leo connects to banking data today. With MCP, same agent connects to monitoring, tickets, compliance — any internal system
-3. Key line: *"The agent pattern is not just for Leo. It works for any ING product."*
+**Step 17 — Implementation Pattern**
+1. Show the generic layered diagram:
+```
+Existing App → Existing APIs → NEW: AI Layer → NEW: Interface
+```
+2. Three steps: add interface, connect AI to existing APIs (read only), actions go through existing security
+3. Model is swappable — self-hosted in production, no data leaves your servers
+4. Key line: *"You do not rebuild. You add a layer on top."*
+
+**Step 18 — MCP: Universal Plug**
+1. Explain MCP: *"Model Context Protocol. Open standard. A universal plug for connecting AI to any system."*
+2. Monitoring, tickets, customer data, compliance, HR — all through the same standard interface
+3. Key line: *"One agent architecture. Plug in as many data sources as you need."*
 
 **Step 19 — Enterprise Safety: Skills + Hooks**
-1. Skills: reusable procedures — tell the agent how to handle specific tasks. Standardize behavior across the organization.
-2. Hooks: policy enforcement — approve/deny actions before they happen. Log everything. Full audit trail.
-3. Key line: *"In banking, every agent action is logged and controllable. That is built into the standard."*
+1. Skills: reusable procedures stored as files. Standardize agent behavior across the organization.
+2. Hooks: policy enforcement — approve/deny actions, log everything, full audit trail.
+3. Key line: *"In a regulated environment, every agent action is logged and controllable."*
 
-**This block is only about production deployment and enterprise concerns. Do not go back to how Leo works or how you coded it.**
+**This block is only about enterprise patterns. Do not reference the app, Leo, or the demo. Keep it general and organizational.**
 
 ---
 
