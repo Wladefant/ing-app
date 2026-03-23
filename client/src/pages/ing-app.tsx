@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { MobileLayout } from "@/components/ing/layout";
 import { WelcomeScreen } from "@/components/ing/screens/welcome";
 import { LoginScreen } from "@/components/ing/screens/login";
@@ -294,49 +294,49 @@ export function INGApp() {
     setChatMessages(prev => [...prev, response]);
   };
 
-  const coachingAlerts = [
-    { icon: "🏠", title: "Miete fällig in 3 Tagen", desc: "Kontostand niedriger als üblich — 2.101€ verfügbar", color: "text-orange-600", bg: "bg-orange-50" },
-    { icon: "🛵", title: "Lieferando 4x diese Woche", desc: "62€ für Lieferdienste — 40% mehr als letzte Woche", color: "text-red-600", bg: "bg-red-50" },
-    { icon: "🎯", title: "Sparziel erreicht!", desc: "Dein Notgroschen hat 3.000€ erreicht — 2 Wochen früher!", color: "text-green-600", bg: "bg-green-50" },
-  ];
+  // Proactive coaching — Leo sends notifications after a delay (desktop only)
+  const proactiveShownRef = useRef(false);
+  useEffect(() => {
+    if (proactiveShownRef.current) return;
+    if (currentScreen !== "dashboard" || userProfile !== "adult") return;
+    // Only show on desktop (md breakpoint = 768px)
+    if (window.innerWidth < 768) return;
+
+    proactiveShownRef.current = true;
+
+    const alerts = [
+      { delay: 3000, title: "🏠 Miete fällig in 3 Tagen", message: "Dein Kontostand ist niedriger als üblich — 2.101€ verfügbar. Soll ich die Überweisung vorbereiten?" },
+      { delay: 8000, title: "🛵 Lieferando 4x diese Woche", message: "62€ für Lieferdienste — 40% mehr als letzte Woche. Soll ich dir deine Ausgaben zeigen?" },
+      { delay: 14000, title: "🎯 Sparziel erreicht!", message: "Dein Notgroschen hat 3.000€ erreicht — 2 Wochen früher als geplant! Neues Ziel setzen?" },
+    ];
+
+    const timers = alerts.map(alert => setTimeout(() => {
+      toast({
+        title: (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
+              <img src={lionIcon} alt="Leo" className="w-5 h-5 object-contain" />
+            </div>
+            <span>{alert.title}</span>
+          </div>
+        ) as any,
+        description: alert.message,
+        action: (
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="bg-[#FF6200] text-white px-3 py-1 rounded-md text-xs font-bold"
+          >
+            Öffnen
+          </button>
+        ),
+        duration: 8000,
+      });
+    }, alert.delay));
+
+    return () => timers.forEach(clearTimeout);
+  }, [currentScreen, userProfile, toast]);
 
   return (
-    <>
-      {/* Proactive Coaching Panel — Desktop only, above the phone frame */}
-      <div className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-50 pointer-events-none">
-        <div className="pointer-events-auto">
-          <details className="group">
-            <summary className="cursor-pointer list-none flex items-center justify-center gap-2 bg-[#FF6200] text-white px-5 py-2.5 rounded-full shadow-lg mx-auto w-fit hover:bg-[#e55800] transition-colors">
-              <img src={lionIcon} alt="Leo" className="w-5 h-5 rounded-full" />
-              <span className="font-bold text-sm">Leo Coaching</span>
-              <span className="bg-white/20 text-[10px] font-bold px-2 py-0.5 rounded-full">{coachingAlerts.length}</span>
-              <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" /></svg>
-            </summary>
-            <div className="mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="p-3 space-y-2">
-                {coachingAlerts.map((alert, i) => (
-                  <button key={i} onClick={() => {
-                    if (i === 0) navigate("transfer");
-                    else if (i === 1) navigate("statistics");
-                    else navigate("savings");
-                  }}
-                    className={`w-full ${alert.bg} p-3 rounded-xl flex items-start gap-3 text-left hover:opacity-80 transition-opacity`}>
-                    <span className="text-xl">{alert.icon}</span>
-                    <div>
-                      <div className={`font-bold text-xs ${alert.color}`}>{alert.title}</div>
-                      <div className="text-[10px] text-gray-600 mt-0.5">{alert.desc}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div className="border-t border-gray-100 px-3 py-2 text-center">
-                <span className="text-[9px] text-gray-400">Proaktive Einblicke von Leo — deinem KI-Finanzcoach</span>
-              </div>
-            </div>
-          </details>
-        </div>
-      </div>
-
     <MobileLayout>
       {/* Demo Sidebar - Only visible on larger screens or via toggle */}
       <DemoSidebar
@@ -532,6 +532,5 @@ export function INGApp() {
         onComplete={handleBirthdayComplete}
       />
     </MobileLayout>
-    </>
   );
 }

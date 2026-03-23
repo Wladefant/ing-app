@@ -88,19 +88,9 @@ export function DemoSidebar({ onTriggerScenario, currentProfile, onToggleProfile
                         <span className="font-bold text-lg">AI Demo Center</span>
                     </div>
 
-                    <div className="mb-4 p-1 bg-gray-100 rounded-lg flex">
-                        <button
-                            onClick={() => onToggleProfile("adult")}
-                            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${currentProfile === "adult" ? "bg-white shadow-sm text-[#FF6200]" : "text-gray-500 hover:text-gray-700"}`}
-                        >
-                            🧑 Adult
-                        </button>
-                        <button
-                            onClick={() => onToggleProfile("junior")}
-                            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${currentProfile === "junior" ? "bg-white shadow-sm text-[#FF6200]" : "text-gray-500 hover:text-gray-700"}`}
-                        >
-                            🎮 Junior
-                        </button>
+                    <div className="mb-3 px-2 py-1.5 bg-gray-100 rounded-lg flex items-center justify-center gap-2">
+                        <span className="text-xs">{currentProfile === "adult" ? "🧑" : "🎮"}</span>
+                        <span className="text-xs font-bold text-gray-600">{currentProfile === "adult" ? "Adult Modus" : "Junior Modus"}</span>
                     </div>
 
                     <div className="text-xs text-gray-500 mb-3 font-medium">
