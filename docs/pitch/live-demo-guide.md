@@ -42,24 +42,27 @@
 2. Show real stocks with real prices (Apple, Tesla, Deutsche Bank)
 3. Buy a stock with virtual money
 4. Show portfolio view
-5. Open Leo → ask *"Why did Apple go down?"* or *"Should I invest in Tesla?"*
-6. Show AI analysis — news scanning, sector assessment
-7. Say: *"Real market data. Real analysis. Zero risk."*
+5. Click **"Leo fragen"** on a stock
+6. Show Leo opening with full AI analysis of that stock
+7. Ask a follow-up: *"Should I buy more?"* or *"What does this company do?"*
+8. Say: *"It is a conversation. She digs as deep as she wants. Leo explains at her level."*
 
-**Step 4 — Quiz + Achievements + Leaderboard (1.5 min)**
+**Step 4 — Quiz + Achievements + Leaderboard (1 min)**
 1. Start a quiz (AI-generated), answer 2-3 questions
 2. Show XP earned
 3. Flash badges briefly — *"13 badges, from Quiz-Starter to Finanz-Guru"*
 4. Show leaderboard — switch to weekly, all-time, **school** tab
 5. Mention: *"Weekly winner gets 25 euros added to their real account at 18"*
 
-**Step 5 — Live Quiz Battle (2 min) [OPTIONAL]**
+**Step 5 — Live Quiz Battle (2-3 min) [DO THIS]**
 1. Open Kahoot-style quiz host page
-2. Share join link / QR with audience
-3. Run 3-4 quick questions
-4. Show live leaderboard
+2. Share join link / QR code with the audience — *"You can join right now"*
+3. Wait for people to join (show participant count)
+4. Run 3-4 quick questions — let the room compete
+5. Show live leaderboard after each question
+6. Say: *"This is what makes financial education stick. It is not a lecture — it is a game."*
 
-> **FALLBACK**: Skip if WiFi unreliable or time short. Just show the screen.
+> **FALLBACK**: If WiFi fails, show the screen and describe: *"Everyone joins with their phone, competes in real time."*
 
 **Step 6 — Savings Goal + Voice (45 sec)**
 1. Show savings goal screen (laptop, 800€, progress bar)
@@ -140,40 +143,70 @@ Open Leo chat. Three scenarios:
 
 ## PART 6: TECH DEEP DIVE (8 min) — Vladimir
 
-**Step 14 — Vibe Coding (1.5 min)**
-1. Explain: no Figma → describe → build → test. Hours not weeks.
-2. Mention Claude Code as the AI coding agent
-3. Key line: *"Everything you saw is a running application. Not a design."*
+**Three separate blocks. Do not mix them. Finish one before starting the next.**
 
-**Step 15 — Agent vs Chatbot (1 min)**
-1. Key distinction: chatbot = text, agent = thinks + decides + acts
-2. Say: *"A chatbot is a search engine. An agent is an employee."*
+Vladimir opens with: *"I will cover three things — each one separate. How we built it. How the AI works. And how ING could use this."*
 
-**Step 16 — Architecture + Function Calling (2.5 min)**
-1. Show architecture diagram
-2. Walk through the flow: user → backend → AI → function calling → tools → widgets → frontend
-3. List the 10 tools
-4. Give concrete example: *"When Sofia asked about investments — the AI called get_portfolio_data, cross-referenced market news, and called show_stock_widget. Three tools, chained automatically."*
-5. Explain system prompts: same AI, different personality for junior vs adult
+---
 
-**Step 17 — MCP (1 min)**
-1. Explain MCP: *"Model Context Protocol — an open standard. A universal plug for connecting AI to any system."*
-2. Why it matters for ING: *"You have internal systems. With MCP, you connect them to an AI agent without rebuilding anything."*
-3. Each of Leo's tools follows this pattern — add a tool, agent uses it immediately
+### Block A — How We Built It (2 min)
 
-**Step 18 — Implementation at ING (1 min)**
+**Step 14 — Vibe Coding**
+1. Explain the concept: no Figma, no mockups. Describe → build → test. Hours not weeks.
+2. Mention Claude Code: *"An AI coding agent. You give it a task in plain language. It writes the code, runs tests, fixes problems."*
+3. Mention the stack: React 19, Node.js, PostgreSQL — standard tech
+4. Key line: *"Everything you saw is a running application. Not a design. Not a Figma file."*
+
+**Stay on this topic. Do not mention agents, function calling, or MCP here. This block is only about development process.**
+
+---
+
+### Block B — How Leo Works (3 min)
+
+**Step 15 — Chatbot vs Agent**
+1. Key distinction: chatbot = text in, text out. Agent = thinks, decides, acts.
+2. Say: *"A chatbot is like a search engine. An agent is like an employee — it understands what you need, gets the data, does the work, comes back with the result."*
+3. Connect to demo: *"Everything you saw — transfers, charts, coaching — the AI decided what to do. We did not program those flows."*
+
+**Step 16 — Architecture + Function Calling**
+1. Show architecture diagram:
+```
+User message → Backend → AI model → decides tools → calls them → response + widget → Frontend
+```
+2. Explain function calling: 10 tools defined, AI picks which to use
+3. Give the concrete example: *"Sofia asked about investments — AI called get_portfolio_data, checked market news, called show_stock_widget. Three tools, chained automatically."*
+4. List the 10 tools briefly
+5. Explain system prompts: same AI, same tools, different personality for junior vs adult
+
+**Stay on this topic. Do not mention MCP, implementation, or enterprise here. This block is only about how the AI inside Leo works.**
+
+---
+
+### Block C — Enterprise Implementation (3 min)
+
+**Step 17 — How ING Would Add This**
 1. Show the layered diagram:
 ```
-Existing ING App → Existing APIs → NEW: AI Layer → NEW: Chat UI
+Existing ING App
+    └── Existing APIs
+            └── NEW: AI Layer
+                    └── NEW: Chat UI overlay
 ```
-2. Three steps: chat overlay, connect APIs (read only), existing confirmation flows
-3. Model-agnostic: swap OpenAI for self-hosted, no customer data leaves ING
-4. Junior app = standalone, no banking connection needed
+2. Three steps: chat overlay (one button), connect APIs (read only), existing confirmation flows
+3. Model-agnostic: swap OpenAI for self-hosted inside ING. No customer data leaves.
+4. Junior app = standalone, no banking connection
 
-**Step 19 — Enterprise Safety: Skills + Hooks (1 min)**
-1. Skills: reusable procedures for how the agent does specific tasks
-2. Hooks: policy enforcement — approve/deny actions, audit logging
-3. Key line: *"In banking, every agent action is logged and controllable."*
+**Step 18 — MCP: Connecting to Any System**
+1. Explain MCP: *"Model Context Protocol. An open standard. Think of it as a universal plug."*
+2. Leo connects to banking data today. With MCP, same agent connects to monitoring, tickets, compliance — any internal system
+3. Key line: *"The agent pattern is not just for Leo. It works for any ING product."*
+
+**Step 19 — Enterprise Safety: Skills + Hooks**
+1. Skills: reusable procedures — tell the agent how to handle specific tasks. Standardize behavior across the organization.
+2. Hooks: policy enforcement — approve/deny actions before they happen. Log everything. Full audit trail.
+3. Key line: *"In banking, every agent action is logged and controllable. That is built into the standard."*
+
+**This block is only about production deployment and enterprise concerns. Do not go back to how Leo works or how you coded it.**
 
 ---
 
@@ -228,18 +261,21 @@ Simple and clear for German-speaking audience:
 | 0:00 | Problem & Vision (Berkay, Mateo, Sofia) |
 | 3:00 | Junior dashboard — dual system |
 | 4:00 | Salary & taxes |
-| 5:00 | Investment simulator |
+| 5:00 | Investment simulator + "Leo fragen" |
 | 6:30 | Quiz + leaderboard + achievements |
-| 8:00 | Live quiz battle (optional) OR savings + voice |
-| 9:30 | Birthday transition |
-| 10:00 | Adult dashboard — anomaly detection |
-| 11:30 | Proactive coaching |
-| 12:30 | Subscription manager |
-| 13:30 | AI chat widgets (transfer, spending, portfolio, voice) |
-| 16:00 | Stock deep dive |
-| 16:30 | Parent dashboard |
-| 18:00 | Legal & trust (Mateo, Berkay) |
-| 19:30 | Tech deep dive (Vladimir) |
-| 27:30 | Closing |
+| 7:30 | **Live quiz battle with audience** |
+| 10:00 | Savings + voice |
+| 10:30 | Birthday transition |
+| 11:00 | Adult dashboard — anomaly detection |
+| 12:30 | Proactive coaching |
+| 13:30 | Subscription manager |
+| 14:30 | AI chat widgets (transfer, spending, portfolio, voice) |
+| 17:00 | Stock deep dive |
+| 17:30 | Parent dashboard |
+| 19:00 | Legal & trust (Mateo, Berkay) |
+| 20:30 | **Block A** — Vibe coding (Vladimir) |
+| 22:30 | **Block B** — How Leo works: agents + function calling |
+| 25:30 | **Block C** — Enterprise: ING implementation, MCP, skills, hooks |
+| 28:30 | Closing |
 
-> Without live quiz: gain ~2 min buffer.
+> Without live quiz: gain ~2-3 min buffer.
