@@ -11,6 +11,7 @@ import { AIAgentSmartDemoPage } from "@/pages/ai-agent-smart-demo";
 import { AIAgentStockDemoPage } from "@/pages/ai-agent-stock-demo";
 import { PitchDemoVideo } from "@/pages/pitch-demo";
 import { KahootHostPage } from "@/pages/kahoot-host";
+import { KahootJoinPage } from "@/pages/kahoot-join";
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -31,7 +32,7 @@ function Router() {
       <Route path="/demo/ai-agent-stock" component={AIAgentStockDemoPage} />
       <Route path="/demo/pitch" component={PitchDemoVideo} />
       <Route path="/kahoot/host" component={KahootHostPage} />
-      {/* TODO Task 5: <Route path="/kahoot/join/:code?" component={KahootJoinPage} /> */}
+      <Route path="/kahoot/join/:code?" component={KahootJoinPage} />
       <Route>404 Page Not Found</Route>
     </Switch>
   );
