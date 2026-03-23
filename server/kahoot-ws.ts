@@ -206,13 +206,13 @@ function send(ws: WebSocket, data: Record<string, unknown>): void {
 
 function broadcastToRoom(room: Room, data: Record<string, unknown>): void {
   send(room.hostWs, data);
-  for (const player of room.players.values()) {
+  for (const player of Array.from(room.players.values())) {
     send(player.ws, data);
   }
 }
 
 function broadcastToPlayers(room: Room, data: Record<string, unknown>): void {
-  for (const player of room.players.values()) {
+  for (const player of Array.from(room.players.values())) {
     send(player.ws, data);
   }
 }
@@ -285,7 +285,7 @@ function endQuestion(room: Room): void {
     totalScore: number;
   }> = [];
 
-  for (const player of room.players.values()) {
+  for (const player of Array.from(room.players.values())) {
     const answer = room.answers.get(player.id);
     const correct = answer !== undefined && answer.answerIndex === question.correctIndex;
 
@@ -335,7 +335,7 @@ function endQuestion(room: Room): void {
   });
 
   // Send your_result to each player (their own result + leaderboard)
-  for (const player of room.players.values()) {
+  for (const player of Array.from(room.players.values())) {
     const myResult = results.find((r) => r.playerId === player.id);
     send(player.ws, {
       type: "your_result",
@@ -577,7 +577,7 @@ export function setupKahootWebSocket(server: Server): void {
 
   // ── Stale room cleanup (every 5 minutes) ──────────────────────────────
   setInterval(() => {
-    for (const [code, room] of rooms.entries()) {
+    for (const [code, room] of Array.from(rooms.entries())) {
       if (room.phase === "finished") {
         destroyRoom(code);
       }

@@ -5,7 +5,7 @@ type MessageHandler = (msg: Record<string, unknown>) => void;
 interface UseKahootSocketReturn {
   connected: boolean;
   send: (data: Record<string, unknown>) => void;
-  onMessage: (handler: MessageHandler) => void;
+  onMessage: (handler: MessageHandler) => () => void;
   disconnect: () => void;
 }
 
@@ -27,7 +27,7 @@ export function useKahootSocket(): UseKahootSocketReturn {
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        for (const handler of handlersRef.current) {
+        for (const handler of Array.from(handlersRef.current)) {
           handler(msg);
         }
       } catch {
