@@ -36,8 +36,8 @@ export function MobileLayout({ children, className }: LayoutProps) {
         </div>
       </div>
 
-      {/* Mobile: fullscreen, no frame */}
-      <div className="md:hidden min-h-screen w-full bg-[#F3F3F3] flex flex-col font-sans">
+      {/* Mobile: fullscreen, no frame, fixed to viewport height */}
+      <div className="md:hidden h-[100dvh] w-full bg-[#F3F3F3] flex flex-col font-sans overflow-hidden">
         {children}
       </div>
     </>
