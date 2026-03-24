@@ -333,7 +333,7 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
   return (
     <>
     {/* Desktop-only control buttons above the phone frame */}
-    <div className={`fixed top-3 left-1/2 -translate-x-1/2 z-50 gap-2 flex-wrap justify-center max-w-[700px] ${forceDesktop ? "flex" : "hidden md:flex"}`}>
+    <div className={`fixed top-3 left-0 right-0 z-50 gap-2 justify-start px-3 overflow-x-auto whitespace-nowrap scrollbar-hide ${forceDesktop ? "flex" : "hidden md:flex"}`} style={{ WebkitOverflowScrolling: "touch", msOverflowStyle: "none", scrollbarWidth: "none" }}>
       {/* Profile switching */}
       {userProfile === "junior" && (
         <>
