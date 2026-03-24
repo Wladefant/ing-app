@@ -325,19 +325,37 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
     <>
     {/* Desktop-only control buttons above the phone frame */}
     <div className="hidden md:flex fixed top-3 left-1/2 -translate-x-1/2 z-50 gap-2 flex-wrap justify-center max-w-[700px]">
-      {userProfile === "adult" && (
-        <button onClick={fireAllProactiveAlerts}
-          className="bg-[#FF6200] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#e55800] transition-colors flex items-center gap-1.5">
-          <img src={lionIcon} alt="Leo" className="w-4 h-4 rounded-full" />
-          Leo Coaching
-        </button>
-      )}
+      {/* Profile switching */}
       {userProfile === "junior" && (
-        <button onClick={() => handleTriggerScenario("junior_salary" as DemoScenarioId)}
-          className="bg-[#00C4CC] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#00b0b8] transition-colors">
-          💰 Gehalt
-        </button>
+        <>
+          <button onClick={() => { setShowBirthdayTransition(true); }}
+            className="bg-[#FF6200] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#e55800] transition-colors">
+            🎂 18. Geburtstag
+          </button>
+          <button onClick={() => { setUserProfile("adult"); setCurrentScreen("dashboard"); }}
+            className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            🧑 Adult
+          </button>
+          <button onClick={() => handleTriggerScenario("junior_salary" as DemoScenarioId)}
+            className="bg-[#00C4CC] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#00b0b8] transition-colors">
+            💰 Gehalt
+          </button>
+        </>
       )}
+      {userProfile === "adult" && (
+        <>
+          <button onClick={fireAllProactiveAlerts}
+            className="bg-[#FF6200] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#e55800] transition-colors flex items-center gap-1.5">
+            <img src={lionIcon} alt="Leo" className="w-4 h-4 rounded-full" />
+            Leo Coaching
+          </button>
+          <button onClick={() => { setUserProfile("junior"); setCurrentScreen("dashboard"); }}
+            className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            🎮 Junior
+          </button>
+        </>
+      )}
+      {/* Demo links */}
       <a href="/demo/parent" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         👪 Eltern
       </a>
@@ -349,9 +367,6 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
       </a>
       <a href="/quiz" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         ⚡ Live Quiz
-      </a>
-      <a href="/kahoot/host" target="_blank" className="bg-[#33307E] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#282668] transition-colors">
-        🖥️ Quiz Host
       </a>
     </div>
 
@@ -536,13 +551,7 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
         pendingWidgets={pendingWidgets}
       />
 
-      {/* Profile Switcher Bar */}
-      {currentScreen !== "welcome" && currentScreen !== "login" && currentScreen !== "setup" && (
-        <ProfileSwitcherBar
-          currentProfile={userProfile}
-          onSwitch={handleProfileSwitch}
-        />
-      )}
+      {/* Profile switching moved to desktop buttons above the frame */}
 
       {/* Birthday Transition Overlay */}
       <BirthdayTransitionOverlay
