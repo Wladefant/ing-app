@@ -184,26 +184,28 @@ User message → Backend → AI model → decides tools → calls them → respo
 
 ### Block C — How ING Can Develop Software This Fast (3 min)
 
-**This block is NOT about the app or Leo. It is about how ING's own development teams can use AI coding agents to build faster.**
+**This block is NOT about the app or Leo. It is about how ING's development teams can build faster using AI.**
 
-**Step 17 — The Agentic Development Cycle**
-1. Explain the flow: Issue → AI coding agent picks it up → writes code → runs tests → opens PR → human reviews → agent iterates → merge
-2. Mention GitHub Copilot coding agents — built into GitHub today
-3. Multiple AI engines: Copilot, Claude, Codex — can run in parallel on the same task
-4. Key line: *"From issue to reviewed PR — without a developer writing a single line manually. The developer reviews and guides. The agent writes and iterates."*
+**Step 17 — AI Coding Agents** *(show slide 21)*
+1. Explain simply: someone describes a task → AI agent writes the code → runs tests → delivers result → human reviews
+2. No jargon. Avoid "PR", "merge", "issue" — say "task", "code change", "review"
+3. Multiple AI engines: Copilot, Claude, Codex — can run in parallel
+4. Key line: *"The developer reviews and guides. The AI does the writing."*
 
-**Step 18 — Enterprise Controls: Instructions, Skills, MCP, Hooks**
-1. **Custom Instructions** — coding standards, test requirements, security policies per repo. Agent reads and follows them.
-2. **Skills** — reusable step-by-step procedures. "When a test fails: reproduce, diagnose, fix, add regression test." Stored as files. Organization-wide standards.
-3. **MCP** — universal plug connecting the agent to internal tools. Monitoring, error trackers, deployment pipelines. Same standard interface for any system.
-4. **Hooks** — policy enforcement. Approve/deny actions. Full audit trail. Every agent action is controllable and traceable.
+**Step 18 — Enterprise Controls** *(show slide 22)*
+1. Walk through the four boxes — one sentence each:
+   - **Custom Instructions** — your company's rules. AI follows them automatically.
+   - **Skills** — step-by-step recipes. Write once, AI follows every time.
+   - **MCP** — universal plug to connect any internal tool.
+   - **Hooks** — safety rules + full log of every action.
+2. Key line: *"In banking, everything the AI does is controlled and traceable."*
 
-**Step 19 — Concrete Examples for ING**
-1. Example 1: *"Developer creates an issue — 'add a spending category.' Agent writes code, runs tests, opens a PR. Senior dev reviews in 10 minutes."*
-2. Example 2: *"Test fails at 2 AM. Workflow assigns it to the agent. By morning, a fix is ready for review."*
-3. Key line: *"We built this app using exactly this approach. The tools exist today. The question is how fast ING wants to start."*
+**Step 19 — What This Means for ING** *(show slide 23)*
+1. Example: *"Morning: someone describes a task. Afternoon: AI delivers working code. Senior developer reviews in 10 minutes."*
+2. Example: *"Test fails at 2 AM. AI fixes it overnight. Ready for review by morning."*
+3. Key line: *"We built this app using exactly this approach. The tools exist today."*
 
-**Do NOT reference Leo, the demo, or the app in this block. This is about ING's development process.**
+**Keep it simple. No developer jargon. These are managers.**
 
 ---
 

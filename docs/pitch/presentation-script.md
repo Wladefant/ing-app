@@ -438,57 +438,56 @@ User sends a message
 
 ### Block C — How ING Can Develop Software This Fast (3 min)
 
-> Now I want to talk about something different — not the app, but **how we built it**. And how ING can develop software the same way.
+> Now I want to talk about something different — not the app, but **how we built it**. And how ING can work the same way.
 >
-> We showed you what vibe coding looks like from our side. But this is not just a trick for students. This is becoming **the standard way large companies build software**.
+> This is not just a trick for students. This is becoming **the standard way large companies build software**.
 
 **[PAUSE]**
 
-> **The Agentic Development Cycle.**
+> **AI Coding Agents.**
 >
-> Today, GitHub — the platform most developers use — has built AI coding agents directly into the development workflow.
+> Today, platforms like GitHub have AI agents built directly into the development process.
 >
-> Here is how it works:
+> Here is the idea:
 
 ```
-1. Someone creates an Issue — "Build feature X" or "Fix bug Y"
-2. The issue gets assigned to an AI coding agent
-3. The agent reads the codebase, writes the code, runs the tests
-4. It opens a Pull Request — a code change ready for review
-5. A human reviews the PR, leaves comments
-6. The agent reads the comments, makes changes, updates the PR
-7. Automated tests run — if they pass, it gets merged
+1. Someone describes a task — "Build feature X" or "Fix bug Y"
+2. An AI coding agent picks it up
+3. The agent reads the existing code, writes new code, runs the tests
+4. It delivers a finished change — ready for a human to review
+5. The human gives feedback — the agent adjusts
+6. When everything looks good — it goes live
 ```
 
-> The whole cycle — from issue to working code to reviewed PR — can happen without a developer writing a single line manually. The developer **reviews and guides**, the agent **writes and iterates**.
+> The developer does not write every line by hand anymore. The developer **reviews, guides, and makes decisions**. The agent **does the writing**.
 >
-> And it is not just one agent. GitHub supports **multiple AI engines** — Copilot, Claude, Codex — working on the same codebase. You can even run them in parallel on the same task and compare which solution is better.
+> And it is not just one AI. You can use **multiple AI engines** — Copilot, Claude, Codex — working on the same project. Even run them in parallel on the same task and pick the best result.
 
 **[PAUSE — new topic]**
 
-> **How do you control this in a large company?**
+> **How do you keep this safe and controlled in a large company?**
 >
 > Four building blocks:
 >
-> **Custom Instructions** — you write rules for your repository. Coding standards, testing requirements, security policies. The agent reads them and follows them. Every repo can have its own rules. You can even scope rules to specific file types — "for frontend code, follow these patterns. For backend code, follow these."
+> **Custom Instructions** — you write your company's rules in a file. Coding standards, testing requirements, security policies. The AI reads them and follows them automatically. Every project can have its own rules.
 >
-> **Skills** — reusable procedures. Step-by-step instructions for how the agent should handle specific tasks. "When a test fails, reproduce it, diagnose the root cause, fix it, add a regression test." Skills are stored as files in the repository. You standardize agent behavior across the entire organization.
+> **Skills** — step-by-step recipes for common tasks. "When a test fails: find the cause, fix it, add a new test so it does not happen again." You write it once, the AI follows it every time. You standardize how work gets done across the whole organization.
 >
-> **MCP — Model Context Protocol** — this is how the agent connects to your internal tools. Your monitoring system, your error tracker, your deployment pipeline. MCP is a universal plug — same standard interface for any system. The agent can read data from Sentry, check deployment status, pull ticket information — all through MCP.
+> **MCP — Model Context Protocol** — a universal plug that connects the AI to your internal tools. Your monitoring system, your error tracker, your project management. One standard connection — works with any system.
 >
-> **Hooks** — policy enforcement. Before the agent uses a tool, a hook can approve or deny it. After it acts, a hook logs what happened. Full audit trail. In a regulated environment like banking, this means: every action the agent takes is controllable and traceable.
+> **Hooks** — safety rules. Before the AI does something, a hook can allow or block it. After it acts, a hook records what happened. Full log of every action. In banking, this means: everything the AI does is controlled and traceable.
 
 **[PAUSE — new topic]**
 
 > **What this means for ING.**
 >
-> Imagine this: a developer creates an issue — "Add a new spending category to the dashboard." The coding agent picks it up, reads your custom instructions, writes the code following your standards, runs the tests, opens a PR. A senior developer reviews it in 10 minutes. Done.
+> Imagine: someone describes a task — "Add a new spending category to the dashboard." The AI agent picks it up, follows your company's standards, writes the code, runs the tests, delivers the result. A senior developer reviews it in 10 minutes. Done.
 >
-> Or: an automated test fails at 2 AM. A workflow creates an issue, assigns it to the agent. The agent reads the error, diagnoses the problem, writes a fix, opens a PR. By morning, the fix is ready for review.
+> Or: a test fails at 2 AM. The system detects it, assigns it to the AI agent. The agent finds the problem, writes a fix. By morning, the fix is ready for review.
 >
-> This is not science fiction. This is what GitHub Copilot coding agents do today. The tools exist. The standards are open. And it works with any tech stack — including what ING already uses.
+> This is not science fiction. These tools exist today — GitHub Copilot, Claude Code, Codex. The standards are open. And it works with any technology — including what ING already uses.
 >
-> We built this app using exactly this approach. The question for ING is not whether this works — you can see that it does. The question is how fast you want to start.
+> We built this entire app using exactly this approach. The question for ING is not whether it works — you saw that it does. The question is how fast you want to start.
 
 ---
 
