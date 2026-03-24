@@ -155,6 +155,7 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
         show_achievement: "achievement",
         show_savings_goal: "savings_goal",
         show_spending_chart: "spending_chart",
+        get_portfolio_data: "portfolio",
       };
       if (widgetTypeMap[firstWidget.action]) {
         response.widgetType = widgetTypeMap[firstWidget.action] as any;
@@ -282,6 +283,7 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
         show_achievement: "achievement",
         show_savings_goal: "savings_goal",
         show_spending_chart: "spending_chart",
+        get_portfolio_data: "portfolio",
       };
 
       if (widgetTypeMap[firstWidget.action]) {

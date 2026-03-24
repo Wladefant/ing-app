@@ -433,11 +433,15 @@ function SavingsGoalWidget({ goalName, targetAmount, currentAmount, weeksRemaini
 }
 
 // Spending Chart Widget Component
-function PortfolioWidget({ holdings, totalValue, totalGain }: { holdings?: Array<{ symbol: string; name: string; shares: number; currentPrice: number; avgPrice: number }>; totalValue?: number; totalGain?: number }) {
-    const items = holdings || [];
-    const total = totalValue || items.reduce((s, h) => s + h.shares * h.currentPrice, 0);
-    const gain = totalGain || items.reduce((s, h) => s + h.shares * (h.currentPrice - h.avgPrice), 0);
-    const gainPercent = total > 0 ? ((gain / (total - gain)) * 100) : 0;
+function PortfolioWidget({ holdings, totalValue, totalGain }: { holdings?: Array<Record<string, unknown>>; totalValue?: number; totalGain?: number }) {
+    const items = (holdings || []) as Array<{ symbol: string; name: string; shares: number; value?: number; change?: number; currentPrice?: number; avgPrice?: number }>;
+    const total = totalValue || items.reduce((s, h) => s + (h.value || h.shares * (h.currentPrice || 0)), 0);
+    const gain = totalGain || items.reduce((s, h) => {
+        if (h.value && h.change) return s + h.value * (h.change / 100);
+        if (h.currentPrice && h.avgPrice) return s + h.shares * (h.currentPrice - h.avgPrice);
+        return s;
+    }, 0);
+    const gainPercent = total > 0 ? ((gain / Math.max(total - gain, 1)) * 100) : 0;
 
     return (
         <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
@@ -459,8 +463,8 @@ function PortfolioWidget({ holdings, totalValue, totalGain }: { holdings?: Array
             {items.length > 0 && (
                 <div className="space-y-1.5">
                     {items.slice(0, 5).map((h, i) => {
-                        const value = h.shares * h.currentPrice;
-                        const itemGain = h.shares * (h.currentPrice - h.avgPrice);
+                        const itemValue = h.value || h.shares * (h.currentPrice || 0);
+                        const itemGain = h.value && h.change ? h.value * (h.change / 100) : h.currentPrice && h.avgPrice ? h.shares * (h.currentPrice - h.avgPrice) : 0;
                         return (
                             <div key={i} className="flex items-center justify-between bg-white/60 rounded-lg px-2.5 py-1.5">
                                 <div>
@@ -468,7 +472,7 @@ function PortfolioWidget({ holdings, totalValue, totalGain }: { holdings?: Array
                                     <span className="text-[9px] text-gray-400 ml-1">{h.shares}x</span>
                                 </div>
                                 <div className="text-right">
-                                    <span className="font-bold text-xs">€{value.toFixed(0)}</span>
+                                    <span className="font-bold text-xs">€{itemValue.toFixed(0)}</span>
                                     <span className={`text-[9px] ml-1 ${itemGain >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                         {itemGain >= 0 ? '+' : ''}{itemGain.toFixed(0)}€
                                     </span>
@@ -928,6 +932,8 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                 return <SavingsGoalWidget {...msg.widgetData} />;
             case "spending_chart":
                 return <SpendingChartWidget {...msg.widgetData} />;
+            case "portfolio":
+                return <PortfolioWidget holdings={msg.widgetData?.holdings} totalValue={msg.widgetData?.totalValue} totalGain={msg.widgetData?.totalGain} />;
             default:
                 return null;
         }
