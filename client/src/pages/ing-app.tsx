@@ -59,11 +59,11 @@ export type Screen =
 
 import { sendMessageToOpenAI, WidgetAction } from "@/lib/openai";
 
-export function INGApp() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
+export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "adult" | "junior"; initialScreen?: Screen }) {
+  const [currentScreen, setCurrentScreen] = useState<Screen>(initialScreen || "dashboard");
   const [selectedAccount, setSelectedAccount] = useState<string>("Girokonto");
   const [selectedStock, setSelectedStock] = useState<string>("ING");
-  const [userProfile, setUserProfile] = useState<"adult" | "junior">("junior");
+  const [userProfile, setUserProfile] = useState<"adult" | "junior">(initialProfile || "junior");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // New state for typing indicator
   const [activeScenarioContext, setActiveScenarioContext] = useState<string | undefined>(undefined); // New state for context
@@ -294,49 +294,67 @@ export function INGApp() {
     setChatMessages(prev => [...prev, response]);
   };
 
-  // Proactive coaching — Leo sends notifications after a delay (desktop only)
-  const proactiveShownRef = useRef(false);
-  useEffect(() => {
-    if (proactiveShownRef.current) return;
-    if (currentScreen !== "dashboard" || userProfile !== "adult") return;
-    // Only show on desktop (md breakpoint = 768px)
-    if (window.innerWidth < 768) return;
-
-    proactiveShownRef.current = true;
-
-    const alerts = [
-      { delay: 3000, title: "🏠 Miete fällig in 3 Tagen", message: "Dein Kontostand ist niedriger als üblich — 2.101€ verfügbar. Soll ich die Überweisung vorbereiten?" },
-      { delay: 8000, title: "🛵 Lieferando 4x diese Woche", message: "62€ für Lieferdienste — 40% mehr als letzte Woche. Soll ich dir deine Ausgaben zeigen?" },
-      { delay: 14000, title: "🎯 Sparziel erreicht!", message: "Dein Notgroschen hat 3.000€ erreicht — 2 Wochen früher als geplant! Neues Ziel setzen?" },
-    ];
-
-    const timers = alerts.map(alert => setTimeout(() => {
-      toast({
-        title: (
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
-              <img src={lionIcon} alt="Leo" className="w-5 h-5 object-contain" />
-            </div>
-            <span>{alert.title}</span>
+  // Fire proactive Leo notification
+  const fireProactiveNotification = useCallback((title: string, message: string) => {
+    toast({
+      title: (
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center overflow-hidden">
+            <img src={lionIcon} alt="Leo" className="w-5 h-5 object-contain" />
           </div>
-        ) as any,
-        description: alert.message,
-        action: (
-          <button
-            onClick={() => setIsChatOpen(true)}
-            className="bg-[#FF6200] text-white px-3 py-1 rounded-md text-xs font-bold"
-          >
-            Öffnen
-          </button>
-        ),
-        duration: 8000,
-      });
-    }, alert.delay));
+          <span>{title}</span>
+        </div>
+      ) as any,
+      description: message,
+      action: (
+        <button onClick={() => setIsChatOpen(true)} className="bg-[#FF6200] text-white px-3 py-1 rounded-md text-xs font-bold">
+          Öffnen
+        </button>
+      ),
+      duration: 8000,
+    });
+  }, [toast]);
 
-    return () => timers.forEach(clearTimeout);
-  }, [currentScreen, userProfile, toast]);
+  const fireAllProactiveAlerts = useCallback(() => {
+    fireProactiveNotification("🏠 Miete fällig in 3 Tagen", "Kontostand niedriger als üblich — 2.101€ verfügbar.");
+    setTimeout(() => fireProactiveNotification("🛵 Lieferando 4x diese Woche", "62€ für Lieferdienste — 40% mehr als letzte Woche."), 3000);
+    setTimeout(() => fireProactiveNotification("🎯 Sparziel erreicht!", "Dein Notgroschen hat 3.000€ — 2 Wochen früher!"), 6000);
+  }, [fireProactiveNotification]);
 
   return (
+    <>
+    {/* Desktop-only control buttons above the phone frame */}
+    <div className="hidden md:flex fixed top-3 left-1/2 -translate-x-1/2 z-50 gap-2 flex-wrap justify-center max-w-[700px]">
+      {userProfile === "adult" && (
+        <button onClick={fireAllProactiveAlerts}
+          className="bg-[#FF6200] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#e55800] transition-colors flex items-center gap-1.5">
+          <img src={lionIcon} alt="Leo" className="w-4 h-4 rounded-full" />
+          Leo Coaching
+        </button>
+      )}
+      {userProfile === "junior" && (
+        <button onClick={() => handleTriggerScenario("junior_salary" as DemoScenarioId)}
+          className="bg-[#00C4CC] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#00b0b8] transition-colors">
+          💰 Gehalt
+        </button>
+      )}
+      <a href="/demo/parent" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+        👪 Eltern
+      </a>
+      <a href="/demo/friction" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+        🔒 Friction
+      </a>
+      <a href="/demo/ukrainian" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+        🇺🇦 Ukrainian
+      </a>
+      <a href="/quiz" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+        ⚡ Live Quiz
+      </a>
+      <a href="/kahoot/host" target="_blank" className="bg-[#33307E] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#282668] transition-colors">
+        🖥️ Quiz Host
+      </a>
+    </div>
+
     <MobileLayout>
       {/* Demo Sidebar - Only visible on larger screens or via toggle */}
       <DemoSidebar
@@ -532,5 +550,6 @@ export function INGApp() {
         onComplete={handleBirthdayComplete}
       />
     </MobileLayout>
+    </>
   );
 }

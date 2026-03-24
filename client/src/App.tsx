@@ -16,10 +16,18 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 
+function DefaultApp() { return <INGApp />; }
+function AdultApp() { return <INGApp initialProfile="adult" />; }
+function JuniorApp() { return <INGApp initialProfile="junior" />; }
+function QuizApp() { return <INGApp initialProfile="junior" initialScreen="kahoot" />; }
+
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={INGApp} />
+      <Route path="/" component={DefaultApp} />
+      <Route path="/adult" component={AdultApp} />
+      <Route path="/junior" component={JuniorApp} />
+      <Route path="/quiz" component={QuizApp} />
       <Route path="/demo/ukrainian" component={UkrainianDemoPage} />
       <Route path="/demo/accessibility" component={AccessibilityDemoPage} />
       <Route path="/demo/parent" component={ParentDashboardDemoPage} />

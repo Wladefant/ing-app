@@ -233,13 +233,16 @@ const USER_DATA = {
 // Function to execute agent tools
 function executeAgentTool(toolName: string, args: any): any {
   switch (toolName) {
-    case "get_portfolio_data":
-      return {
+    case "get_portfolio_data": {
+      const portfolioData = {
         totalValue: USER_DATA.accounts.depot.value,
         holdings: USER_DATA.accounts.depot.holdings,
         todayChange: "+€45.20 (+0.36%)",
         yearChange: "+€1,560 (+14.0%)"
       };
+      // Return both the data for AI context AND an action to show the widget
+      return { action: "get_portfolio_data", data: portfolioData, ...portfolioData };
+    }
     
     case "get_account_balance":
       return {
@@ -292,7 +295,7 @@ Du MUSST die verfügbaren Tools nutzen wenn sie zur Anfrage passen:
 1. Wenn der Nutzer nach einer AKTIE fragt → IMMER show_stock_widget aufrufen
 2. Wenn der Nutzer ÜBERWEISEN will → IMMER show_transfer_widget aufrufen
 3. Wenn der Nutzer ein QUIZ will → IMMER start_quiz aufrufen
-4. Wenn der Nutzer sein PORTFOLIO sehen will → get_portfolio_data aufrufen, dann show_stock_widget
+4. Wenn der Nutzer sein PORTFOLIO sehen will → get_portfolio_data aufrufen (das Widget wird automatisch angezeigt)
 5. Wenn der Nutzer KONTOSTAND fragt → get_account_balance aufrufen
 6. Wenn der Nutzer SPARZIELE besprechen will → show_savings_goal aufrufen
 7. Wenn der Nutzer AUSGABEN analysieren will → show_spending_chart aufrufen
@@ -308,7 +311,9 @@ Du MUSST die verfügbaren Tools nutzen wenn sie zur Anfrage passen:
 - Nutze IMMER die passenden Tools - verweise NICHT auf die App!
 - Du HAST Zugriff auf alle Daten - behaupte NICHT, du hättest keinen Zugriff
 - Bei Aktien-Fragen: Zeige IMMER das Widget mit dem Kurs
-- Halte Antworten prägnant (max 100 Wörter)
+- Halte Antworten KURZ und prägnant (max 3-4 Sätze, NIEMALS mehr als 80 Wörter)
+- Bei Portfolio-Fragen: Fasse die Performance in 2-3 Sätzen zusammen. KEIN langer Markdown. Das Widget zeigt die Details.
+- Verwende KEINE Markdown-Überschriften (##) oder Code-Blöcke in normalen Antworten
 
 **Aktueller Nutzer-Kontext:**
 - Name: ${USER_DATA.profile.name}

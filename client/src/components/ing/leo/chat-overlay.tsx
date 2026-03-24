@@ -5,6 +5,7 @@ import { ChatMessage } from "@/lib/demo-scenarios";
 import { WidgetAction, generateQuizQuestions as generateQuizQuestionsAPI } from "@/lib/openai";
 import lionIcon from "@/assets/lion-logo.png";
 import ReactMarkdown from 'react-markdown';
+import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer } from "recharts";
 
 // Quiz Question interface
 interface QuizQuestion {
@@ -77,38 +78,67 @@ function StockWidget({ symbol, price, change, analysis }: { symbol: string; pric
 
 // Transfer Widget Component
 function TransferWidget({ recipient, amount, reference }: { recipient: string; amount: number; reference?: string }) {
-    const [isSent, setIsSent] = useState(false);
+    const [step, setStep] = useState<"review" | "confirm" | "sent">("review");
+    // Generate a fake IBAN based on recipient name
+    const iban = `DE89 3704 0044 ${Math.abs(recipient.charCodeAt(0) * 100 + recipient.charCodeAt(1) * 10).toString().padStart(4, '0')} ${Math.floor(Math.random() * 9000 + 1000)} 00`;
+    const altRecipient = recipient.includes("Ben") ? "Benjamin Müller" : recipient.includes("Max") ? "Maximilian Weber" : null;
 
-    if (isSent) {
+    if (step === "sent") {
         return (
             <div className="bg-green-50 rounded-xl p-4 border border-green-200 text-center">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <Check size={24} className="text-green-600" />
                 </div>
-                <div className="font-bold text-green-700">Überweisung geplant!</div>
-                <div className="text-sm text-green-600">€{amount} an {recipient}</div>
+                <div className="font-bold text-green-700">Überweisung ausgeführt!</div>
+                <div className="text-sm text-green-600">€{amount.toFixed(2)} an {recipient}</div>
+                <div className="text-[10px] text-green-500 mt-1">IBAN: {iban}</div>
+            </div>
+        );
+    }
+
+    if (step === "confirm") {
+        return (
+            <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-200">
+                <div className="text-center mb-3">
+                    <div className="font-bold text-gray-800 text-sm">Überweisung bestätigen</div>
+                    <div className="text-[10px] text-gray-500">Bitte überprüfe die Daten</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 space-y-2 mb-3 text-xs">
+                    <div className="flex justify-between"><span className="text-gray-500">Empfänger</span><span className="font-bold">{recipient}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">IBAN</span><span className="font-mono text-[10px]">{iban}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Betrag</span><span className="font-bold text-[#FF6200]">€{amount.toFixed(2)}</span></div>
+                    {reference && <div className="flex justify-between"><span className="text-gray-500">Verwendung</span><span className="font-bold">{reference}</span></div>}
+                </div>
+                <button onClick={() => setStep("sent")}
+                    className="w-full bg-[#FF6200] text-white py-3 rounded-xl font-bold hover:bg-[#e55800] transition-colors flex items-center justify-center gap-2">
+                    <Send size={16} /> Jetzt senden
+                </button>
             </div>
         );
     }
 
     return (
         <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-200">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center text-violet-600 font-bold">
                     {recipient.charAt(0)}
                 </div>
                 <div>
                     <div className="font-bold text-gray-800">{recipient}</div>
-                    {reference && <div className="text-xs text-gray-500">{reference}</div>}
+                    <div className="text-[10px] text-gray-400 font-mono">{iban}</div>
+                    {reference && <div className="text-[10px] text-gray-500">{reference}</div>}
                 </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-3">€{amount.toFixed(2)}</div>
-            <button
-                onClick={() => setIsSent(true)}
-                className="w-full bg-violet-600 text-white py-3 rounded-xl font-bold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
-            >
-                <Send size={16} />
-                Jetzt senden
+            {altRecipient && (
+                <div className="bg-violet-100/50 rounded-lg p-2 mb-2 flex items-center gap-2">
+                    <span className="text-[10px] text-violet-600">Meintest du <strong>{altRecipient}</strong>?</span>
+                    <button className="text-[9px] bg-white text-violet-600 px-2 py-0.5 rounded font-bold border border-violet-200">Wechseln</button>
+                </div>
+            )}
+            <div className="text-2xl font-bold text-gray-900 mb-3">€{amount.toFixed(2)}</div>
+            <button onClick={() => setStep("confirm")}
+                className="w-full bg-violet-600 text-white py-3 rounded-xl font-bold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2">
+                <ArrowRight size={16} /> Weiter
             </button>
         </div>
     );
@@ -403,36 +433,100 @@ function SavingsGoalWidget({ goalName, targetAmount, currentAmount, weeksRemaini
 }
 
 // Spending Chart Widget Component
+function PortfolioWidget({ holdings, totalValue, totalGain }: { holdings?: Array<{ symbol: string; name: string; shares: number; currentPrice: number; avgPrice: number }>; totalValue?: number; totalGain?: number }) {
+    const items = holdings || [];
+    const total = totalValue || items.reduce((s, h) => s + h.shares * h.currentPrice, 0);
+    const gain = totalGain || items.reduce((s, h) => s + h.shares * (h.currentPrice - h.avgPrice), 0);
+    const gainPercent = total > 0 ? ((gain / (total - gain)) * 100) : 0;
+
+    return (
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <TrendingUp size={16} className="text-emerald-600" />
+                </div>
+                <div>
+                    <div className="font-bold text-gray-800 text-sm">Dein Portfolio</div>
+                    <div className="text-[10px] text-gray-500">{items.length} Positionen</div>
+                </div>
+                <div className="ml-auto text-right">
+                    <div className="font-bold text-gray-900">€{total.toFixed(0)}</div>
+                    <div className={`text-[10px] font-bold ${gain >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {gain >= 0 ? '+' : ''}{gain.toFixed(0)}€ ({gainPercent.toFixed(1)}%)
+                    </div>
+                </div>
+            </div>
+            {items.length > 0 && (
+                <div className="space-y-1.5">
+                    {items.slice(0, 5).map((h, i) => {
+                        const value = h.shares * h.currentPrice;
+                        const itemGain = h.shares * (h.currentPrice - h.avgPrice);
+                        return (
+                            <div key={i} className="flex items-center justify-between bg-white/60 rounded-lg px-2.5 py-1.5">
+                                <div>
+                                    <span className="font-bold text-xs text-gray-800">{h.symbol}</span>
+                                    <span className="text-[9px] text-gray-400 ml-1">{h.shares}x</span>
+                                </div>
+                                <div className="text-right">
+                                    <span className="font-bold text-xs">€{value.toFixed(0)}</span>
+                                    <span className={`text-[9px] ml-1 ${itemGain >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                        {itemGain >= 0 ? '+' : ''}{itemGain.toFixed(0)}€
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
+const PIE_COLORS = ["#FF6200", "#00A4CC", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"];
+
 function SpendingChartWidget({ category, amount, percentChange, breakdown }: { category: string; amount: number; percentChange?: number; breakdown?: Array<{ name: string; amount: number }> }) {
     const isUp = (percentChange || 0) > 0;
+    const pieData = breakdown?.map(b => ({ name: b.name, value: b.amount })) || [];
 
     return (
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <PieChart size={20} className="text-blue-600" />
+            <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <PieChart size={16} className="text-blue-600" />
                 </div>
                 <div>
-                    <div className="font-bold text-gray-800">{category}</div>
-                    <div className="text-xs text-gray-500">Ausgabenanalyse</div>
+                    <div className="font-bold text-gray-800 text-sm">{category}</div>
+                    <div className="text-[10px] text-gray-500">Ausgabenanalyse</div>
+                </div>
+                <div className="ml-auto text-right">
+                    <span className="text-lg font-bold text-gray-900">€{amount.toFixed(0)}</span>
+                    {percentChange !== undefined && (
+                        <span className={`block text-[10px] font-medium ${isUp ? 'text-red-500' : 'text-green-500'}`}>
+                            {isUp ? '↑' : '↓'} {Math.abs(percentChange)}%
+                        </span>
+                    )}
                 </div>
             </div>
-            <div className="flex items-end gap-2 mb-3">
-                <span className="text-2xl font-bold text-gray-900">€{amount.toFixed(2)}</span>
-                {percentChange !== undefined && (
-                    <span className={`text-sm font-medium ${isUp ? 'text-red-500' : 'text-green-500'}`}>
-                        {isUp ? '↑' : '↓'} {Math.abs(percentChange)}%
-                    </span>
-                )}
-            </div>
-            {breakdown && breakdown.length > 0 && (
-                <div className="space-y-2">
-                    {breakdown.slice(0, 3).map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                            <span className="text-gray-600">{item.name}</span>
-                            <span className="font-medium text-gray-800">€{item.amount.toFixed(2)}</span>
-                        </div>
-                    ))}
+            {pieData.length > 0 && (
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="w-24 h-24 shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <RechartsPie>
+                                <Pie data={pieData} innerRadius={20} outerRadius={36} paddingAngle={3} dataKey="value">
+                                    {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                                </Pie>
+                            </RechartsPie>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                        {breakdown?.slice(0, 5).map((item, i) => (
+                            <div key={i} className="flex items-center gap-1.5 text-[11px]">
+                                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                                <span className="text-gray-600 truncate">{item.name}</span>
+                                <span className="font-bold ml-auto">€{item.amount.toFixed(0)}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
@@ -855,6 +949,8 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                 return <SavingsGoalWidget goalName={widget.data.goalName} targetAmount={widget.data.targetAmount} currentAmount={widget.data.currentAmount} weeksRemaining={widget.data.weeksRemaining} />;
             case "show_spending_chart":
                 return <SpendingChartWidget category={widget.data.category} amount={widget.data.amount} percentChange={widget.data.percentChange} breakdown={widget.data.breakdown} />;
+            case "get_portfolio_data":
+                return <PortfolioWidget holdings={widget.data.holdings} totalValue={widget.data.totalValue} totalGain={widget.data.totalGain} />;
             case "navigate_to_screen":
                 // Show a navigation button
                 return (
@@ -971,6 +1067,7 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                                 >
                                                     {msg.sender === "leo" ? (
                                                         <div className="prose prose-sm max-w-none prose-p:my-1 prose-strong:text-[#FF6200] prose-ul:my-1 prose-li:my-0">
+                                                            <div className="max-h-[300px] overflow-y-auto">
                                                             <ReactMarkdown
                                                                 components={{
                                                                     p: ({ children }) => <p className="my-1">{children}</p>,
@@ -978,11 +1075,22 @@ export function LeoChatOverlay({ isOpen, onClose, messages, onSendMessage, isTyp
                                                                     ul: ({ children }) => <ul className="list-disc list-inside my-1 space-y-0.5">{children}</ul>,
                                                                     ol: ({ children }) => <ol className="list-decimal list-inside my-1 space-y-0.5">{children}</ol>,
                                                                     li: ({ children }) => <li className="my-0">{children}</li>,
-                                                                    code: ({ children }) => <code className="bg-gray-100 px-1 rounded text-xs">{children}</code>
+                                                                    h1: ({ children }) => <h1 className="font-bold text-sm mt-2 mb-1">{children}</h1>,
+                                                                    h2: ({ children }) => <h2 className="font-bold text-sm mt-2 mb-1">{children}</h2>,
+                                                                    h3: ({ children }) => <h3 className="font-bold text-xs mt-1.5 mb-0.5 text-[#FF6200]">{children}</h3>,
+                                                                    code: ({ children, className }) => className ? (
+                                                                        <pre className="bg-gray-100 p-2 rounded text-[10px] overflow-x-auto my-1"><code>{children}</code></pre>
+                                                                    ) : (
+                                                                        <code className="bg-gray-100 px-1 rounded text-xs">{children}</code>
+                                                                    ),
+                                                                    pre: ({ children }) => <>{children}</>,
+                                                                    hr: () => <hr className="my-2 border-gray-200" />,
+                                                                    blockquote: ({ children }) => <blockquote className="border-l-2 border-[#FF6200] pl-2 my-1 text-gray-600 italic">{children}</blockquote>,
                                                                 }}
                                                             >
                                                                 {msg.text}
                                                             </ReactMarkdown>
+                                                            </div>
                                                         </div>
                                                     ) : (
                                                         msg.text
