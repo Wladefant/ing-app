@@ -22,10 +22,10 @@ interface Subscription {
 }
 
 const INITIAL_SUBSCRIPTIONS: Subscription[] = [
-  { name: "Netflix", amount: 12.99, date: "15. des Monats", status: "active", logo: "🎬", category: "Streaming", provider: "Netflix Inc.", contractStart: "März 2023", cancellationPeriod: "Jederzeit kündbar" },
+  { name: "Netflix Premium", amount: 17.99, date: "15. des Monats", status: "active", logo: "🎬", category: "Streaming", provider: "Netflix Inc.", contractStart: "März 2023", cancellationPeriod: "Jederzeit kündbar" },
+  { name: "Netflix Standard", amount: 12.99, date: "15. des Monats", status: "unused", logo: "🎬", category: "Streaming", provider: "Netflix Inc.", contractStart: "Sep 2022", cancellationPeriod: "Jederzeit kündbar" },
   { name: "Spotify", amount: 9.99, date: "20. des Monats", status: "active", logo: "🎵", category: "Musik", provider: "Spotify AB", contractStart: "Jan 2022", cancellationPeriod: "Jederzeit kündbar" },
   { name: "o2 Unlimited", amount: 39.99, date: "01. des Monats", status: "active", logo: "📱", category: "Mobilfunk", provider: "Telefónica Germany", contractStart: "Sep 2022", cancellationPeriod: "3 Monate zum Vertragsende" },
-  { name: "Fitness Studio", amount: 29.90, date: "01. des Monats", status: "unused", logo: "💪", category: "Sport", provider: "FitX GmbH", contractStart: "Jun 2023", cancellationPeriod: "1 Monat zum Quartalsende" },
   { name: "Amazon Prime", amount: 8.99, date: "05. des Monats", status: "active", logo: "📦", category: "Shopping", provider: "Amazon.com", contractStart: "Dez 2021", cancellationPeriod: "Jederzeit kündbar" },
   { name: "iCloud+", amount: 2.99, date: "12. des Monats", status: "active", logo: "☁️", category: "Cloud", provider: "Apple Inc.", contractStart: "Aug 2022", cancellationPeriod: "Jederzeit kündbar" },
 ];

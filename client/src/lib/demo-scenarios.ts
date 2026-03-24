@@ -144,13 +144,13 @@ export const DEMO_SCENARIOS: Record<DemoScenarioId, DemoScenario> = {
       {
         id: "msg_sub_1",
         sender: "leo",
-        text: "Hey! Ich habe deine Abos analysiert und etwas gefunden: 🔍\n\n⚠️ **Netflix Premium** - Du hast seit 45 Tagen nichts geschaut, aber zahlst €17,99/Monat.\n\nDas sind **€215,88 pro Jahr** für einen ungenutzten Service! 😮\n\nMöchtest du:\n• Das Abo pausieren?\n• Zum günstigeren Plan wechseln (€12,99)?\n• Kündigen und €17,99/Monat sparen?",
+        text: "Hey! Ich habe deine Abos analysiert und etwas gefunden: 🔍\n\n⚠️ **Doppeltes Netflix-Abo entdeckt!**\nDu zahlst **Netflix Premium** (€17,99) UND **Netflix Standard** (€12,99). Das Standard-Abo wurde seit September nicht mehr genutzt!\n\nDas sind **€155,88 pro Jahr** für ein doppeltes Abo! 😮\n\nSoll ich die Kündigung für das Standard-Abo vorbereiten?",
         timestamp: Date.now(),
       }
     ],
     notification: {
-      title: "Ungenutztes Abo gefunden",
-      message: "Netflix seit 45 Tagen ungenutzt - 17,99€/Monat sparen?",
+      title: "Doppeltes Netflix-Abo!",
+      message: "Du zahlst Netflix doppelt — 12,99€/Monat sparen?",
       actionLabel: "Details ansehen",
     },
     systemContext: "You detected that the user hasn't used Netflix in 45 days but pays €17.99/month. Help them decide whether to cancel, pause, or downgrade. Be helpful and informative about their options."

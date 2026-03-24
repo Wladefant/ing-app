@@ -211,9 +211,9 @@ const USER_DATA = {
     { date: "2024-01-08", description: "Lieferando", amount: -32.50, category: "restaurant" }
   ],
   subscriptions: [
-    { name: "Netflix", amount: 17.99, lastUsed: "2024-01-10" },
+    { name: "Netflix Premium", amount: 17.99, lastUsed: "2024-01-10" },
+    { name: "Netflix Standard", amount: 12.99, lastUsed: "2023-09-15" }, // duplicate! user forgot to cancel old plan
     { name: "Spotify", amount: 9.99, lastUsed: "2024-01-15" },
-    { name: "Fitness Studio", amount: 29.90, lastUsed: "2023-10-01" }, // unused!
     { name: "Amazon Prime", amount: 8.99, lastUsed: "2024-01-12" }
   ],
   savingsGoals: [
@@ -267,7 +267,34 @@ function executeAgentTool(toolName: string, args: any): any {
     case "start_quiz":
     case "show_achievement":
     case "show_savings_goal":
-    case "show_spending_chart":
+    case "show_spending_chart": {
+      // Build spending breakdown from actual transaction data
+      const categoryTotals: Record<string, number> = {};
+      USER_DATA.recentTransactions
+        .filter(t => t.amount < 0)
+        .forEach(t => {
+          const cat = t.category === "subscriptions" ? "Abos" :
+                      t.category === "groceries" ? "Lebensmittel" :
+                      t.category === "restaurant" ? "Restaurant" :
+                      t.category === "shopping" ? "Shopping" :
+                      t.category === "transport" ? "Transport" : "Sonstiges";
+          categoryTotals[cat] = (categoryTotals[cat] || 0) + Math.abs(t.amount);
+        });
+      const breakdown = Object.entries(categoryTotals)
+        .map(([name, amount]) => ({ name, amount: Math.round(amount * 100) / 100 }))
+        .sort((a, b) => b.amount - a.amount);
+      const totalSpent = breakdown.reduce((s, b) => s + b.amount, 0);
+      return {
+        action: "show_spending_chart",
+        data: {
+          category: "Ausgaben diesen Monat",
+          amount: Math.round(totalSpent * 100) / 100,
+          percentChange: 8,
+          breakdown,
+        },
+        ...{ category: "Ausgaben", amount: totalSpent, breakdown },
+      };
+    }
     case "navigate_to_screen":
       // These return the widget data to be rendered on the client
       return { action: toolName, data: args };
@@ -298,7 +325,12 @@ Du MUSST die verfügbaren Tools nutzen wenn sie zur Anfrage passen:
 4. Wenn der Nutzer sein PORTFOLIO sehen will → get_portfolio_data aufrufen (das Widget wird automatisch angezeigt)
 5. Wenn der Nutzer KONTOSTAND fragt → get_account_balance aufrufen
 6. Wenn der Nutzer SPARZIELE besprechen will → show_savings_goal aufrufen
-7. Wenn der Nutzer AUSGABEN analysieren will → show_spending_chart aufrufen
+7. Wenn der Nutzer AUSGABEN analysieren will → show_spending_chart aufrufen (die echten Transaktionsdaten werden automatisch geladen)
+8. Bei Ausgaben: show_spending_chart gibt dir die echten Zahlen — VERWENDE die Zahlen aus dem Tool-Ergebnis, erfinde KEINE eigenen
+
+**Bekannte Abo-Probleme:**
+- Der Nutzer hat ein DOPPELTES Netflix-Abo: Netflix Premium (€17,99) UND Netflix Standard (€12,99). Das Standard-Abo wurde seit September nicht genutzt. Das sind €155,88/Jahr verschwendet.
+- Wenn nach Abos/Subscriptions gefragt wird: Erwähne IMMER das doppelte Netflix.
 
 **Deine Agent-Fähigkeiten:**
 - Du kannst auf Kontodaten, Portfolio und Transaktionen zugreifen
