@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Zap, Shield, Plug, BookOpen, GitBranch, ArrowRight, Terminal, Users, Clock, Cpu, ChevronRight } from "lucide-react";
+import { Bot, Zap, Shield, Plug, BookOpen, GitBranch, ArrowRight, Terminal, Users, Clock, Cpu } from "lucide-react";
 
 // ─── Animation variants ─────────────────────────────────────────
 
@@ -23,11 +23,11 @@ function BlockTag({ children }: { children: React.ReactNode }) {
 }
 
 function Title({ children }: { children: React.ReactNode }) {
-  return <h1 className="text-5xl md:text-7xl font-black leading-[1.05] mb-5" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>{children}</h1>;
+  return <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.05] mb-6" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>{children}</h1>;
 }
 
 function Subtitle({ children }: { children: React.ReactNode }) {
-  return <p className="text-lg md:text-2xl text-white/40 mb-10 max-w-2xl leading-relaxed">{children}</p>;
+  return <p className="text-xl md:text-2xl text-white/40 mb-10 max-w-3xl leading-relaxed">{children}</p>;
 }
 
 function Accent({ children }: { children: React.ReactNode }) {
@@ -75,40 +75,59 @@ function Slide2() {
     <div>
       <motion.div variants={fadeUp} custom={0} initial="hidden" animate="show"><BlockTag>Block A — How We Built It</BlockTag></motion.div>
       <motion.div variants={fadeUp} custom={1} initial="hidden" animate="show"><Title>Vibe Coding</Title></motion.div>
+
       <motion.div variants={fadeUp} custom={2} initial="hidden" animate="show">
-        <Subtitle>No Figma. No mockups. Describe what you want — AI builds it — you have a working app the same day.</Subtitle>
+        <div className="grid md:grid-cols-2 gap-8 mb-10">
+          {/* Old way */}
+          <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/8">
+            <div className="text-red-400/60 text-xs font-mono tracking-widest uppercase mb-5">Traditional Workflow</div>
+            <div className="space-y-4">
+              {[
+                { step: "1", label: "Design in Figma", time: "2–4 weeks" },
+                { step: "2", label: "Review with stakeholders", time: "1–2 weeks" },
+                { step: "3", label: "Developers code it", time: "4–8 weeks" },
+                { step: "4", label: "Test and fix bugs", time: "2–3 weeks" },
+                { step: "5", label: "Review again", time: "1 week" },
+              ].map(s => (
+                <div key={s.step} className="flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/20 text-xs font-mono">{s.step}</div>
+                  <div className="flex-1 text-white/30">{s.label}</div>
+                  <div className="text-red-400/40 text-xs font-mono">{s.time}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-4 border-t border-white/5 text-right">
+              <span className="text-red-400/50 text-sm font-mono">Total: 10–18 weeks</span>
+            </div>
+          </div>
+
+          {/* New way */}
+          <div className="p-8 rounded-3xl bg-[#FF6200]/[0.06] border-2 border-[#FF6200]/20">
+            <div className="text-[#FF6200] text-xs font-mono tracking-widest uppercase mb-5">Vibe Coding</div>
+            <div className="space-y-4">
+              {[
+                { step: "1", label: "Describe what you want", time: "minutes" },
+                { step: "2", label: "AI builds it", time: "hours" },
+                { step: "3", label: "Test the working app", time: "same day" },
+              ].map(s => (
+                <div key={s.step} className="flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-[#FF6200]/20 flex items-center justify-center text-[#FF6200] text-xs font-bold">{s.step}</div>
+                  <div className="flex-1 text-white/80 font-medium">{s.label}</div>
+                  <div className="text-[#FF6200] text-xs font-mono">{s.time}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-4 border-t border-[#FF6200]/10 text-right">
+              <span className="text-[#FF6200] text-sm font-bold">Total: hours to days</span>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       <motion.div variants={fadeUp} custom={3} initial="hidden" animate="show">
-        <div className="flex items-center gap-5 flex-wrap mb-12">
-          {[
-            { label: "Describe", sub: "what you want", active: false },
-            { label: "AI Builds", sub: "Claude Code", active: true },
-            { label: "Working App", sub: "test immediately", active: false },
-          ].map((step, i) => (
-            <div key={step.label} className="flex items-center gap-5">
-              <div className={`px-8 py-5 rounded-2xl border-2 text-center ${step.active ? "bg-[#FF6200] border-[#FF6200] text-white" : "bg-white/5 border-white/10 text-white"}`}>
-                <div className="font-bold text-lg">{step.label}</div>
-                <div className="text-xs opacity-60 mt-1">{step.sub}</div>
-              </div>
-              {i < 2 && <ChevronRight className="w-6 h-6 text-[#FF6200]/30" />}
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show">
-        <div className="bg-gradient-to-r from-[#FF6200]/10 to-transparent border-l-4 border-[#FF6200] p-6 rounded-r-xl max-w-2xl">
+        <div className="bg-gradient-to-r from-[#FF6200]/10 to-transparent border-l-4 border-[#FF6200] p-6 rounded-r-xl">
           <p className="text-white/80 text-xl font-medium">Everything you saw today is a running application.</p>
-          <p className="text-white/40 mt-2">Not a design file. Every button works. Every AI response is live.</p>
-        </div>
-      </motion.div>
-
-      <motion.div variants={fadeUp} custom={5} initial="hidden" animate="show">
-        <div className="mt-10 flex gap-3 flex-wrap">
-          {["React 19", "TypeScript", "Node.js", "PostgreSQL", "Claude Code"].map(t => (
-            <span key={t} className="text-xs font-mono px-4 py-2 rounded-full bg-white/[0.03] border border-white/10 text-white/30">{t}</span>
-          ))}
+          <p className="text-white/40 mt-2">Built with <span className="text-[#FF6200]">Claude Code</span> · React 19 · TypeScript · Node.js · PostgreSQL</p>
         </div>
       </motion.div>
     </div>
@@ -449,9 +468,9 @@ export function TechSlidesPage() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 px-10 md:px-20 py-12 overflow-y-auto"
+            className="absolute inset-0 flex items-center justify-center px-12 md:px-24 py-8 overflow-y-auto"
           >
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-6xl w-full">
               <CurrentSlide />
             </div>
           </motion.div>
