@@ -22,8 +22,12 @@ interface TermCard {
   showOriginal: boolean;
 }
 
-export function UkrainianDemoPage() {
-  const [currentStep, setCurrentStep] = useState<DemoStep>("splash");
+export function UkrainianDemoContent({ onBack }: { onBack: () => void }) {
+  return <UkrainianDemoPage embedded onBack={onBack} />;
+}
+
+export function UkrainianDemoPage({ embedded, onBack }: { embedded?: boolean; onBack?: () => void } = {}) {
+  const [currentStep, setCurrentStep] = useState<DemoStep>(embedded ? "dashboard" : "splash");
   const [showNotification, setShowNotification] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [termCard, setTermCard] = useState<TermCard>({
@@ -110,21 +114,7 @@ export function UkrainianDemoPage() {
     // In demo mode, we don't actually navigate
   };
 
-  return (
-    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans bg-white">
-      <div className="w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500">
-        {/* Status Bar */}
-        <div className="h-8 bg-[#F3F3F3] flex justify-between items-center px-6 text-xs font-medium text-gray-500 shrink-0 z-50">
-          <span>09:41</span>
-          <div className="flex gap-1.5">
-            <div className="w-4 h-4 rounded-full bg-gray-300/50" />
-            <div className="w-4 h-4 rounded-full bg-gray-300/50" />
-            <div className="w-6 h-3 rounded-sm bg-gray-400/50" />
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col relative overflow-hidden">
+  const mainContent = (
           <AnimatePresence mode="wait">
             {/* SPLASH SCREEN */}
             {currentStep === "splash" && (
@@ -523,7 +513,20 @@ export function UkrainianDemoPage() {
               </motion.div>
             )}
           </AnimatePresence>
+  );
+
+  if (embedded) {
+    return <div className="flex-1 flex flex-col relative overflow-hidden">{mainContent}</div>;
+  }
+
+  return (
+    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans bg-white">
+      <div className="w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500">
+        <div className="h-8 bg-[#F3F3F3] flex justify-between items-center px-6 text-xs font-medium text-gray-500 shrink-0 z-50">
+          <span>09:41</span>
+          <div className="flex gap-1.5"><div className="w-4 h-4 rounded-full bg-gray-300/50" /><div className="w-4 h-4 rounded-full bg-gray-300/50" /><div className="w-6 h-3 rounded-sm bg-gray-400/50" /></div>
         </div>
+        <div className="flex-1 flex flex-col relative overflow-hidden">{mainContent}</div>
       </div>
 
       {/* Recording Mode Toggle - Always visible */}

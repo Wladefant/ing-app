@@ -38,6 +38,11 @@ import { BirthdayTransitionOverlay } from "@/components/ing/birthday-transition"
 // Stock Detail Screen
 import { StockDetailScreen } from "@/components/ing/screens/stock-detail";
 
+// Embedded demo screens
+import { FrictionDemoContent } from "@/pages/friction-demo";
+import { ParentDashboardContent } from "@/pages/parent-dashboard-demo";
+import { UkrainianDemoContent } from "@/pages/ukrainian-demo";
+
 export type Screen =
   | "setup"
   | "welcome"
@@ -55,7 +60,10 @@ export type Screen =
   | "stock-detail"
   | "leaderboard"
   | "savings"
-  | "kahoot";
+  | "kahoot"
+  | "friction"
+  | "parent"
+  | "ukrainian";
 
 import { sendMessageToOpenAI, WidgetAction } from "@/lib/openai";
 
@@ -355,19 +363,19 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
           </button>
         </>
       )}
-      {/* Demo links */}
-      <a href="/demo/parent" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+      {/* Demo buttons — render inside the app frame */}
+      <button onClick={() => navigate("parent")} className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         👪 Eltern
-      </a>
-      <a href="/demo/friction" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+      </button>
+      <button onClick={() => navigate("friction")} className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         🔒 Friction
-      </a>
-      <a href="/demo/ukrainian" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+      </button>
+      <button onClick={() => navigate("ukrainian")} className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         🇺🇦 Ukrainian
-      </a>
-      <a href="/quiz" className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+      </button>
+      <button onClick={() => navigate("kahoot")} className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         ⚡ Live Quiz
-      </a>
+      </button>
     </div>
 
     <MobileLayout>
@@ -538,6 +546,10 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
           }}
         />
       )}
+
+      {currentScreen === "friction" && <FrictionDemoContent onBack={() => navigate("dashboard")} />}
+      {currentScreen === "parent" && <ParentDashboardContent onBack={() => navigate("dashboard")} />}
+      {currentScreen === "ukrainian" && <UkrainianDemoContent onBack={() => navigate("dashboard")} />}
 
       {/* Global Chat Overlay */}
       <LeoChatOverlay
