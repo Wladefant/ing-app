@@ -6,40 +6,49 @@ import lionIcon from "@/assets/lion-logo.png";
 interface LayoutProps {
   children: ReactNode;
   className?: string;
+  forceDesktop?: boolean;
 }
 
-export function MobileLayout({ children, className }: LayoutProps) {
-  return (
-    <>
-      {/* Desktop: phone frame centered */}
-      <div className="hidden md:flex min-h-screen w-full justify-center items-center p-4 font-sans bg-white">
-        <div
-          id="mobile-container"
-          className={cn(
-            "w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500",
-            className
-          )}>
-          {/* Status Bar Mockup */}
-          <div className="h-8 bg-[#F3F3F3] flex justify-between items-center px-6 text-xs font-medium text-gray-500 shrink-0 z-50">
-            <span>09:41</span>
-            <div className="flex gap-1.5">
-              <div className="w-4 h-4 rounded-full bg-gray-300/50" />
-              <div className="w-4 h-4 rounded-full bg-gray-300/50" />
-              <div className="w-6 h-3 rounded-sm bg-gray-400/50" />
-            </div>
-          </div>
+export function MobileLayout({ children, className, forceDesktop }: LayoutProps) {
 
-          {/* Content Area */}
-          <div className="flex-1 flex flex-col relative overflow-hidden">
-            {children}
+  const phoneFrame = (
+    <div className="min-h-screen w-full flex justify-center items-center p-4 font-sans bg-white">
+      <div
+        id="mobile-container"
+        className={cn(
+          "w-full max-w-[375px] h-[812px] bg-[#F3F3F3] shadow-2xl overflow-hidden relative flex flex-col rounded-[30px] border-8 border-orange-500",
+          className
+        )}>
+        {/* Status Bar Mockup */}
+        <div className="h-8 bg-[#F3F3F3] flex justify-between items-center px-6 text-xs font-medium text-gray-500 shrink-0 z-50">
+          <span>09:41</span>
+          <div className="flex gap-1.5">
+            <div className="w-4 h-4 rounded-full bg-gray-300/50" />
+            <div className="w-4 h-4 rounded-full bg-gray-300/50" />
+            <div className="w-6 h-3 rounded-sm bg-gray-400/50" />
           </div>
         </div>
-      </div>
 
-      {/* Mobile: fullscreen, no frame, fixed to viewport height */}
-      <div className="md:hidden h-[100dvh] w-full bg-[#F3F3F3] flex flex-col font-sans overflow-hidden">
-        {children}
+        {/* Content Area */}
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          {children}
+        </div>
       </div>
+    </div>
+  );
+
+  const fullscreen = (
+    <div className="h-[100dvh] w-full bg-[#F3F3F3] flex flex-col font-sans overflow-hidden">
+      {children}
+    </div>
+  );
+
+  if (forceDesktop) return phoneFrame;
+
+  return (
+    <>
+      <div className="hidden md:block">{phoneFrame}</div>
+      <div className="md:hidden">{fullscreen}</div>
     </>
   );
 }

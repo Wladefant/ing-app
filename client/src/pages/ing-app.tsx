@@ -77,6 +77,7 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
   const [activeScenarioContext, setActiveScenarioContext] = useState<string | undefined>(undefined); // New state for context
   const [pendingWidgets, setPendingWidgets] = useState<WidgetAction[]>([]); // Widgets from AI agent
   const [showBirthdayTransition, setShowBirthdayTransition] = useState(false);
+  const [forceDesktop, setForceDesktop] = useState(false);
 
   // Profile switch handler - triggers birthday animation when switching junior → adult
   const handleProfileSwitch = useCallback((newProfile: "junior" | "adult") => {
@@ -332,7 +333,7 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
   return (
     <>
     {/* Desktop-only control buttons above the phone frame */}
-    <div className="hidden md:flex fixed top-3 left-1/2 -translate-x-1/2 z-50 gap-2 flex-wrap justify-center max-w-[700px]">
+    <div className={`fixed top-3 left-1/2 -translate-x-1/2 z-50 gap-2 flex-wrap justify-center max-w-[700px] ${forceDesktop ? "flex" : "hidden md:flex"}`}>
       {/* Profile switching */}
       {userProfile === "junior" && (
         <>
@@ -376,9 +377,13 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
       <button onClick={() => navigate("kahoot")} className="bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
         ⚡ Live Quiz
       </button>
+      <button onClick={() => setForceDesktop(f => !f)}
+        className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg transition-colors ${forceDesktop ? "bg-[#333] text-white" : "bg-white text-[#333] border border-gray-200 hover:bg-gray-50"}`}>
+        🖥️ Desktop
+      </button>
     </div>
 
-    <MobileLayout>
+    <MobileLayout forceDesktop={forceDesktop}>
       {/* Demo Sidebar - Only visible on larger screens or via toggle */}
       <DemoSidebar
         onTriggerScenario={handleTriggerScenario}
