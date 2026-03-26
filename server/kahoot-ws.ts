@@ -125,25 +125,42 @@ function generatePlayerId(): string {
 
 // ── AI question generation ─────────────────────────────────────────────────
 
+/** Category-specific prompt hints for better question quality */
+const CATEGORY_HINTS: Record<string, string> = {
+  "Aktien und Börse": "Fragen über: Kursgewinne, Dividenden, DAX/S&P500, Bullen-/Bärenmarkt, Market Orders, IPO, Blue Chips, Volatilität. Nutze echte Unternehmensbeispiele (Apple, Tesla, Deutsche Bank).",
+  "Sparen und Budgetplanung": "Fragen über: 50-30-20 Regel, Notgroschen, Tagesgeld vs Festgeld, Zinsen, Inflationseffekt aufs Ersparte, Haushaltsbuch, Sparziele setzen. Alltagsbeispiele (Taschengeld, erster Job, WG-Kosten).",
+  "Kryptowährungen und Blockchain": "Fragen über: Bitcoin, Ethereum, Blockchain-Grundlagen, Wallet-Typen, Mining, DeFi, Volatilität, Staking. Vergleiche mit traditionellem Geld.",
+  "Versicherungen": "Fragen über: Haftpflicht, BU-Versicherung, Krankenversicherung (GKV/PKV), Kfz-Versicherung, Selbstbeteiligung, Risikolebensversicherung. Szenarien für Berufseinsteiger.",
+  "Steuern und Einkommen": "Fragen über: Brutto/Netto, Lohnsteuer, Steuerklassen, Steuererklärung, Freibeträge, Sozialabgaben, Kapitalertragssteuer, 801€ Sparerpauschbetrag. Gehaltsabrechnungs-Szenarien.",
+  "Investieren und Geldanlage": "Fragen über: ETFs vs Einzelaktien, Diversifikation, Cost-Average-Effekt, Zinseszins, Rendite/Risiko, Sparplan, Anlagehorizont, Rebalancing. Langfristige vs kurzfristige Strategien.",
+};
+
 async function generateQuestions(
   topic: string,
   context?: string
 ): Promise<Question[]> {
   try {
     const openai = getOpenAIClient();
+    const categoryHint = CATEGORY_HINTS[topic] || "";
 
-    const prompt = `Du bist ein Quiz-Generator für eine Banking-App für Jugendliche.
-Erstelle genau 7 Multiple-Choice-Fragen zum Thema "${topic}".
-${context ? `Zusätzlicher Kontext: ${context}` : ""}
+    const prompt = `Du bist ein Quiz-Generator für ein Live-Kahoot-Spiel in einer Banking-App für Jugendliche.
 
-REGELN:
-- Progressive Schwierigkeit: Fragen 1-2 einfach, 3-5 mittel, 6-7 schwer
-- Szenario-basiert: Nutze alltagsnahe Beispiele (z.B. "Dein Freund will...")
-- Plausible Distraktoren: Falsche Antworten sollen logisch klingen
-- Für Jugendliche (13-29 Jahre) verständlich
-- Zeitlimit: 20 Sekunden pro Frage
+THEMA: "${topic}"
+${categoryHint ? `THEMEN-FOKUS: ${categoryHint}` : ""}
+${context ? `KONTEXT: ${context}` : ""}
 
-Antworte NUR mit einem JSON-Array in diesem Format:
+Erstelle genau 7 Multiple-Choice-Fragen, die SPEZIFISCH zum Thema "${topic}" passen.
+
+QUALITÄTS-REGELN:
+1. THEMEN-TREUE: Jede Frage MUSS direkt mit "${topic}" zu tun haben. Keine allgemeinen Finanzfragen!
+2. PROGRESSIVE SCHWIERIGKEIT: Fragen 1-2 einfach, 3-5 mittel, 6-7 schwer
+3. SZENARIO-BASIERT: Mindestens 3 Fragen mit konkreten Szenarien ("Lisa hat 500€...", "Dein Freund will...")
+4. PLAUSIBLE DISTRAKTOREN: Falsche Antworten müssen auf den ersten Blick richtig klingen
+5. ABWECHSLUNG: Mix aus Definitionen, Szenarien, "Was stimmt NICHT?", Berechnungen
+6. PRAXISBEZUG: Echte Situationen für Jugendliche (13-29 Jahre)
+7. KEINE trivialen Fragen — jede Frage soll zum Nachdenken anregen
+
+Antworte NUR mit einem JSON-Array:
 [
   {
     "id": 1,
@@ -152,7 +169,11 @@ Antworte NUR mit einem JSON-Array in diesem Format:
     "correctIndex": 0,
     "timeLimit": 20
   }
-]`;
+]
+
+correctIndex = Index (0-3) der richtigen Option.`;
+
+    console.log(`[Kahoot WS] Generating AI questions for topic: "${topic}"...`);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-5-mini",
@@ -163,8 +184,8 @@ Antworte NUR mit einem JSON-Array in diesem Format:
           content: `Erstelle 7 Quiz-Fragen zum Thema: ${topic}`,
         },
       ],
-      temperature: 0.8,
-      max_completion_tokens: 2000,
+      temperature: 0.85,
+      max_completion_tokens: 3000,
     });
 
     const responseText = completion.choices[0]?.message?.content || "[]";
@@ -174,7 +195,6 @@ Antworte NUR mit einem JSON-Array in diesem Format:
     }
 
     const parsed = JSON.parse(jsonMatch[0]) as Question[];
-    // Validate structure
     if (
       !Array.isArray(parsed) ||
       parsed.length === 0 ||
@@ -184,14 +204,16 @@ Antworte NUR mit einem JSON-Array in diesem Format:
       throw new Error("Invalid question structure from AI");
     }
 
-    // Ensure every question has timeLimit
-    return parsed.map((q, i) => ({
+    const questions = parsed.map((q, i) => ({
       ...q,
       id: i + 1,
       timeLimit: q.timeLimit || 20,
     }));
+
+    console.log(`[Kahoot WS] ✅ AI generated ${questions.length} questions for "${topic}"`);
+    return questions;
   } catch (err) {
-    console.error("[Kahoot WS] AI question generation failed, using fallback:", err);
+    console.error("[Kahoot WS] ❌ AI question generation failed, using fallback:", err);
     return [...FALLBACK_QUESTIONS];
   }
 }
