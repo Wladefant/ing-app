@@ -99,7 +99,7 @@ const AGENT_FUNCTIONS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "show_spending_chart",
-      description: "Display a spending ANALYSIS chart showing where money was spent by category. Use when user asks 'how did I spend', 'Ausgabenanalyse', 'wo geht mein Geld hin', 'spending breakdown', or wants to SEE their spending patterns. Do NOT use this when the user wants to SEND money to someone — that is show_transfer_widget.",
+      description: "Display a spending ANALYSIS chart showing where money was spent by category. ONLY use when user explicitly asks to analyze their spending (e.g. 'Ausgabenanalyse', 'wo geht mein Geld hin', 'how did I spend'). Do NOT use for: sending money (use show_transfer_widget), buying/selling stocks (use show_stock_widget), or any other request.",
       parameters: {
         type: "object",
         properties: {
@@ -320,13 +320,16 @@ Du bist ein vollwertiger AI-Agent mit Zugang zu den Finanzdaten des Nutzers und 
 Du MUSST die verfügbaren Tools nutzen wenn sie zur Anfrage passen:
 
 1. Wenn der Nutzer nach einer AKTIE fragt → IMMER show_stock_widget aufrufen
-2. Wenn der Nutzer Geld SENDEN/ÜBERWEISEN will (z.B. "send 50 to Ben", "überweise an...", "schick Geld an...") → IMMER show_transfer_widget aufrufen, NIEMALS show_spending_chart
-3. Wenn der Nutzer ein QUIZ will → IMMER start_quiz aufrufen
-4. Wenn der Nutzer sein PORTFOLIO sehen will → get_portfolio_data aufrufen (das Widget wird automatisch angezeigt)
-5. Wenn der Nutzer KONTOSTAND fragt → get_account_balance aufrufen
-6. Wenn der Nutzer SPARZIELE besprechen will → show_savings_goal aufrufen
-7. Wenn der Nutzer AUSGABEN analysieren will → show_spending_chart aufrufen (die echten Transaktionsdaten werden automatisch geladen)
-8. Bei Ausgaben: show_spending_chart gibt dir die echten Zahlen — VERWENDE die Zahlen aus dem Tool-Ergebnis, erfinde KEINE eigenen
+2. Wenn der Nutzer eine Aktie KAUFEN oder VERKAUFEN will ("sell my stock", "buy Apple", "Aktie verkaufen") → show_stock_widget aufrufen mit der Aktie. KEIN anderes Widget verwenden.
+3. Wenn der Nutzer Geld SENDEN/ÜBERWEISEN will (z.B. "send 50 to Ben", "überweise an...", "schick Geld an...") → IMMER show_transfer_widget aufrufen, NIEMALS show_spending_chart
+4. Wenn der Nutzer ein QUIZ will → IMMER start_quiz aufrufen
+5. Wenn der Nutzer sein PORTFOLIO sehen will → get_portfolio_data aufrufen (das Widget wird automatisch angezeigt)
+6. Wenn der Nutzer KONTOSTAND fragt → get_account_balance aufrufen
+7. Wenn der Nutzer SPARZIELE besprechen will → show_savings_goal aufrufen
+8. Wenn der Nutzer AUSGABEN analysieren will (z.B. "Ausgabenanalyse", "wo geht mein Geld hin", "how did I spend") → show_spending_chart aufrufen
+9. Bei Ausgaben: show_spending_chart gibt dir die echten Zahlen — VERWENDE die Zahlen aus dem Tool-Ergebnis, erfinde KEINE eigenen
+
+**WICHTIG — show_spending_chart NUR verwenden wenn der Nutzer explizit nach Ausgabenanalyse fragt. NIEMALS bei Überweisungen, Aktien-Kauf/Verkauf, oder anderen Anfragen.**
 
 **Bekannte Abo-Probleme:**
 - Der Nutzer hat ein DOPPELTES Netflix-Abo: Netflix Premium (€17,99) UND Netflix Standard (€12,99). Das Standard-Abo wurde seit September nicht genutzt. Das sind €155,88/Jahr verschwendet.
