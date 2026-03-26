@@ -263,10 +263,20 @@ function executeAgentTool(toolName: string, args: any): any {
       return { transactions };
     
     case "show_stock_widget":
+      return { action: "show_stock_widget", data: args };
+
     case "show_transfer_widget":
+      return { action: "show_transfer_widget", data: args };
+
     case "start_quiz":
+      return { action: "start_quiz", data: args };
+
     case "show_achievement":
+      return { action: "show_achievement", data: args };
+
     case "show_savings_goal":
+      return { action: "show_savings_goal", data: args };
+
     case "show_spending_chart": {
       // Build spending breakdown from actual transaction data
       const categoryTotals: Record<string, number> = {};
@@ -292,9 +302,9 @@ function executeAgentTool(toolName: string, args: any): any {
           percentChange: 8,
           breakdown,
         },
-        ...{ category: "Ausgaben", amount: totalSpent, breakdown },
       };
     }
+
     case "navigate_to_screen":
       // These return the widget data to be rendered on the client
       return { action: toolName, data: args };
