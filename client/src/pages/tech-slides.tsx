@@ -34,29 +34,64 @@ function Accent({ children }: { children: React.ReactNode }) {
   return <span className="text-[#FF6200]">{children}</span>;
 }
 
-// ─── SLIDE 1: Title ─────────────────────────────────────────────
+// ─── SLIDE 0: Section Title ─────────────────────────────────────
+
+function Slide0() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center min-h-[80vh]">
+      <motion.div variants={fadeUp} custom={0} initial="hidden" animate="show">
+        <div className="w-24 h-1 bg-[#FF6200] mx-auto mb-10 rounded-full" />
+      </motion.div>
+      <motion.div variants={fadeUp} custom={1} initial="hidden" animate="show">
+        <div className="text-white/20 text-sm font-mono tracking-[0.5em] uppercase mb-6">Part 6</div>
+      </motion.div>
+      <motion.div variants={fadeUp} custom={2} initial="hidden" animate="show">
+        <div className="text-8xl md:text-[11rem] lg:text-[13rem] font-black leading-none mb-4" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+          Tech
+        </div>
+      </motion.div>
+      <motion.div variants={fadeUp} custom={3} initial="hidden" animate="show">
+        <div className="text-6xl md:text-[8rem] lg:text-[10rem] font-black leading-none text-[#FF6200]" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+          Deep Dive
+        </div>
+      </motion.div>
+      <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show">
+        <div className="w-24 h-1 bg-[#FF6200] mx-auto mt-10 mb-8 rounded-full" />
+        <div className="text-white/25 text-lg font-light tracking-wide">Architecture • AI Agents • Enterprise Controls</div>
+      </motion.div>
+      <motion.div variants={fadeUp} custom={5} initial="hidden" animate="show">
+        <div className="mt-16 text-white/15 text-xs font-mono flex items-center gap-2">press <kbd className="px-2 py-0.5 bg-white/10 rounded text-white/30">→</kbd> to begin</div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── SLIDE 1: Overview ──────────────────────────────────────────
 
 function Slide1() {
   return (
     <div className="flex flex-col items-center justify-center text-center min-h-[70vh]">
       <motion.div variants={fadeUp} custom={0} initial="hidden" animate="show">
-        <BlockTag>Part 6 — Technical Deep Dive</BlockTag>
+        <BlockTag>Technical Deep Dive — Overview</BlockTag>
       </motion.div>
       <motion.div variants={fadeUp} custom={1} initial="hidden" animate="show">
-        <div className="text-7xl md:text-[8rem] font-black leading-none mb-8" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+        <div className="text-7xl md:text-[8rem] font-black leading-none mb-12" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
           How It <Accent>Works</Accent>
         </div>
       </motion.div>
       <motion.div variants={fadeUp} custom={2} initial="hidden" animate="show">
-        <div className="flex gap-6 mt-4">
+        <div className="flex gap-10 mt-4">
           {[
-            { letter: "A", label: "How we built it" },
-            { letter: "B", label: "How the AI works" },
-            { letter: "C", label: "How ING can use this" },
+            { letter: "A", label: "How we built it", icon: <Terminal size={28} /> },
+            { letter: "B", label: "How the AI works", icon: <Bot size={28} /> },
+            { letter: "C", label: "How ING can use this", icon: <Shield size={28} /> },
           ].map(b => (
-            <div key={b.letter} className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#FF6200]/10 border border-[#FF6200]/20 flex items-center justify-center text-[#FF6200] font-black text-2xl mb-2">{b.letter}</div>
-              <div className="text-white/40 text-xs max-w-[100px]">{b.label}</div>
+            <div key={b.letter} className="text-center group">
+              <div className="w-24 h-24 rounded-3xl bg-[#FF6200]/10 border-2 border-[#FF6200]/20 flex flex-col items-center justify-center text-[#FF6200] mb-3 group-hover:bg-[#FF6200]/20 transition-colors">
+                {b.icon}
+                <div className="font-black text-2xl mt-1">{b.letter}</div>
+              </div>
+              <div className="text-white/50 text-sm max-w-[120px]">{b.label}</div>
             </div>
           ))}
         </div>
@@ -417,7 +452,7 @@ function Slide10() {
 
 // ─── Slide registry ─────────────────────────────────────────────
 
-const SLIDES = [Slide1, Slide2, Slide3, Slide4, Slide5, Slide6, Slide7, Slide8, Slide9, Slide10];
+const SLIDES = [Slide0, Slide1, Slide2, Slide3, Slide4, Slide5, Slide6, Slide7, Slide8, Slide9, Slide10];
 
 // ─── Main page ──────────────────────────────────────────────────
 
