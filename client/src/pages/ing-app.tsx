@@ -334,8 +334,8 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
 
   return (
     <>
-    {/* Minimal floating controls — top right */}
-    <div className="fixed top-3 right-3 z-[60] flex items-center gap-2">
+    {/* Minimal floating controls — top right (mobile/phone view) */}
+    <div className={`fixed top-3 right-3 z-[60] flex items-center gap-2 ${forceDesktop ? "hidden" : ""}`}>
       {/* Profile switch icon — toggles junior/adult with birthday animation */}
       <button
         onClick={() => handleProfileSwitch(userProfile === "junior" ? "adult" : "junior")}
@@ -351,14 +351,65 @@ export function INGApp({ initialProfile, initialScreen }: { initialProfile?: "ad
       {/* Desktop toggle icon */}
       <button
         onClick={() => setForceDesktop(f => !f)}
-        title={forceDesktop ? "Mobile view" : "Desktop view"}
-        className={`w-9 h-9 rounded-full flex items-center justify-center text-base shadow-lg transition-colors ${
-          forceDesktop ? "bg-[#333] text-white" : "bg-white text-[#333] border border-gray-200 hover:bg-gray-50"
-        }`}
+        title="Desktop view"
+        className="w-9 h-9 rounded-full flex items-center justify-center text-base shadow-lg transition-colors bg-white text-[#333] border border-gray-200 hover:bg-gray-50"
       >
         🖥️
       </button>
     </div>
+
+    {/* Full demo controls — visible only in desktop mode */}
+    {forceDesktop && (
+      <>
+        <button onClick={() => setForceDesktop(false)}
+          className="fixed top-3 right-3 z-[60] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg bg-[#333] text-white transition-colors">
+          🖥️ Desktop
+        </button>
+        <div className="fixed top-3 left-0 right-14 z-50 flex flex-nowrap gap-2 px-3 overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
+          {userProfile === "junior" && (
+            <>
+              <button onClick={() => setShowBirthdayTransition(true)}
+                className="shrink-0 bg-[#FF6200] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#e55800] transition-colors">
+                🎂 18. Geburtstag
+              </button>
+              <button onClick={() => { setUserProfile("adult"); setCurrentScreen("dashboard"); }}
+                className="shrink-0 bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                🧑 Adult
+              </button>
+              <button onClick={() => handleTriggerScenario("junior_salary" as DemoScenarioId)}
+                className="shrink-0 bg-[#00C4CC] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#00b0b8] transition-colors">
+                💰 Gehalt
+              </button>
+            </>
+          )}
+          {userProfile === "adult" && (
+            <>
+              <button onClick={fireAllProactiveAlerts}
+                className="shrink-0 bg-[#FF6200] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg hover:bg-[#e55800] transition-colors flex items-center gap-1.5">
+                <img src={lionIcon} alt="Leo" className="w-4 h-4 rounded-full" />
+                Leo Coaching
+              </button>
+              <button onClick={() => { setUserProfile("junior"); setCurrentScreen("dashboard"); }}
+                className="shrink-0 bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                🎮 Junior
+              </button>
+            </>
+          )}
+          <button onClick={() => navigate("parent")} className="shrink-0 bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            👪 Eltern
+          </button>
+          <button onClick={() => navigate("friction")} className="shrink-0 bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            🔒 Friction
+          </button>
+          <button onClick={() => navigate("ukrainian")} className="shrink-0 bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            🇺🇦 Ukrainian
+          </button>
+          <button onClick={() => navigate("kahoot")} className="shrink-0 bg-white text-[#333] px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            ⚡ Live Quiz
+          </button>
+        </div>
+      </>
+    )}
 
     <MobileLayout forceDesktop={forceDesktop}>
 
