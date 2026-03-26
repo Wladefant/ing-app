@@ -34,7 +34,7 @@ const AGENT_FUNCTIONS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "show_transfer_widget",
-      description: "Display a transfer widget for sending money. Use when user wants to send money or pay someone.",
+      description: "Display a transfer/payment widget to SEND money to another person. Use when user says 'send', 'überweisen', 'transfer', 'pay someone', 'schick Geld', or mentions sending euros to a specific person (e.g. 'send 50 to Ben'). This is for OUTGOING payments to a recipient, NOT for analyzing spending.",
       parameters: {
         type: "object",
         properties: {
@@ -99,7 +99,7 @@ const AGENT_FUNCTIONS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "show_spending_chart",
-      description: "Display a spending analysis chart. Use when discussing expenses or budget.",
+      description: "Display a spending ANALYSIS chart showing where money was spent by category. Use when user asks 'how did I spend', 'Ausgabenanalyse', 'wo geht mein Geld hin', 'spending breakdown', or wants to SEE their spending patterns. Do NOT use this when the user wants to SEND money to someone — that is show_transfer_widget.",
       parameters: {
         type: "object",
         properties: {
@@ -320,7 +320,7 @@ Du bist ein vollwertiger AI-Agent mit Zugang zu den Finanzdaten des Nutzers und 
 Du MUSST die verfügbaren Tools nutzen wenn sie zur Anfrage passen:
 
 1. Wenn der Nutzer nach einer AKTIE fragt → IMMER show_stock_widget aufrufen
-2. Wenn der Nutzer ÜBERWEISEN will → IMMER show_transfer_widget aufrufen
+2. Wenn der Nutzer Geld SENDEN/ÜBERWEISEN will (z.B. "send 50 to Ben", "überweise an...", "schick Geld an...") → IMMER show_transfer_widget aufrufen, NIEMALS show_spending_chart
 3. Wenn der Nutzer ein QUIZ will → IMMER start_quiz aufrufen
 4. Wenn der Nutzer sein PORTFOLIO sehen will → get_portfolio_data aufrufen (das Widget wird automatisch angezeigt)
 5. Wenn der Nutzer KONTOSTAND fragt → get_account_balance aufrufen
