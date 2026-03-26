@@ -162,7 +162,7 @@ function Slide2() {
       <motion.div variants={fadeUp} custom={3} initial="hidden" animate="show">
         <div className="bg-gradient-to-r from-[#FF6200]/10 to-transparent border-l-4 border-[#FF6200] p-6 rounded-r-xl">
           <p className="text-white/80 text-xl font-medium">Everything you saw today is a running application.</p>
-          <p className="text-white/40 mt-2">Built with <span className="text-[#FF6200]">Claude Code</span> · React 19 · TypeScript · Node.js · PostgreSQL</p>
+          <p className="text-white/40 mt-2">Built with <span className="text-[#FF6200]">GitHub Copilot</span> · React 19 · TypeScript · Node.js · PostgreSQL</p>
         </div>
       </motion.div>
     </div>
@@ -441,7 +441,7 @@ function Slide10() {
       </motion.div>
       <motion.div variants={fadeUp} custom={2} initial="hidden" animate="show">
         <div className="flex gap-3 flex-wrap justify-center">
-          {["GitHub Copilot", "Claude Code", "Codex", "MCP", "Skills", "Hooks"].map(t => (
+          {["GitHub Copilot", "Claude", "Codex", "MCP", "Skills", "Hooks"].map(t => (
             <span key={t} className="text-sm font-mono px-5 py-2.5 rounded-full bg-[#FF6200]/10 border border-[#FF6200]/20 text-[#FF6200]">{t}</span>
           ))}
         </div>

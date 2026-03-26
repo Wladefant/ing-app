@@ -501,7 +501,7 @@ export function SlidesPage() {
           <div className="flex items-center gap-4 flex-wrap mb-10">
             <DiagramBox label="Describe" sub="What you want" color="white" />
             <Arrow direction="right" />
-            <DiagramBox label="AI Builds" sub="Claude Code" color="orange" />
+            <DiagramBox label="AI Builds" sub="GitHub Copilot" color="orange" />
             <Arrow direction="right" />
             <DiagramBox label="Working App" sub="Test immediately" color="white" />
           </div>
