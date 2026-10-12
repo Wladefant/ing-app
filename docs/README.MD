@@ -34,6 +34,12 @@ User Stories für die KI Demo Sidebar sind in mehreren Dateien dokumentiert:
 
 Die Hauptprojektdokumentation befindet sich unter `/LEO_PROJECT_DESCRIPTION.md` im Repository-Root. Sie enthält die Zusammenfassung und verweist auf diese detaillierten Dokumente.
 
+## Router- und API-Verträge
+
+- Wouter 3 rendert Demo-Seiten mit eigenen optionalen Props als Route-Kinder.
+- Der KI-Agent führt nur Tool-Aufrufe vom Typ `function` aus. Andere Typen führen zu einem Fehler.
+- Die Bild-API liefert HTTP 502, wenn OpenAI kein Bild mit URL zurückgibt.
+
 ---
 
 *Zuletzt aktualisiert: November 2025*

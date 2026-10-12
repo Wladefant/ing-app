@@ -30,10 +30,10 @@ function Router() {
       <Route path="/adult" component={AdultApp} />
       <Route path="/junior" component={JuniorApp} />
       <Route path="/quiz" component={QuizApp} />
-      <Route path="/demo/ukrainian" component={UkrainianDemoPage} />
+      <Route path="/demo/ukrainian"><UkrainianDemoPage /></Route>
       <Route path="/demo/accessibility" component={AccessibilityDemoPage} />
-      <Route path="/demo/parent" component={ParentDashboardDemoPage} />
-      <Route path="/demo/friction" component={FrictionDemoPage} />
+      <Route path="/demo/parent"><ParentDashboardDemoPage /></Route>
+      <Route path="/demo/friction"><FrictionDemoPage /></Route>
       <Route path="/demo/birthday" component={BirthdayTransitionDemoPage} />
       <Route path="/demo/ai-agent" component={AIAgentDemoPage} />
       <Route path="/demo/ai-agent-cashflow" component={AIAgentCashFlowDemoPage} />

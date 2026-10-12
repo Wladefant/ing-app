@@ -430,6 +430,9 @@ export async function registerRoutes(
 
         // Execute each tool call
         for (const toolCall of responseMessage.tool_calls) {
+          if (toolCall.type !== "function") {
+            throw new Error(`Unsupported agent tool call type: ${toolCall.type}`);
+          }
           const functionName = toolCall.function.name;
           const functionArgs = JSON.parse(toolCall.function.arguments);
           
@@ -626,9 +629,14 @@ correctAnswer = Index (0-3) der richtigen Option.
         size: size as "256x256" | "512x512" | "1024x1024",
       });
 
+      const image = response.data?.[0];
+      if (!image?.url) {
+        return res.status(502).json({ error: "OpenAI returned no image URL" });
+      }
+
       return res.json({ 
-        imageUrl: response.data[0]?.url,
-        revisedPrompt: response.data[0]?.revised_prompt
+        imageUrl: image.url,
+        revisedPrompt: image.revised_prompt
       });
     } catch (error) {
       console.error("Image generation error:", error);
